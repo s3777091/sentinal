@@ -10,7 +10,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Settings, Share } from "lucide-react";
+import { Settings, Share, Loader } from "lucide-react"; // Import Loader icon for spinner
 import ModelSelect from "@/components/forms/ModelSelect";
 import ChatMessage from "@/components/forms/ChatMessage";
 import { ChatBody, userDetail } from "@/types/types";
@@ -47,7 +47,6 @@ const MainChat = (props: Props) => {
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
   const [messages, dispatch] = useReducer(messagesReducer, []); // Initialize messages state
-
   const [loading, setLoading] = useState<boolean>(false);
 
   const modelValue = useMemo(() => {
@@ -85,6 +84,8 @@ const MainChat = (props: Props) => {
   };
 
   const handleMessage = async (message: string) => {
+    // Add the user's message to the messages list
+    dispatch({ type: ADD_MESSAGE, payload: { user: props.user, message } });
     const controller = new AbortController();
 
     if (message.length > 700) {
@@ -94,7 +95,7 @@ const MainChat = (props: Props) => {
       return;
     }
 
-    setLoading(true);
+    setLoading(true); // Set loading to true when the request starts
     const body: ChatBody = {
       inputMessage: message,
       prompType: typeValue,
@@ -116,24 +117,19 @@ const MainChat = (props: Props) => {
       }
 
       const data = await response.json();
-
-      // Add the user's message to the messages list
-      dispatch({ type: ADD_MESSAGE, payload: { user: props.user, message } });
-
-      // Add the AI's response to the messages list
       dispatch({
         type: ADD_MESSAGE,
         payload: {
           user: { username: "AI", imageUrl: aiChat.src },
-          message: data,
+          message: data.result,
         },
       });
 
-      setLoading(false);
+      setLoading(false); // Set loading to false when the response is received
     } catch (error) {
       console.error("Error:", error);
       alert("Something went wrong when fetching from the API.");
-      setLoading(false);
+      setLoading(false); // Ensure loading is turned off in case of an error
     }
   };
 
@@ -195,6 +191,12 @@ const MainChat = (props: Props) => {
               onButtonClick={handleMessage}
               messages={messages}
             />
+
+            {loading && (
+              <div className="flex justify-center items-center">
+                <div className="loader"></div>
+              </div>
+            )}
           </div>
         </main>
       </div>

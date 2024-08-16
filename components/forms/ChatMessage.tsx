@@ -30,17 +30,17 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
         borderColor: "white",
       }}
     >
-      <div className="absolute left-[30%] top-[50%] z-[0] w-[240px] translate-y-[-50%] md:left-[35%] lg:left-[38%] xl:left-[30%] xl:w-[300px] ">
+      <div className="absolute left-[30%] top-[50%] z-[0] w-[240px] translate-y-[-50%] md:left-[35%] lg:left-[38%] xl:left-[30%] xl:w-[300px]">
         <Image
           width="340"
           height="181"
           src={Bgdark.src}
-          className="absolute z-[0] w-[200px] translate-y-[-50%] xl:w-[350px] "
+          className="absolute z-[0] w-[200px] translate-y-[-50%] xl:w-[350px]"
           alt=""
         />
       </div>
       {/* Scrollable message container */}
-      <div className="flex-1 overflow-y-auto mb-4 space-y-4 max-h-[320px]">
+      <div className="flex-1 overflow-y-auto mb-4 space-y-4 max-h-[400px]">
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -49,11 +49,13 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
             }`}
           >
             {msg.user.username === "AI" && (
-              <img
-                src={msg.user.imageUrl || "/default-avatar.png"}
-                alt={msg.user.username || "User"}
-                className="w-6 h-6 rounded-full mr-3"
-              />
+              <div className="flex items-center">
+                <img
+                  src={msg.user.imageUrl || "/default-avatar.png"}
+                  alt={msg.user.username || "User"}
+                  className="w-6 h-6 rounded-full mr-3"
+                />
+              </div>
             )}
             <MessageBox output={`${msg.message}`} />
             {msg.user.username !== "AI" && (
