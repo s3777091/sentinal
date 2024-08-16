@@ -10,7 +10,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Settings, Share, Loader } from "lucide-react"; // Import Loader icon for spinner
+import { Settings, Share, Loader } from "lucide-react";
 import ModelSelect from "@/components/forms/ModelSelect";
 import ChatMessage from "@/components/forms/ChatMessage";
 import { ChatBody, userDetail } from "@/types/types";

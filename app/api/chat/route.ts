@@ -8,6 +8,8 @@ if (!hfToken || !hfToken.startsWith("hf_")) {
     "HUGGINGFACE_API_KEY is either not defined or not in the correct format (must start with 'hf_')."
   );
 }
+
+
 export async function POST(req: Request): Promise<Response> {
   try {
     const { inputMessage, prompType, length } = (await req.json()) as ChatBody;

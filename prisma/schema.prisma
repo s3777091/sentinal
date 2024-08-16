@@ -5,17 +5,60 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_DATABASE_URL")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  username     String        @unique
+  name         String?
+  posts        Post[]
+  profile      Profile?
+  historyChats HistoryChat[] // One User has many HistoryChats
+  @@unique([email, username]) // Ensure both email and username are unique
 }
 
 model Post {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  title     String    @db.VarChar(255)
+  content   String?
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  Int
+  comments  Comment[] // One Post has many Comments
+
+  @@index([authorId])
+}
+
+model Comment {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  content   String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
+
+  @@index([postId])
+}
+
+model Chat {
+  id            Int         @id @default(autoincrement())
+  produce       String      @db.VarChar(255)
+  message       String?
+  historyChat   HistoryChat @relation(fields: [historyChatId], references: [id])
+  historyChatId Int
+
+  @@index([historyChatId])
+}
+
+model HistoryChat {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
   title     String   @db.VarChar(255)
-  content   String?
-  published Boolean  @default(false)
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
+  chats     Chat[] // One HistoryChat has many Chats
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
 }
 
 model Profile {
@@ -23,12 +66,7 @@ model Profile {
   bio    String?
   user   User    @relation(fields: [userId], references: [id])
   userId Int     @unique
-}
+  image  String?
 
-model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  name    String?
-  posts   Post[]
-  profile Profile?
+  @@index([userId])
 }
