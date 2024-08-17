@@ -12,7 +12,7 @@ if (!hfToken || !hfToken.startsWith("hf_")) {
 
 export async function POST(req: Request): Promise<Response> {
   try {
-    const { inputMessage, prompType, length } = (await req.json()) as ChatBody;
+    const { inputMessage, prompType } = (await req.json()) as ChatBody;
 
     const client = await Client.connect("dad1909/cyberapi", {
       hf_token: hfToken as `hf_${string}`,
@@ -22,7 +22,7 @@ export async function POST(req: Request): Promise<Response> {
       selected_model: "CyberSentinel",
       prompt: inputMessage,
       prompt_type: prompType,
-      max_length: length,
+      max_length: 256,
     });
 
     let responseMessage = "";
@@ -36,13 +36,13 @@ export async function POST(req: Request): Promise<Response> {
           let msg = msgArray[0];
 
           switch (prompType) {
-            case "Information":
+            case "information":
               msg = msg.replace(
                 "Give me information about the following topic: ",
                 ""
               );
               break;
-            case "Vulnerability":
+            case "vulnerable":
               msg = msg.replace(
                 "Identify the line of code that is vulnerable and describe the type of software vulnerability.",
                 ""

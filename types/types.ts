@@ -7,3 +7,11 @@ export interface ChatBody {
   prompType: string;
   length: number;
 }
+
+export interface AIMessage {
+  username: string;
+  message: string;
+  modelType: string;
+  type: string;
+  lendata: number;
+}

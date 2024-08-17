@@ -23,7 +23,7 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
 
   return (
     <div
-      className="relative flex h-full min-h-[50vh] flex-col rounded-xl bg-muted/50 p-4 lg:col-span-2"
+      className="relative flex h-full w-full flex-col rounded-xl bg-muted/50 p-4"
       style={{
         color: "white",
         backgroundColor: "whitesmoke",
@@ -70,7 +70,7 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
       </div>
 
       {/* Input and submit button always at the bottom */}
-      <div className="mt-auto flex justify-end">
+      <div className="mt-auto flex justify-end w-full">
         <input
           className="mr-2.5 h-full min-h-[54px] w-full rounded-lg border border-zinc-200 bg-white px-5 py-5 text-sm font-medium text-zinc-950 placeholder:text-zinc-950 focus:outline-0 dark:border-zinc-800 dark:bg-transparent dark:text-white dark:placeholder:text-zinc-400"
           placeholder="Type your message here..."

@@ -74,20 +74,6 @@ const ModelSelect = ({ onSelectModel, onSelectType }: Props) => {
                 </div>
               </div>
             </SelectItem>
-            <SelectItem value="Turtle">
-              <div className="flex items-start gap-3 text-muted-foreground">
-                <Turtle className="w-6 h-6" />
-                <div className="grid gap-0.5">
-                  <p>
-                    Neural{" "}
-                    <span className="font-medium text-foreground">Turtle</span>
-                  </p>
-                  <p className="text-xs" data-description>
-                    The most powerful model for complex computations.
-                  </p>
-                </div>
-              </div>
-            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -115,7 +101,7 @@ const ModelSelect = ({ onSelectModel, onSelectType }: Props) => {
                 </div>
               </div>
             </SelectItem>
-            <SelectItem value="Vul">
+            <SelectItem value="Vulnerable">
               <div className="flex items-start gap-3 text-muted-foreground">
                 <BugOff className="w-6 h-6" />
                 <div className="grid gap-0.5">

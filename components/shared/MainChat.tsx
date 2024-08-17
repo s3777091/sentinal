@@ -44,39 +44,35 @@ interface Props {
 }
 
 const MainChat = (props: Props) => {
-  const [selectedModel, setSelectedModel] = useState<string>("");
+  const [selectedEndPoint, setSelectEndPoint] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
   const [messages, dispatch] = useReducer(messagesReducer, []); // Initialize messages state
   const [loading, setLoading] = useState<boolean>(false);
 
-  const modelValue = useMemo(() => {
-    switch (selectedModel) {
+  const ep = useMemo(() => {
+    switch (selectedEndPoint) {
       case "Rabbit":
-        return 128;
+        return "/api/kafka";
       case "Bird":
-        return 256;
-      case "Turtle":
-        return 526;
+        return "/api/chat";
       default:
-        return 128;
+        return "/api/chat";
     }
-  }, [selectedModel]);
+  }, [selectedEndPoint]);
 
   const typeValue = useMemo(() => {
     switch (selectedType) {
       case "Library":
-        return "Information";
-      case "Vul":
-        return "Vulnerability";
-      case "Message":
-        return "Chat";
+        return "information";
+      case "Vulnerable":
+        return "vulnerable";
       default:
-        return "Vulnerability";
+        return "vulnerable";
     }
   }, [selectedType]);
 
   const handleModelSelect = (value: string) => {
-    setSelectedModel(value);
+    setSelectEndPoint(value);
   };
 
   const handleSelectType = (value: string) => {
@@ -84,7 +80,6 @@ const MainChat = (props: Props) => {
   };
 
   const handleMessage = async (message: string) => {
-    // Add the user's message to the messages list
     dispatch({ type: ADD_MESSAGE, payload: { user: props.user, message } });
     const controller = new AbortController();
 
@@ -99,31 +94,35 @@ const MainChat = (props: Props) => {
     const body: ChatBody = {
       inputMessage: message,
       prompType: typeValue,
-      length: modelValue,
+      length: 256,
     };
 
     try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        signal: controller.signal,
-        body: JSON.stringify(body),
-      });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch the API.");
-      }
+      console.log(ep);
+      console.log(message);
+      console.log(typeValue);
+      // const response = await fetch(ep, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   signal: controller.signal,
+      //   body: JSON.stringify(body),
+      // });
 
-      const data = await response.json();
-      dispatch({
-        type: ADD_MESSAGE,
-        payload: {
-          user: { username: "AI", imageUrl: aiChat.src },
-          message: data.result,
-        },
-      });
+      // if (!response.ok) {
+      //   throw new Error("Failed to fetch the API.");
+      // }
+
+      // const data = await response.json();
+      // dispatch({
+      //   type: ADD_MESSAGE,
+      //   payload: {
+      //     user: { username: "AI", imageUrl: aiChat.src },
+      //     message: data.result,
+      //   },
+      // });
 
       setLoading(false); // Set loading to false when the response is received
     } catch (error) {
@@ -134,72 +133,59 @@ const MainChat = (props: Props) => {
   };
 
   return (
-    <div className="flex flex-col">
-      <div className="flex flex-col h-screen">
-        <header className="sticky top-0 z-10 flex h-[50px] items-center gap-1 border-b bg-background px-4">
-          <h1 className="head-text">Workspace</h1>
-          <Drawer>
-            <DrawerTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden" //error from medium screen
-                style={{ color: "white" }}
-              >
-                <Settings className="w-5 h-5" />
-                <span className="sr-only">Settings</span>
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent className="max-h-[80vh]">
-              <DrawerHeader>
-                <DrawerTitle>Configuration</DrawerTitle>
-                <DrawerDescription>
-                  Configure the settings for the model and messages.
-                </DrawerDescription>
-              </DrawerHeader>
-              <form className="grid w-full items-start gap-6 overflow-auto p-4 pt-0">
-                <ModelSelect
-                  onSelectModel={handleModelSelect}
-                  onSelectType={handleSelectType}
-                />
-              </form>
-            </DrawerContent>
-          </Drawer>
-          <Button
-            variant="outline"
-            size="sm"
-            className="ml-auto gap-1.5 text-sm"
-          >
-            <Share className="w-5 h-5" />
-            Save
-          </Button>
-        </header>
-
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:grid lg:grid-cols-3 lg:gap-6 overflow-hidden">
-          <div className="relative hidden lg:flex lg:flex-col items-start h-full">
-            <form className="grid w-full items-start gap-6 h-full">
+    <div className="flex flex-col h-screen">
+      <header className="sticky top-0 z-10 flex h-[50px] items-center gap-1 border-b bg-background px-4">
+        <h1 className="head-text">Workspace</h1>
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="" //error from medium screen
+              style={{ color: "white" }}
+            >
+              <Settings className="w-5 h-5" />
+              <span className="sr-only">Settings</span>
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="max-h-[80vh]">
+            <DrawerHeader>
+              <DrawerTitle>Configuration</DrawerTitle>
+              <DrawerDescription>
+                Configure the settings for the model and messages.
+              </DrawerDescription>
+            </DrawerHeader>
+            <form className="grid w-full items-start gap-6 overflow-auto p-4 pt-0">
               <ModelSelect
                 onSelectModel={handleModelSelect}
                 onSelectType={handleSelectType}
               />
             </form>
-          </div>
+          </DrawerContent>
+        </Drawer>
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-auto gap-1.5 text-sm"
+        >
+          <Share className="w-5 h-5" />
+          Save
+        </Button>
+      </header>
 
-          <div className="flex flex-col lg:col-span-2 h-full overflow-y-auto">
-            <ChatMessage
-              users={props.user}
-              onButtonClick={handleMessage}
-              messages={messages}
-            />
+      <main className="flex-1 flex flex-col p-4 overflow-hidden">
+        <ChatMessage
+          users={props.user}
+          onButtonClick={handleMessage}
+          messages={messages}
+        />
 
-            {loading && (
-              <div className="flex justify-center items-center">
-                <div className="loader"></div>
-              </div>
-            )}
+        {loading && (
+          <div className="flex justify-center items-center">
+            <div className="loader"></div>
           </div>
-        </main>
-      </div>
+        )}
+      </main>
     </div>
   );
 };
