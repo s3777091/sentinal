@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DIRECT_DATABASE_URL")
   // directUrl = env("DIRECT_DATABASE_URL")
 }
 
@@ -13,9 +13,12 @@ model User {
   email        String        @unique
   username     String        @unique
   name         String?
+  messageGroup String       @unique
+  scanGroup    String       @unique
   posts        Post[]
   profile      Profile?
   historyChats HistoryChat[] // One User has many HistoryChats
+
   @@unique([email, username]) // Ensure both email and username are unique
 }
 

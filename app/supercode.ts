@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { redirect } from "next/navigation";
 import smile from "@/public/img/AI/smile.png";
+import { CyberAdmin } from "@dad1909/cybersoda";
 
 export async function UserDetailUpdate(): Promise<userDetail | null> {
   try {
@@ -29,6 +30,8 @@ export async function UserDetailUpdate(): Promise<userDetail | null> {
           email,
           username,
           name: fullName,
+          messageGroup: username.concat("_AI"),
+          scanGroup: username.concat("_SCAN"),
           profile: {
             create: {
               image: imageUrl,
@@ -37,6 +40,13 @@ export async function UserDetailUpdate(): Promise<userDetail | null> {
           },
         },
       });
+
+      const psw = process.env.KAFKA_PASSWORD;
+      if (!psw) {
+        throw new Error("PASSWORD Kafka must be set");
+      }
+      const cyber = new CyberAdmin(psw);
+      await cyber.createTopics([existingUser.messageGroup]);
     }
 
     // Prepare userDetails to return
