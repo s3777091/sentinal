@@ -1,116 +1,44 @@
 import { CyberCloud } from "@dad1909/cybersoda";
-import { PrismaClient } from "@prisma/client";
-import { withAccelerate } from "@prisma/extension-accelerate";
-
 import { AIMessage, ChatBody, userDetail } from "@/types/types";
-import { currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import { produceMessage } from "@/app/supercode";
 
-const produceMessage = async (
-  cloud: CyberCloud,
-  data: any
- ): Promise<{
-  error?: string;
-  success?: boolean;
-  message?: string;
-  details?: any;
- }> => {
-  const transaction = await cloud.producer.transaction();
+
+export async function POST(req: Request): Promise<Response> {
   try {
-    const produceResponse = await cloud.sendMessage(transaction, data);
-    if (produceResponse.error) {
-      await transaction.abort();
-      return {
-        error: `Failed to send message to topic`,
-        details: produceResponse.details,
-      };
+    const { message, username, selectedType } = await req.json();
+
+    if (!message || !username || !selectedType) {
+      return new Response("Missing required fields", { status: 400 });
     }
-    await transaction.commit();
-    return {
-      success: true,
-      message: `Message sent to topic`,
-    };
-  } catch (error) {
-    await transaction.abort();
-    return {
-      error: `Failed to send message to topic`,
-      details: error,
-    };
-  }
- };
 
-
- const consumeMessages = async (
-  cloud: CyberCloud
- ): Promise<{
-  error?: string;
-  success?: boolean;
-  message?: string;
-  details?: any;
- }> => {
-  try {
-    await cloud.getMessage((message) => {
-      console.log(message);
-    });
-    return { success: true, message: "Consumer started successfully" };
-  } catch (error) {
-    return { error: `Failed to consume message`, details: error };
-  }
- };
- 
- export async function POST(req: Request): Promise<Response> {
-  try {
-    const { inputMessage, prompType } = (await req.json()) as ChatBody;
-    const user = await currentUser();
-    if (!user) redirect("/sign-in");
-
-    const prisma = new PrismaClient().$extends(withAccelerate());
-
-    const email = user.emailAddresses[0].emailAddress;
-
-    let existingUser = await prisma.user.findUnique({
-      where: { email },
-      cacheStrategy: { swr: 60, ttl: 60 },
-    });
+    if (message.length > 700) {
+      return new Response(
+        `Please enter code less than 700 characters. You are currently at ${message.length} characters.`,
+        { status: 400 }
+      );
+    }
 
     const psw = process.env.KAFKA_PASSWORD;
     if (!psw) {
       throw new Error("PASSWORD Kafka must be set");
     }
 
-    if (existingUser) {
-      const cloud = new CyberCloud(psw, existingUser.messageGroup);
+    const cloudInstance = new CyberCloud(psw, username);
+    const messageSend: AIMessage = {
+      username: username,
+      message: message,
+      modelType: "Message",
+      type: selectedType,
+      lendata: 256,
+    };
 
-      try {
-        const messageSend: AIMessage = {
-          username: existingUser.username,
-          message: inputMessage,
-          modelType: "Message",
-          type: prompType,
-          lendata: 256,
-        };
-        const produceResponse = await produceMessage(cloud, messageSend);
-        if (!produceResponse.error) {
+    await produceMessage(cloudInstance, messageSend);
 
-        } else {
-          console.error(produceResponse);
-        }
-      } catch (error) {
-        console.error({
-          error: "Invalid input. Please enter to send message.",
-          details: error,
-        });
-      }
-   
-      
-    } else {
-    }
-    return new Response(JSON.stringify({ result: "" }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response("Message sent successfully", { status: 200 });
   } catch (error) {
-    console.error("Error connecting to the API:", error);
-    return new Response("Error", { status: 500 });
+    console.error("Error:", error);
+    return new Response("Something went wrong when sending the message", {
+      status: 500,
+    });
   }
 }

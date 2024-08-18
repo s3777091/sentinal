@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useReducer } from "react";
+import React, { useState, useMemo, useReducer, useEffect, useRef } from "react";
 import {
   Drawer,
   DrawerContent,
@@ -13,8 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Settings, Share, Loader } from "lucide-react";
 import ModelSelect from "@/components/forms/ModelSelect";
 import ChatMessage from "@/components/forms/ChatMessage";
-import { ChatBody, userDetail } from "@/types/types";
+import { AIMessage, ChatBody, KafkaBody, userDetail } from "@/types/types";
 import aiChat from "@/public/img/AI/sparkling.png";
+import { CyberCloud } from "@dad1909/cybersoda";
+import { userAgent } from "next/server";
 
 const ADD_MESSAGE = "ADD_MESSAGE";
 
@@ -39,6 +41,7 @@ const messagesReducer = (
       return state;
   }
 };
+
 interface Props {
   user: userDetail;
 }
@@ -48,17 +51,6 @@ const MainChat = (props: Props) => {
   const [selectedType, setSelectedType] = useState<string>("");
   const [messages, dispatch] = useReducer(messagesReducer, []); // Initialize messages state
   const [loading, setLoading] = useState<boolean>(false);
-
-  const ep = useMemo(() => {
-    switch (selectedEndPoint) {
-      case "Rabbit":
-        return "/api/kafka";
-      case "Bird":
-        return "/api/chat";
-      default:
-        return "/api/chat";
-    }
-  }, [selectedEndPoint]);
 
   const typeValue = useMemo(() => {
     switch (selectedType) {
@@ -71,12 +63,44 @@ const MainChat = (props: Props) => {
     }
   }, [selectedType]);
 
-  const handleModelSelect = (value: string) => {
-    setSelectEndPoint(value);
-  };
+  const kafkaMessage = async (message: string) => {
+    dispatch({ type: ADD_MESSAGE, payload: { user: props.user, message } });
 
-  const handleSelectType = (value: string) => {
-    setSelectedType(value);
+    if (message.length > 700) {
+      alert(
+        `Please enter code less than 700 characters. You are currently at ${message.length} characters.`
+      );
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+
+      
+      const response = await fetch("/api/kafka", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: message,
+          username: props.user.username,
+          selectedType: typeValue,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(errorMessage);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Something went wrong when sending the message.");
+      setLoading(false); // Ensure loading is turned off in case of an error
+    }
   };
 
   const handleMessage = async (message: string) => {
@@ -98,31 +122,27 @@ const MainChat = (props: Props) => {
     };
 
     try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+        body: JSON.stringify(body),
+      });
 
-      console.log(ep);
-      console.log(message);
-      console.log(typeValue);
-      // const response = await fetch(ep, {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   signal: controller.signal,
-      //   body: JSON.stringify(body),
-      // });
+      if (!response.ok) {
+        throw new Error("Failed to fetch the API.");
+      }
 
-      // if (!response.ok) {
-      //   throw new Error("Failed to fetch the API.");
-      // }
-
-      // const data = await response.json();
-      // dispatch({
-      //   type: ADD_MESSAGE,
-      //   payload: {
-      //     user: { username: "AI", imageUrl: aiChat.src },
-      //     message: data.result,
-      //   },
-      // });
+      const data = await response.json();
+      dispatch({
+        type: ADD_MESSAGE,
+        payload: {
+          user: { username: "AI", imageUrl: aiChat.src },
+          message: data.result,
+        },
+      });
 
       setLoading(false); // Set loading to false when the response is received
     } catch (error) {
@@ -132,18 +152,32 @@ const MainChat = (props: Props) => {
     }
   };
 
+  // This function will be passed to the ChatMessage component
+  const handleButtonClick = async (message: string) => {
+    if (selectedEndPoint === "Rabbit") {
+      await kafkaMessage(message);
+    } else if (selectedEndPoint === "Bird") {
+      await handleMessage(message);
+    } else {
+      console.warn("No valid endpoint selected");
+    }
+  };
+
+  const handleModelSelect = (value: string) => {
+    setSelectEndPoint(value);
+  };
+
+  const handleSelectType = (value: string) => {
+    setSelectedType(value);
+  };
+
   return (
     <div className="flex flex-col h-screen">
-      <header className="sticky top-0 z-10 flex h-[50px] items-center gap-1 border-b bg-background px-4">
+      <header className="sticky top-0 z-10 flex h-[50px] items-center gap-1 border-b px-4">
         <h1 className="head-text">Workspace</h1>
         <Drawer>
           <DrawerTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="" //error from medium screen
-              style={{ color: "white" }}
-            >
+            <Button variant="ghost" size="icon" style={{ color: "white" }}>
               <Settings className="w-5 h-5" />
               <span className="sr-only">Settings</span>
             </Button>
@@ -163,11 +197,7 @@ const MainChat = (props: Props) => {
             </form>
           </DrawerContent>
         </Drawer>
-        <Button
-          variant="outline"
-          size="sm"
-          className="ml-auto gap-1.5 text-sm"
-        >
+        <Button variant="outline" size="sm" className="ml-auto gap-1.5 text-sm">
           <Share className="w-5 h-5" />
           Save
         </Button>
@@ -176,7 +206,7 @@ const MainChat = (props: Props) => {
       <main className="flex-1 flex flex-col p-4 overflow-hidden">
         <ChatMessage
           users={props.user}
-          onButtonClick={handleMessage}
+          onButtonClick={handleButtonClick} // Call handleButtonClick on button click
           messages={messages}
         />
 

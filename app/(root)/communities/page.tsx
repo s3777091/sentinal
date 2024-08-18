@@ -5,13 +5,29 @@ import Community from "@/components/shared/community";
 import { UserDetailUpdate } from "@/app/supercode";
 import smile from "@/public/img/AI/smile.png";
 
+import { redirect } from "next/navigation";
+
 const CommunityWrapper = async () => {
-const [useDetail] = await Promise.all([UserDetailUpdate()]);
-  
-  return <Community user={useDetail || {
-    username: "Guest",
-    imageUrl: smile.src,
-  }} />;
+  const user = await currentUser();
+  let useDetail = null;
+
+  if (!user) {
+    redirect("/sign-in");
+    return null;
+  } else {
+    [useDetail] = await Promise.all([UserDetailUpdate(user)]);
+  }
+
+  return (
+    <Community
+      user={
+        useDetail || {
+          username: "Guest",
+          imageUrl: smile.src,
+        }
+      }
+    />
+  );
 };
 
 export default CommunityWrapper;

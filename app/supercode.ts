@@ -1,22 +1,25 @@
 import { userDetail } from "@/types/types";
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser, User } from "@clerk/nextjs/server";
 import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { redirect } from "next/navigation";
 import smile from "@/public/img/AI/smile.png";
-import { CyberAdmin } from "@dad1909/cybersoda";
+import { CyberAdmin, CyberCloud } from "@dad1909/cybersoda";
 
-export async function UserDetailUpdate(): Promise<userDetail | null> {
+export async function UserDetailUpdate(user: User): Promise<userDetail | null> {
+  const prisma = new PrismaClient().$extends(withAccelerate());
   try {
-    const user = await currentUser();
-    if (!user) redirect("/sign-in");
+    const {
+      emailAddresses,
+      username: userUsername,
+      firstName,
+      lastName,
+      imageUrl,
+    } = user;
 
-    const prisma = new PrismaClient().$extends(withAccelerate());
-
-    const email = user.emailAddresses[0].emailAddress;
-    const username = user.username || email.split("@")[0];
-    const fullName = `${user.firstName} ${user.lastName}`;
-    const imageUrl = user.imageUrl;
+    const email = emailAddresses[0].emailAddress;
+    const username = userUsername || email.split("@")[0];
+    const fullName = `${firstName} ${lastName}`;
 
     let existingUser = await prisma.user.findUnique({
       where: { email },
@@ -24,14 +27,13 @@ export async function UserDetailUpdate(): Promise<userDetail | null> {
     });
 
     if (!existingUser) {
-      // Create the user if not exists
       existingUser = await prisma.user.create({
         data: {
           email,
           username,
           name: fullName,
-          messageGroup: username.concat("_AI"),
-          scanGroup: username.concat("_SCAN"),
+          messageGroup: `${username}_AI`,
+          scanGroup: `${username}_SCAN`,
           profile: {
             create: {
               image: imageUrl,
@@ -41,23 +43,93 @@ export async function UserDetailUpdate(): Promise<userDetail | null> {
         },
       });
 
-      const psw = process.env.KAFKA_PASSWORD;
-      if (!psw) {
+      const kafkaPassword = process.env.KAFKA_PASSWORD;
+      if (!kafkaPassword) {
         throw new Error("PASSWORD Kafka must be set");
       }
-      const cyber = new CyberAdmin(psw);
-      await cyber.createTopics([existingUser.messageGroup]);
+
+      const cyber = new CyberAdmin(kafkaPassword);
+      try {
+        await cyber.createTopics([existingUser.messageGroup]);
+      } catch (createTopicError) {
+        console.error("Failed to create Kafka topic:", createTopicError);
+      }
     }
 
-    // Prepare userDetails to return
-    const userDetails: userDetail = {
+    return {
       username: existingUser.username,
       imageUrl: imageUrl || smile.src,
     };
-
-    return userDetails;
   } catch (error) {
     console.error("Error:", error);
     return null;
+  } finally {
+    await prisma.$disconnect();
   }
 }
+
+export async function consumeMessages(cloud: CyberCloud): Promise<{
+  error?: string;
+  success?: boolean;
+  message?: string;
+  details?: any;
+}> {
+  try {
+    await cloud.getMessage((message: any) => {
+      console.log("Message received:", message);
+    });
+
+    return {
+      success: true,
+      message: "Consumer started successfully",
+    };
+  } catch (error) {
+    console.error("Error consuming message:", error);
+    return {
+      error: `Failed to consume message`,
+      details: error,
+    };
+  }
+}
+
+export async function produceMessage(
+  cloud: CyberCloud,
+  data: any
+): Promise<{
+  error?: string;
+  success?: boolean;
+  message?: string;
+  details?: any;
+}> {
+  cloud.startProducer();
+  const transaction = await cloud.producer.transaction();
+  try {
+    // Attempt to send the message using the transaction
+    const produceResponse = await cloud.sendMessage(transaction, data);
+
+    // Check if the response indicates an error
+    if (produceResponse.error) {
+      await transaction.abort();
+      return {
+        error: "Failed to send message to topic",
+        details: produceResponse.details,
+      };
+    }
+
+    // Commit the transaction if the message was sent successfully
+    await transaction.commit();
+    return {
+      success: true,
+      message: "Message sent to topic successfully",
+    };
+  } catch (error) {
+    // Abort the transaction in case of an error
+    await transaction.abort();
+    return {
+      error: "Failed to send message to topic",
+      details: error,
+    };
+  }
+}
+
+export async function postMessage(user: User): Promise<void> {}
