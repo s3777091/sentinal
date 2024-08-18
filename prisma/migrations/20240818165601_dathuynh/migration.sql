@@ -4,8 +4,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "name" TEXT,
-    "messageGroup" TEXT NOT NULL,
-    "scanGroup" TEXT NOT NULL,
+    "apiServer" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -67,12 +66,6 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_messageGroup_key" ON "User"("messageGroup");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_scanGroup_key" ON "User"("scanGroup");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_username_key" ON "User"("email", "username");

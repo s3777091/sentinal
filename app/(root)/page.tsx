@@ -4,26 +4,22 @@ import { UserDetailUpdate } from "../supercode";
 import smile from "@/public/img/AI/smile.png";
 import { redirect } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
-import { CyberCloud } from "@dad1909/cybersoda";
-import { resolve } from "path";
+import { CyberAdmin } from "@dad1909/cybersoda";
 
 const Home = async () => {
   const user = await currentUser();
 
-  let useDetail = null;
-
   if (!user) {
     redirect("/sign-in");
-    return null;
-  } else {
-    [useDetail] = await Promise.all([UserDetailUpdate(user)]);
   }
+
+  const userDetail = await UserDetailUpdate(user);
   return (
     <TooltipProvider>
       <div className="grid h-screen w-full">
         <MainChat
           user={
-            useDetail || {
+            userDetail || {
               username: "Guest",
               imageUrl: smile.src,
             }

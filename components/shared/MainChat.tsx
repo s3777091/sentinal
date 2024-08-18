@@ -76,8 +76,6 @@ const MainChat = (props: Props) => {
     setLoading(true);
 
     try {
-
-      
       const response = await fetch("/api/kafka", {
         method: "POST",
         headers: {
@@ -95,12 +93,51 @@ const MainChat = (props: Props) => {
         throw new Error(errorMessage);
       }
 
+      alert("Message sent successfully. Waiting for response...");
+
+      // Wait to receive the message
+      let hasReceivedMessage = false;
+      while (!hasReceivedMessage) {
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second between checks
+        hasReceivedMessage = await checkForKafkaMessage();
+      }
+
+      alert("Message received successfully.");
       setLoading(false);
     } catch (error) {
       console.error("Error:", error);
-      alert("Something went wrong when sending the message.");
-      setLoading(false); // Ensure loading is turned off in case of an error
+      alert("Something went wrong when sending or receiving the message.");
+      setLoading(false);
     }
+  };
+
+  const checkForKafkaMessage = async () => {
+    try {
+      const response = await fetch("/api/kafka", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: "herrycole81",
+        }),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(errorMessage);
+      }
+
+      const result = await response.json();
+      if (result && result.message) {
+        // Do something with the received message if needed
+        return true;
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+
+    return false;
   };
 
   const handleMessage = async (message: string) => {
@@ -114,7 +151,7 @@ const MainChat = (props: Props) => {
       return;
     }
 
-    setLoading(true); // Set loading to true when the request starts
+    setLoading(true);
     const body: ChatBody = {
       inputMessage: message,
       prompType: typeValue,
@@ -144,11 +181,11 @@ const MainChat = (props: Props) => {
         },
       });
 
-      setLoading(false); // Set loading to false when the response is received
+      setLoading(false);
     } catch (error) {
       console.error("Error:", error);
       alert("Something went wrong when fetching from the API.");
-      setLoading(false); // Ensure loading is turned off in case of an error
+      setLoading(false);
     }
   };
 

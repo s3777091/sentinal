@@ -2,9 +2,9 @@ import { userDetail } from "@/types/types";
 import { currentUser, User } from "@clerk/nextjs/server";
 import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
-import { redirect } from "next/navigation";
 import smile from "@/public/img/AI/smile.png";
 import { CyberAdmin, CyberCloud } from "@dad1909/cybersoda";
+import { Console } from "console";
 
 export async function UserDetailUpdate(user: User): Promise<userDetail | null> {
   const prisma = new PrismaClient().$extends(withAccelerate());
@@ -49,11 +49,8 @@ export async function UserDetailUpdate(user: User): Promise<userDetail | null> {
       }
 
       const cyber = new CyberAdmin(kafkaPassword);
-      try {
-        await cyber.createTopics([existingUser.messageGroup]);
-      } catch (createTopicError) {
-        console.error("Failed to create Kafka topic:", createTopicError);
-      }
+      await cyber.createTopics([existingUser.messageGroup]);
+      console.log("create success");
     }
 
     return {
