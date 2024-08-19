@@ -20,6 +20,7 @@ const Home = async () => {
         <MainChat
           user={
             userDetail || {
+              email: "anonymus@gmail.com",
               username: "Guest",
               imageUrl: smile.src,
               server: "cyberapi"

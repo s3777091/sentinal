@@ -100,6 +100,7 @@ const MainChat = (props: Props) => {
         type: ADD_MESSAGE,
         payload: {
           user: {
+            email: props.user.email,
             username: "AI",
             imageUrl: aiChat.src,
             server: props.user.server,

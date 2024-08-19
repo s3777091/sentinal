@@ -1,6 +1,7 @@
 import { CyberCloud } from "@dad1909/cybersoda";
 
 export interface userDetail {
+  email: string;
   username: string;
   imageUrl: string;
   server: string;
@@ -25,4 +26,10 @@ export interface AIMessage {
   modelType: string;
   type: string;
   lendata: number;
+}
+export interface ScanArray {
+  id: number;
+  title: string;
+  detail: string | null;
+  createdAt: Date;
 }

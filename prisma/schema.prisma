@@ -27,6 +27,7 @@ model ScanData {
   createdAt      DateTime @default(now())
   title          String   @db.VarChar(255)
   detail         String?
+  more_detail    String?
   senderSocketId String?
   userId         Int // Foreign key to relate ScanData to a User
   scanUser       User     @relation(fields: [userId], references: [id]) // Establish relation with User

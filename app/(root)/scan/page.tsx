@@ -3,20 +3,20 @@ import { currentUser } from "@clerk/nextjs/server";
 import { Mail } from "@/components/shared/mail";
 import { accounts, mails } from "@/app/(root)/scan/data";
 import { redirect } from "next/navigation";
-import { getUser } from "@/app/supercode";
+import { getScanList, getUser } from "@/app/supercode";
 
 const ScanPage = async () => {
   const user = await currentUser();
-
   if (!user) {
     redirect("/sign-in");
   }
-
   const uderDetail = await getUser(user);
 
   if (!uderDetail) {
     redirect("/sign-in");
   }
+  const listScan = await getScanList(uderDetail);
+
 
   const parseJSON = (value: string) => {
     try {
@@ -34,7 +34,7 @@ const ScanPage = async () => {
     <div className="min-h-[100vh] flex-col md:flex">
       <Mail
         user={uderDetail}
-        mails={mails}
+        mails={mails} // listScan
         defaultLayout={layout ? parseJSON(layout) : undefined}
         defaultCollapsed={collapsed ? parseJSON(collapsed) : undefined}
       />
