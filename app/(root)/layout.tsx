@@ -34,22 +34,20 @@ export default function RootLayout({
     >
       <html lang="en">
         <body className={inter.className}>
-
-          
           <Topbar />
 
           <main className="flex flex-row">
             <LeftSidebar />
             <section className="main-container">
               <div className="w-full">
-              <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="dark"
+                  enableSystem
+                  disableTransitionOnChange
+                >
+                  {children}
+                </ThemeProvider>
               </div>
             </section>
             {/* @ts-ignore */}

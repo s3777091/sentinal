@@ -1,5 +1,4 @@
 import { atom, useAtom } from "jotai"
-
 import { Mail, mails } from "@/app/(root)/scan/data"
 
 type Config = {

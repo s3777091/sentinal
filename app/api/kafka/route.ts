@@ -21,9 +21,9 @@ export async function GET(req: Request): Promise<Response> {
 
 export async function POST(req: Request): Promise<Response> {
   try {
-    const { message, username, selectedType } = await req.json();
+    const { message, username } = await req.json();
 
-    if (!message || !username || !selectedType) {
+    if (!message || !username) {
       return new Response("Missing required fields", { status: 400 });
     }
 
@@ -33,6 +33,10 @@ export async function POST(req: Request): Promise<Response> {
         { status: 400 }
       );
     }
+
+    
+
+
 
 
     return new Response("Message sent successfully", { status: 200 });

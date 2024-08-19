@@ -1,60 +1,45 @@
-'use client'; // Ensure this line is at the top
+import Cookies from "js-cookie";
+import { currentUser } from "@clerk/nextjs/server";
+import { Mail } from "@/components/shared/mail";
+import { accounts, mails } from "@/app/(root)/scan/data";
+import { redirect } from "next/navigation";
+import { getUser } from "@/app/supercode";
 
-import { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
-import Image from 'next/image';
+const ScanPage = async () => {
+  const user = await currentUser();
 
-import { Mail } from '@/components/shared/mail';
-import { accounts, mails } from '@/app/(root)/scan/data';
+  if (!user) {
+    redirect("/sign-in");
+  }
 
-export default function MailPage() {
-  const [defaultLayout, setDefaultLayout] = useState(undefined);
-  const [defaultCollapsed, setDefaultCollapsed] = useState(undefined);
+  const uderDetail = await getUser(user);
 
-  useEffect(() => {
-    const layout = Cookies.get('react-resizable-panels:layout');
-    const collapsed = Cookies.get('react-resizable-panels:collapsed');
+  if (!uderDetail) {
+    redirect("/sign-in");
+  }
 
-    const parseJSON = (value) => {
-      try {
-        return JSON.parse(value);
-      } catch (e) {
-        console.error('Failed to parse JSON:', e);
-        return undefined;
-      }
-    };
+  const parseJSON = (value: string) => {
+    try {
+      return JSON.parse(value);
+    } catch (e) {
+      console.error("Failed to parse JSON:", e);
+      return undefined;
+    }
+  };
 
-    setDefaultLayout(layout ? parseJSON(layout) : undefined);
-    setDefaultCollapsed(collapsed ? parseJSON(collapsed) : undefined);
-
-  }, []);
+  const layout = Cookies.get("react-resizable-panels:layout");
+  const collapsed = Cookies.get("react-resizable-panels:collapsed");
 
   return (
-    <>
-      {/* <div className="md:hidden">
-        <Image
-          src="/examples/mail-dark.png"
-          width={1280}
-          height={727}
-          alt="Mail"
-          className="hidden dark:block"
-        />
-        <Image
-          src="/examples/mail-light.png"
-          width={1280}
-          height={727}
-          alt="Mail"
-          className="block dark:hidden"
-        />
-      </div> */}
-      <div className="min-h-[100vh] flex-col md:flex">
-        <Mail
-          accounts={accounts}
-          mails={mails}
-          defaultLayout={defaultLayout}
-          defaultCollapsed={defaultCollapsed}
-        />
-      </div>
-    </>
+    <div className="min-h-[100vh] flex-col md:flex">
+      <Mail
+        user={uderDetail}
+        mails={mails}
+        defaultLayout={layout ? parseJSON(layout) : undefined}
+        defaultCollapsed={collapsed ? parseJSON(collapsed) : undefined}
+      />
+    </div>
   );
-}
+};
+
+export default ScanPage;

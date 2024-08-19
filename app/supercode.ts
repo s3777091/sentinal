@@ -3,6 +3,42 @@ import { User } from "@clerk/nextjs/server";
 import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import smile from "@/public/img/AI/smile.png";
+import { redirect } from "next/navigation";
+
+export async function getUser(user: User): Promise<userDetail | null> {
+  const prisma = new PrismaClient().$extends(withAccelerate());
+
+  try {
+    const { emailAddresses, username: userUsername, imageUrl } = user;
+
+    const email = emailAddresses[0].emailAddress;
+    const username = userUsername || email.split("@")[0];
+
+    // Modify the query to check for both email and username
+    let existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ email }, { username }],
+      },
+      cacheStrategy: { swr: 60, ttl: 60 },
+    });
+
+    if (existingUser) {
+      return {
+        username: existingUser.username || "anonymous",
+        imageUrl: imageUrl || smile.src,
+        server: existingUser.apiServer || "cyberapi",
+      };
+    } else {
+      redirect("/sign-in");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return null;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
 
 export async function UserDetailUpdate(user: User): Promise<userDetail | null> {
   const prisma = new PrismaClient().$extends(withAccelerate());

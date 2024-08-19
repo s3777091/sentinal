@@ -17,8 +17,19 @@ model User {
   posts        Post[]
   profile      Profile?
   historyChats HistoryChat[] // One User has many HistoryChats
+  scanData     ScanData[] // One User has many ScanData
 
   @@unique([email, username]) // Ensure both email and username are unique
+}
+
+model ScanData {
+  id             Int      @id @default(autoincrement())
+  createdAt      DateTime @default(now())
+  title          String   @db.VarChar(255)
+  detail         String?
+  senderSocketId String?
+  userId         Int // Foreign key to relate ScanData to a User
+  scanUser       User     @relation(fields: [userId], references: [id]) // Establish relation with User
 }
 
 model Post {
