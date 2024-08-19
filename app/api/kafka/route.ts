@@ -1,6 +1,5 @@
 import { CyberCloud } from "@dad1909/cybersoda";
 import { AIMessage, ChatBody, userDetail } from "@/types/types";
-import { consumeMessages, produceMessage } from "@/app/supercode";
 
 export async function GET(req: Request): Promise<Response> {
   try {
@@ -10,12 +9,6 @@ export async function GET(req: Request): Promise<Response> {
       return new Response("Missing required fields", { status: 400 });
     }
 
-    const psw = process.env.KAFKA_PASSWORD;
-    if (!psw) {
-      throw new Error("PASSWORD Kafka must be set");
-    }
-    const cloudInstance = new CyberCloud(psw, "herrycole81_AI");
-    consumeMessages(cloudInstance);
 
     return new Response("Message recieve success", { status: 200 });
   } catch (error) {
@@ -41,21 +34,6 @@ export async function POST(req: Request): Promise<Response> {
       );
     }
 
-    const psw = process.env.KAFKA_PASSWORD;
-    if (!psw) {
-      throw new Error("PASSWORD Kafka must be set");
-    }
-
-    const cloudInstance = new CyberCloud(psw, username);
-    const messageSend: AIMessage = {
-      username: username,
-      message: message,
-      modelType: "Message",
-      type: selectedType,
-      lendata: 256,
-    };
-
-    await produceMessage(cloudInstance, messageSend);
 
     return new Response("Message sent successfully", { status: 200 });
   } catch (error) {

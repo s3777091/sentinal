@@ -47,7 +47,6 @@ interface Props {
 }
 
 const MainChat = (props: Props) => {
-  const [selectedEndPoint, setSelectEndPoint] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
   const [messages, dispatch] = useReducer(messagesReducer, []); // Initialize messages state
   const [loading, setLoading] = useState<boolean>(false);
@@ -62,83 +61,6 @@ const MainChat = (props: Props) => {
         return "vulnerable";
     }
   }, [selectedType]);
-
-  const kafkaMessage = async (message: string) => {
-    dispatch({ type: ADD_MESSAGE, payload: { user: props.user, message } });
-
-    if (message.length > 700) {
-      alert(
-        `Please enter code less than 700 characters. You are currently at ${message.length} characters.`
-      );
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await fetch("/api/kafka", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: message,
-          username: props.user.username,
-          selectedType: typeValue,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(errorMessage);
-      }
-
-      alert("Message sent successfully. Waiting for response...");
-
-      // Wait to receive the message
-      let hasReceivedMessage = false;
-      while (!hasReceivedMessage) {
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second between checks
-        hasReceivedMessage = await checkForKafkaMessage();
-      }
-
-      alert("Message received successfully.");
-      setLoading(false);
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Something went wrong when sending or receiving the message.");
-      setLoading(false);
-    }
-  };
-
-  const checkForKafkaMessage = async () => {
-    try {
-      const response = await fetch("/api/kafka", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: "herrycole81",
-        }),
-      });
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(errorMessage);
-      }
-
-      const result = await response.json();
-      if (result && result.message) {
-        // Do something with the received message if needed
-        return true;
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-
-    return false;
-  };
 
   const handleMessage = async (message: string) => {
     dispatch({ type: ADD_MESSAGE, payload: { user: props.user, message } });
@@ -156,6 +78,7 @@ const MainChat = (props: Props) => {
       inputMessage: message,
       prompType: typeValue,
       length: 256,
+      serverSend: props.user.server,
     };
 
     try {
@@ -176,7 +99,11 @@ const MainChat = (props: Props) => {
       dispatch({
         type: ADD_MESSAGE,
         payload: {
-          user: { username: "AI", imageUrl: aiChat.src },
+          user: {
+            username: "AI",
+            imageUrl: aiChat.src,
+            server: props.user.server,
+          },
           message: data.result,
         },
       });
@@ -187,21 +114,6 @@ const MainChat = (props: Props) => {
       alert("Something went wrong when fetching from the API.");
       setLoading(false);
     }
-  };
-
-  // This function will be passed to the ChatMessage component
-  const handleButtonClick = async (message: string) => {
-    if (selectedEndPoint === "Rabbit") {
-      await kafkaMessage(message);
-    } else if (selectedEndPoint === "Bird") {
-      await handleMessage(message);
-    } else {
-      console.warn("No valid endpoint selected");
-    }
-  };
-
-  const handleModelSelect = (value: string) => {
-    setSelectEndPoint(value);
   };
 
   const handleSelectType = (value: string) => {
@@ -227,10 +139,7 @@ const MainChat = (props: Props) => {
               </DrawerDescription>
             </DrawerHeader>
             <form className="grid w-full items-start gap-6 overflow-auto p-4 pt-0">
-              <ModelSelect
-                onSelectModel={handleModelSelect}
-                onSelectType={handleSelectType}
-              />
+              <ModelSelect onSelectType={handleSelectType} />
             </form>
           </DrawerContent>
         </Drawer>
@@ -243,7 +152,7 @@ const MainChat = (props: Props) => {
       <main className="flex-1 flex flex-col p-4 overflow-hidden">
         <ChatMessage
           users={props.user}
-          onButtonClick={handleButtonClick} // Call handleButtonClick on button click
+          onButtonClick={handleMessage} // Call handleButtonClick on button click
           messages={messages}
         />
 

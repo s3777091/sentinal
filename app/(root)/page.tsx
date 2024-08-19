@@ -22,6 +22,7 @@ const Home = async () => {
             userDetail || {
               username: "Guest",
               imageUrl: smile.src,
+              server: "cyberapi"
             }
           }
         />

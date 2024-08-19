@@ -26,57 +26,15 @@ import {
 } from "@/components/ui/card";
 
 interface Props {
-  onSelectModel: (value: string) => void;
   onSelectType: (Value: string) => void;
 }
 
-const ModelSelect = ({ onSelectModel, onSelectType }: Props) => {
+const ModelSelect = ({ onSelectType }: Props) => {
   return (
     <fieldset className="grid gap-6 rounded-lg border p-4">
       <legend className="-ml-1 px-1 text-sm font-medium text-light-1">
         Messages
       </legend>
-
-      <div className="grid gap3">
-        <Select onValueChange={(value) => onSelectModel(value)}>
-          <SelectTrigger
-            id="model"
-            className="items-start [&_[data-description]]:hidden"
-          >
-            <SelectValue placeholder="Select a model" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Rabbit">
-              <div className="flex items-start gap-3 text-muted-foreground">
-                <Rabbit className="w-6 h-6" />
-                <div className="grid gap-0.5">
-                  <p>
-                    Neural{" "}
-                    <span className="font-medium text-foreground">Rabbit</span>
-                  </p>
-                  <p className="text-xs" data-description>
-                    Our fastest compute for general use cases.
-                  </p>
-                </div>
-              </div>
-            </SelectItem>
-            <SelectItem value="Bird">
-              <div className="flex items-start gap-3 text-muted-foreground">
-                <Bird className="w-6 h-6" />
-                <div className="grid gap-0.5">
-                  <p>
-                    Neural{" "}
-                    <span className="font-medium text-foreground">Bird</span>
-                  </p>
-                  <p className="text-xs" data-description>
-                    Performance and speed for efficiency.
-                  </p>
-                </div>
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
 
       <div className="grid gap3">
         <Select onValueChange={(value) => onSelectType(value)}>

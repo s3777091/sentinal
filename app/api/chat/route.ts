@@ -2,6 +2,7 @@ import { ChatBody } from "@/types/types";
 import { Client, type SpaceStatus } from "@gradio/client";
 
 const hfToken: string | undefined = process.env.HUGGINGFACE_API_KEY;
+const baseModel: string | undefined = process.env.BASE_ADMIN_MODEL;
 
 if (!hfToken || !hfToken.startsWith("hf_")) {
   throw new Error(
@@ -9,14 +10,21 @@ if (!hfToken || !hfToken.startsWith("hf_")) {
   );
 }
 
+if (!baseModel) {
+  throw new Error("pls adding baseModel in .env or .env.local");
+}
 
 export async function POST(req: Request): Promise<Response> {
   try {
-    const { inputMessage, prompType } = (await req.json()) as ChatBody;
+    const { inputMessage, prompType, serverSend } =
+      (await req.json()) as ChatBody;
 
-    const client = await Client.connect("dad1909/cyberapi", {
-      hf_token: hfToken as `hf_${string}`,
-    });
+    const client = await Client.connect(
+      baseModel!.concat("/").concat(serverSend),
+      {
+        hf_token: hfToken as `hf_${string}`,
+      }
+    );
 
     const submission = client.submit("/predict", {
       selected_model: "CyberSentinel",
