@@ -5,7 +5,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DIRECT_DATABASE_URL")
-  // directUrl = env("DIRECT_DATABASE_URL")
 }
 
 model User {
@@ -13,24 +12,37 @@ model User {
   email        String        @unique
   username     String        @unique
   name         String?
-  apiServer    String?
+  apiServerId  Int?
+  // isonline     Boolean       @default(false)
   posts        Post[]
   profile      Profile?
   historyChats HistoryChat[] // One User has many HistoryChats
   scanData     ScanData[] // One User has many ScanData
+  apiServer    ApiServer?    @relation(fields: [apiServerId], references: [id])
 
   @@unique([email, username]) // Ensure both email and username are unique
+  @@index([apiServerId]) // Index to optimize querying users by apiServerId
 }
 
+model ApiServer {
+  id       Int     @id @default(autoincrement())
+  apiUrl   String  @db.VarChar(255)
+  users    User[]
+  status   String  @db.VarChar(10)
+
+  @@index([apiUrl])
+}
 model ScanData {
-  id             Int      @id @default(autoincrement())
-  createdAt      DateTime @default(now())
-  title          String   @db.VarChar(255)
-  detail         String?
-  more_detail    String?
-  senderSocketId String?
-  userId         Int // Foreign key to relate ScanData to a User
-  scanUser       User     @relation(fields: [userId], references: [id]) // Establish relation with User
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  title       String   @db.VarChar(255)
+  detail      String?
+  more_detail String?
+  userId      Int
+  scanUser    User     @relation(fields: [userId], references: [id])
+
+  @@index([userId]) // Index to optimize querying scan data by userId
+  @@index([title]) // Index to optimize querying by title
 }
 
 model Post {
@@ -43,7 +55,8 @@ model Post {
   authorId  Int
   comments  Comment[] // One Post has many Comments
 
-  @@index([authorId])
+  @@index([authorId]) // Index to optimize querying by authorId
+  @@index([createdAt]) // Index to optimize querying posts by creation date
 }
 
 model Comment {
@@ -53,7 +66,7 @@ model Comment {
   post      Post     @relation(fields: [postId], references: [id])
   postId    Int
 
-  @@index([postId])
+  @@index([postId]) // Index to optimize querying comments by postId
 }
 
 model Chat {
@@ -63,7 +76,7 @@ model Chat {
   historyChat   HistoryChat @relation(fields: [historyChatId], references: [id])
   historyChatId Int
 
-  @@index([historyChatId])
+  @@index([historyChatId]) // Index to optimize querying chats by historyChatId
 }
 
 model HistoryChat {
@@ -73,14 +86,16 @@ model HistoryChat {
   chats     Chat[] // One HistoryChat has many Chats
   User      User?    @relation(fields: [userId], references: [id])
   userId    Int?
+
+  @@index([userId]) // Index to optimize querying history chats by userId
 }
 
 model Profile {
   id     Int     @id @default(autoincrement())
   bio    String?
   user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
   image  String?
+  userId Int     @unique
 
-  @@index([userId])
+  @@index([userId]) // Index to optimize querying profiles by userId
 }

@@ -22,8 +22,7 @@ const Home = async () => {
             userDetail || {
               email: "anonymus@gmail.com",
               username: "Guest",
-              imageUrl: smile.src,
-              server: "cyberapi"
+              imageUrl: smile.src
             }
           }
         />

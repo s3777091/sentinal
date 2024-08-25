@@ -75,10 +75,10 @@ const MainChat = (props: Props) => {
 
     setLoading(true);
     const body: ChatBody = {
+      user: props.user.username,
       inputMessage: message,
       prompType: typeValue,
-      length: 256,
-      serverSend: props.user.server,
+      length: 256
     };
 
     try {
@@ -102,8 +102,7 @@ const MainChat = (props: Props) => {
           user: {
             email: props.user.email,
             username: "AI",
-            imageUrl: aiChat.src,
-            server: props.user.server,
+            imageUrl: aiChat.src
           },
           message: data.result,
         },
@@ -119,6 +118,42 @@ const MainChat = (props: Props) => {
 
   const handleSelectType = (value: string) => {
     setSelectedType(value);
+  };
+
+  const sendScanMessage = async (message: string) => {
+    try {
+      dispatch({ type: ADD_MESSAGE, payload: { user: props.user, message } });
+      const controller = new AbortController();
+  
+      if (message.length > 700) {
+        alert(
+          `Please enter code less than 700 characters. You are currently at ${message.length} characters.`
+        );
+        return;
+      }
+
+      const body = {
+        message: message,
+      };
+
+      const response = await fetch("/api/kafka", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch the API. Status: ${response.status}`);
+      }
+
+      
+    } catch (error) {
+      console.log(error);
+      alert("Something went wrong when fetching from the API.");
+    }
   };
 
   return (

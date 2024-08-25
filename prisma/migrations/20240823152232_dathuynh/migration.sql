@@ -4,9 +4,17 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "name" TEXT,
-    "apiServer" TEXT,
+    "apiServerId" INTEGER,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ApiServer" (
+    "id" SERIAL NOT NULL,
+    "apiUrl" VARCHAR(255) NOT NULL,
+
+    CONSTRAINT "ApiServer_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -15,7 +23,7 @@ CREATE TABLE "ScanData" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "title" VARCHAR(255) NOT NULL,
     "detail" TEXT,
-    "senderSocketId" TEXT,
+    "more_detail" TEXT,
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "ScanData_pkey" PRIMARY KEY ("id")
@@ -67,8 +75,8 @@ CREATE TABLE "HistoryChat" (
 CREATE TABLE "Profile" (
     "id" SERIAL NOT NULL,
     "bio" TEXT,
-    "userId" INTEGER NOT NULL,
     "image" TEXT,
+    "userId" INTEGER NOT NULL,
 
     CONSTRAINT "Profile_pkey" PRIMARY KEY ("id")
 );
@@ -80,10 +88,25 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
+CREATE INDEX "User_apiServerId_idx" ON "User"("apiServerId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "User_email_username_key" ON "User"("email", "username");
 
 -- CreateIndex
+CREATE INDEX "ApiServer_apiUrl_idx" ON "ApiServer"("apiUrl");
+
+-- CreateIndex
+CREATE INDEX "ScanData_userId_idx" ON "ScanData"("userId");
+
+-- CreateIndex
+CREATE INDEX "ScanData_title_idx" ON "ScanData"("title");
+
+-- CreateIndex
 CREATE INDEX "Post_authorId_idx" ON "Post"("authorId");
+
+-- CreateIndex
+CREATE INDEX "Post_createdAt_idx" ON "Post"("createdAt");
 
 -- CreateIndex
 CREATE INDEX "Comment_postId_idx" ON "Comment"("postId");
@@ -92,10 +115,16 @@ CREATE INDEX "Comment_postId_idx" ON "Comment"("postId");
 CREATE INDEX "Chat_historyChatId_idx" ON "Chat"("historyChatId");
 
 -- CreateIndex
+CREATE INDEX "HistoryChat_userId_idx" ON "HistoryChat"("userId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
 
 -- CreateIndex
 CREATE INDEX "Profile_userId_idx" ON "Profile"("userId");
+
+-- AddForeignKey
+ALTER TABLE "User" ADD CONSTRAINT "User_apiServerId_fkey" FOREIGN KEY ("apiServerId") REFERENCES "ApiServer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ScanData" ADD CONSTRAINT "ScanData_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -5,7 +5,6 @@ import { withAccelerate } from "@prisma/extension-accelerate";
 import smile from "@/public/img/AI/smile.png";
 import { redirect } from "next/navigation";
 
-
 export async function getScanList(user: userDetail): Promise<ScanArray[]> {
   const prisma = new PrismaClient().$extends(withAccelerate());
 
@@ -19,7 +18,7 @@ export async function getScanList(user: userDetail): Promise<ScanArray[]> {
     });
 
     if (!ex_User) {
-      console.error('User not found.');
+      console.error("User not found.");
       return [];
     }
 
@@ -35,12 +34,12 @@ export async function getScanList(user: userDetail): Promise<ScanArray[]> {
         createdAt: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
     return scans.length > 0 ? scans : [];
   } catch (error) {
-    console.error('Error fetching scan data:', error);
+    console.error("Error fetching scan data:", error);
     return [];
   } finally {
     await prisma.$disconnect();
@@ -69,7 +68,6 @@ export async function getUser(user: User): Promise<userDetail | null> {
         email: email,
         username: ex_User.username || "anonymous",
         imageUrl: imageUrl || smile.src,
-        server: ex_User.apiServer || "cyberapi",
       };
     } else {
       redirect("/sign-in");
@@ -104,30 +102,11 @@ export async function UserDetailUpdate(user: User): Promise<userDetail | null> {
     });
 
     if (!ex_User) {
-      // Start with the base "cyberapi" and increment as needed
-      let apiServer = "cyberapi";
-      let suffix = 0;
-
-      while (true) {
-        const count = await prisma.user.count({
-          where: { apiServer },
-        });
-
-        // If fewer than 10 users are using this apiServer, use it
-        if (count < 10) {
-          break;
-        }
-
-        suffix += 1;
-        apiServer = `cyberapi_${suffix}`;
-      }
-
       ex_User = await prisma.user.create({
         data: {
           email,
           username,
           name: fullName,
-          apiServer,
           profile: {
             create: {
               image: imageUrl,
@@ -137,12 +116,10 @@ export async function UserDetailUpdate(user: User): Promise<userDetail | null> {
         },
       });
     }
-
     return {
       email: email,
       username: ex_User.username,
       imageUrl: imageUrl || smile.src,
-      server: ex_User.apiServer || "cyberapi",
     };
   } catch (error) {
     console.error("Error:", error);

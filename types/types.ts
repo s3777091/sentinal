@@ -3,14 +3,13 @@ import { CyberCloud } from "@dad1909/cybersoda";
 export interface userDetail {
   email: string;
   username: string;
-  imageUrl: string;
-  server: string;
+  imageUrl: string
 }
 export interface ChatBody {
+  user: string;
   inputMessage: string;
   prompType: string;
-  length: number;
-  serverSend: string;
+  length: number
 }
 
 export interface KafkaBody {

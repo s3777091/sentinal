@@ -1,53 +1,24 @@
-import { type ChartConfig } from "@/components/ui/chart"
-import { ChartContainer } from "@/components/ui/chart"
-import { Bar, BarChart, CartesianGrid } from "recharts"
-import { Component, Component2 } from "@/components/ui/circle-chart"
-import {
-  Archive,
-  ArchiveX,
-  Save,
-  Upload,
-  Forward,
-  MoreVertical,
-  Reply,
-  ReplyAll,
-  Trash2,
-  Search,
-} from "lucide-react"
-import { Input } from "@/components/ui/input"
-import {
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Label } from "@/components/ui/label"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { Separator } from  "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
-import { Textarea }  from "@/components/ui/textarea"
+"use client";
+
+import { type ChartConfig } from "@/components/ui/chart";
+import { Component, Component2 } from "@/components/ui/circle-chart";
+import { Save, Upload, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverTrigger } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { Mail } from "@/app/(root)/scan/data"
-import { ScrollArea } from "../ui/scroll-area"
+} from "@/components/ui/tooltip";
+import { Mail } from "@/app/(root)/scan/data";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface MailDisplayProps {
-  mail: Mail | null
+  mail: Mail | null;
 }
 
 const chartData = [
@@ -57,7 +28,7 @@ const chartData = [
   { month: "April", desktop: 73, mobile: 190 },
   { month: "May", desktop: 209, mobile: 130 },
   { month: "June", desktop: 214, mobile: 140 },
-]
+];
 
 const chartConfig = {
   desktop: {
@@ -68,9 +39,42 @@ const chartConfig = {
     label: "Mobile",
     color: "#60a5fa",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 export function MailDisplay({ mail }: MailDisplayProps) {
+
+
+  const sendScanData = async (message: string) => {
+    const controller = new AbortController();
+
+    if (message.length > 700) {
+      alert(
+        `Please enter code less than 700 characters. You are currently at ${message.length} characters.`
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/kafka", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch the API.");
+      }
+
+      console.log("best");
+
+
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Something went wrong when fetching from the API.");
+    }
+  };
 
   return (
     <div className="flex min-w-fit h-full max-md:w-1/2 flex-col">
@@ -99,62 +103,18 @@ export function MailDisplay({ mail }: MailDisplayProps) {
             <Popover>
               <PopoverTrigger asChild>
                 <TooltipTrigger asChild>
-                <form>
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Search" className="pl-8" />
-                </div>
-              </form>
+                  <form>
+                    <div className="relative">
+                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input placeholder="Search" className="pl-8" />
+                    </div>
+                  </form>
                 </TooltipTrigger>
               </PopoverTrigger>
             </Popover>
             <TooltipContent>Snooze</TooltipContent>
           </Tooltip>
         </div>
-        {/* <div className="ml-auto flex items-center gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" disabled={!mail}>
-                <Reply className="h-4 w-4" />
-                <span className="sr-only">Reply</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Reply</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" disabled={!mail}>
-                <ReplyAll className="h-4 w-4" />
-                <span className="sr-only">Reply all</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Reply all</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" disabled={!mail}>
-                <Forward className="h-4 w-4" />
-                <span className="sr-only">Forward</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Forward</TooltipContent>
-          </Tooltip>
-        </div> */}
-        {/* <Separator orientation="vertical" className="mx-2 h-6" /> */}
-        {/* <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" disabled={!mail}>
-              <MoreVertical className="h-4 w-4" />
-              <span className="sr-only">More</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Mark as unread</DropdownMenuItem>
-            <DropdownMenuItem>Star thread</DropdownMenuItem>
-            <DropdownMenuItem>Add label</DropdownMenuItem>
-            <DropdownMenuItem>Mute thread</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu> */}
       </div>
       <Separator />
       {mail ? (
@@ -181,14 +141,14 @@ export function MailDisplay({ mail }: MailDisplayProps) {
           </div>
           <Separator />
           <ScrollArea className="h-[25vh]">
-          <div className="flex-1 whitespace-pre-wrap p-4 text-sm">
-            {mail.text}
-          </div>
+            <div className="flex-1 whitespace-pre-wrap p-4 text-sm">
+              {mail.text}
+            </div>
           </ScrollArea>
           <div className="flex">
-            <Component/>
-          <Separator orientation="vertical" />
-            <Component2/>
+            <Component />
+            <Separator orientation="vertical" />
+            <Component2 />
           </div>
           <div className="p-4">
             <form>
@@ -199,7 +159,7 @@ export function MailDisplay({ mail }: MailDisplayProps) {
                 />
                 <div className="flex items-center">
                   <Button
-                    onClick={(e) => e.preventDefault()}
+                    // onClick={sendScanData}
                     size="sm"
                     className="ml-auto"
                   >
@@ -216,5 +176,5 @@ export function MailDisplay({ mail }: MailDisplayProps) {
         </div>
       )}
     </div>
-  )
+  );
 }
