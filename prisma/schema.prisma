@@ -13,7 +13,6 @@ model User {
   username     String        @unique
   name         String?
   apiServerId  Int?
-  // isonline     Boolean       @default(false)
   posts        Post[]
   profile      Profile?
   historyChats HistoryChat[] // One User has many HistoryChats
@@ -29,7 +28,6 @@ model ApiServer {
   apiUrl   String  @db.VarChar(255)
   users    User[]
   status   String  @db.VarChar(10)
-
   @@index([apiUrl])
 }
 model ScanData {

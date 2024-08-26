@@ -11,7 +11,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@dad1909/cyber": "^0.0.1",
+        "@dad1909/cyber": "^0.0.3",
         "@gradio/client": "^1.5.1",
         "@kafkajs/confluent-schema-registry": "^3.3.0",
         "@prisma/client": "5.18.0",

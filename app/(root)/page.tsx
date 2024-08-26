@@ -4,7 +4,6 @@ import { UserDetailUpdate } from "../supercode";
 import smile from "@/public/img/AI/smile.png";
 import { redirect } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
-import { CyberAdmin } from "@dad1909/cybersoda";
 
 const Home = async () => {
   const user = await currentUser();

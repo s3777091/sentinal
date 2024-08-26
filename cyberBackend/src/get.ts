@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
+
+
 dotenv.config();
 
 const psw = process.env.KAFKA_PASSWORD;
@@ -13,7 +15,7 @@ if (!psw) {
 const prisma = new PrismaClient().$extends(withAccelerate());
 
 async function main() {
-  const cyberReceive = new CyberReceive(psw!);
+  const cyberReceive = new CyberReceive(psw!, "scan_group");
 
   const handleMessage = async (message: {
     username: string;
