@@ -21,7 +21,21 @@ export async function GET(req: Request): Promise<Response> {
 
 export async function POST(req: Request): Promise<Response> {
   try {
-    const { message} = await req.json();
+    // Check if the request has a body
+    const bodyText = await req.text();
+    if (!bodyText) {
+      return new Response("Request body is empty", { status: 400 });
+    }
+
+    // Attempt to parse the JSON body
+    let parsedBody: { message?: string };
+    try {
+      parsedBody = JSON.parse(bodyText);
+    } catch (error) {
+      return new Response("Invalid JSON format", { status: 400 });
+    }
+
+    const { message } = parsedBody;
 
     if (!message) {
       return new Response("Missing required fields", { status: 400 });
@@ -33,6 +47,7 @@ export async function POST(req: Request): Promise<Response> {
         { status: 400 }
       );
     }
+
     console.log(message);
 
     return new Response("Message sent successfully", { status: 200 });

@@ -5,22 +5,26 @@
 @layer components {
   /* Main Container */
   .main-container {
-    @apply flex min-h-screen flex-1 flex-col items-center bg-dark-1 px-6 pb-10 pt-20 max-md:pb-32 sm:px-10;
+    @apply flex min-h-screen flex-1 flex-col items-center px-6 pb-10 pt-20 max-md:pb-32 sm:px-10;
+    @apply bg-light-1 dark:bg-dark-2;
   }
 
   /* Head Text */
   .head-text {
-    @apply text-heading2-bold text-light-1;
+    @apply text-heading2-bold;
+    @apply text-dark-2 dark:text-light-2;
   }
 
   /* Activity Card */
   .activity-card {
-    @apply flex items-center gap-2 rounded-md bg-dark-2 px-7 py-4;
+    @apply flex items-center gap-2 rounded-md px-7 py-4;
+    /* @apply bg-light-2 dark:bg-dark-2; */
   }
 
   /* No Result */
   .no-result {
     @apply text-center !text-base-regular text-light-3;
+    /* @apply bg-light-2 dark:bg-dark-2; */
   }
 
   /* Community Card */
@@ -61,7 +65,8 @@
 
   /* Topbar */
   .topbar {
-    @apply fixed top-0 z-30 flex w-full items-center justify-between bg-dark-2 px-6 py-3;
+    @apply fixed top-0 z-30 flex w-full items-center justify-between px-6 py-3;
+    @apply bg-light-1 dark:bg-dark-2;
   }
 
   /* Bottombar */
@@ -79,7 +84,9 @@
 
   /* Left Sidebar */
   .leftsidebar {
-    @apply sticky left-0 top-0 z-20 flex h-screen w-fit flex-col justify-between overflow-auto border-r border-r-dark-4 bg-dark-2 pb-5 pt-28 max-md:hidden;
+    @apply sticky left-0 top-0 z-20 flex h-screen w-fit flex-col justify-between overflow-auto border-r pb-5 pt-28 max-md:hidden;
+    /* Combine light and dark mode styles logically */
+    @apply border-r-light-4 bg-light-1 dark:bg-dark-2 dark:border-r-dark-4;
   }
 
   .leftsidebar_link {
@@ -89,11 +96,6 @@
   /* Pagination */
   .pagination {
     @apply mt-10 flex w-full items-center justify-center gap-5;
-  }
-
-  /* Right Sidebar */
-  .rightsidebar {
-    @apply sticky right-0 top-0 z-20 flex h-screen w-fit flex-col justify-between gap-12 overflow-auto border-l border-l-dark-4 bg-dark-2 px-10 pb-6 pt-28 max-xl:hidden;
   }
 
   /* Auth Page */
@@ -244,7 +246,6 @@
     --ring: 212.7 26.8% 83.9%;
   }
 
-
   .no-scroll {
     overflow: hidden !important;
   }
@@ -254,5 +255,4 @@
     display: flex;
     flex-direction: column;
   }
-
 }

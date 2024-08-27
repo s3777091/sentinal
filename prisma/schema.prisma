@@ -33,7 +33,7 @@ model ApiServer {
 model ScanData {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
-  title       String   @db.VarChar(255)
+  title       String?
   detail      String?
   more_detail String?
   userId      Int

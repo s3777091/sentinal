@@ -14,8 +14,8 @@ import Topbar from "@/components/shared/Topbar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Threads",
-  description: "A Next.js 13 Meta Threads application",
+  title: "Skira",
+  description: "A Next.js 14 Skira application",
 };
 
 export default function RootLayout({
@@ -34,26 +34,24 @@ export default function RootLayout({
     >
       <html lang="en">
         <body className={inter.className}>
-          <Topbar />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Topbar />
 
-          <main className="flex flex-row">
-            <LeftSidebar />
-            <section className="main-container">
-              <div className="w-full">
-                <ThemeProvider
-                  attribute="class"
-                  defaultTheme="dark"
-                  enableSystem
-                  disableTransitionOnChange
-                >
-                  {children}
-                </ThemeProvider>
-              </div>
-            </section>
-            {/* @ts-ignore */}
-            <RightSidebar />
-          </main>
-          <Bottombar />
+            <main className="flex flex-row">
+              <LeftSidebar />
+              <section className="main-container">
+                <div className="w-full">{children}</div>
+              </section>
+              {/* @ts-ignore */}
+              <RightSidebar />
+            </main>
+            <Bottombar />
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

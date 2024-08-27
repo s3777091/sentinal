@@ -6,12 +6,25 @@ import { usePathname, useRouter } from "next/navigation";
 import { SignOutButton, SignedIn, useAuth } from "@clerk/nextjs";
 
 import { sidebarLinks } from "@/constants";
+import { useTheme } from "next-themes";
+import React, { useEffect, useState } from "react";
 
 const LeftSidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
-
   const { userId } = useAuth();
+  const { theme, resolvedTheme } = useTheme();
+
+  // State to check if the theme has been loaded
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <section className="custom-scrollbar leftsidebar">
@@ -27,16 +40,26 @@ const LeftSidebar = () => {
             <Link
               href={link.route}
               key={link.label}
-              className={`leftsidebar_link ${isActive && "bg-primary-500 "}`}
+              className={`leftsidebar_link ${
+                isActive
+                  ? theme === "dark" || resolvedTheme === "dark"
+                    ? "bg-primary-500"
+                    : "bg-light-3"
+                  : ""
+              }`}
             >
               <Image
-                src={link.imgURL}
+                src={
+                  theme === "dark" || resolvedTheme === "dark"
+                    ? link.darkImageUrl
+                    : link.imgURL
+                }
                 alt={link.label}
                 width={24}
                 height={24}
               />
 
-              <p className="text-light-1 max-lg:hidden">{link.label}</p>
+              <p className="max-lg:hidden">{link.label}</p>
             </Link>
           );
         })}
@@ -47,12 +70,16 @@ const LeftSidebar = () => {
           <SignOutButton redirectUrl="/sign-in">
             <div className="flex cursor-pointer gap-4 p-4">
               <Image
-                src="/assets/logout.svg"
+                src={
+                  theme === "dark" || resolvedTheme === "dark"
+                    ? "/assets/darklogout.svg"
+                    : "/assets/logout.svg"
+                }
                 alt="logout"
                 width={24}
                 height={24}
               />
-              <p className="text-light-2 max-lg:hidden">Logout</p>
+              <p className="max-lg:hidden">Logout</p>
             </div>
           </SignOutButton>
         </SignedIn>

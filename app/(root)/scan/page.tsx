@@ -1,9 +1,11 @@
 import Cookies from "js-cookie";
 import { currentUser } from "@clerk/nextjs/server";
-import { Mail } from "@/components/shared/mail";
+import { ScanMain } from "@/components/shared/ScanMain";
 import { accounts, mails } from "@/app/(root)/scan/data";
 import { redirect } from "next/navigation";
-import { getScanList, getUser } from "@/app/supercode";
+import { getUser } from "@/app/supercode";
+
+
 
 const ScanPage = async () => {
   const user = await currentUser();
@@ -15,8 +17,6 @@ const ScanPage = async () => {
   if (!uderDetail) {
     redirect("/sign-in");
   }
-  const listScan = await getScanList(uderDetail);
-
 
   const parseJSON = (value: string) => {
     try {
@@ -32,9 +32,8 @@ const ScanPage = async () => {
 
   return (
     <div className="min-h-[100vh] flex-col md:flex">
-      <Mail
+      <ScanMain
         user={uderDetail}
-        mails={mails} // listScan
         defaultLayout={layout ? parseJSON(layout) : undefined}
         defaultCollapsed={collapsed ? parseJSON(collapsed) : undefined}
       />

@@ -1,26 +1,25 @@
 export const sidebarLinks = [
     {
-      imgURL: "/assets/community.svg",
+      imgURL: "/assets/darkearth.svg",
+      darkImageUrl: "/assets/earth.svg",
       route: "/communities",
       label: "Communities",
     },
     {
-      imgURL: "/assets/search.svg",
+      imgURL: "/assets/radar.svg",
+      darkImageUrl: "/assets/darkradar.svg",
       route: "/scan",
       label: "Scan",
     },
     {
       imgURL: "/assets/message.svg",
+      darkImageUrl: "/assets/darkmessage.svg",
       route: "/",
       label: "Message",
     },
     {
-      imgURL: "/assets/create.svg",
-      route: "/create-thread",
-      label: "Create Thread",
-    },
-    {
       imgURL: "/assets/user.svg",
+      darkImageUrl: "/assets/darkuser.svg",
       route: "/profile",
       label: "Profile",
     },

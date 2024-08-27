@@ -5,47 +5,6 @@ import { withAccelerate } from "@prisma/extension-accelerate";
 import smile from "@/public/img/AI/smile.png";
 import { redirect } from "next/navigation";
 
-export async function getScanList(user: userDetail): Promise<ScanArray[]> {
-  const prisma = new PrismaClient().$extends(withAccelerate());
-
-  try {
-    // Find the user by email or username
-    const ex_User = await prisma.user.findFirst({
-      where: {
-        OR: [{ email: user.email }, { username: user.username }],
-      },
-      cacheStrategy: { swr: 60, ttl: 60 },
-    });
-
-    if (!ex_User) {
-      console.error("User not found.");
-      return [];
-    }
-
-    // Fetch the list of ScanData associated with the user's ID
-    const scans = await prisma.scanData.findMany({
-      where: {
-        userId: ex_User.id, // Use the user's ID
-      },
-      select: {
-        id: true,
-        title: true,
-        detail: true,
-        createdAt: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    return scans.length > 0 ? scans : [];
-  } catch (error) {
-    console.error("Error fetching scan data:", error);
-    return [];
-  } finally {
-    await prisma.$disconnect();
-  }
-}
-
 export async function getUser(user: User): Promise<userDetail | null> {
   const prisma = new PrismaClient().$extends(withAccelerate());
 

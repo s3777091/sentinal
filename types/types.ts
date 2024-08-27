@@ -29,6 +29,5 @@ export interface AIMessage {
 export interface ScanArray {
   id: number;
   title: string;
-  detail: string | null;
-  createdAt: Date;
+  detail: string;
 }

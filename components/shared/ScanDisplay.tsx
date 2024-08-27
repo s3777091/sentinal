@@ -1,7 +1,12 @@
 "use client";
+import React, { useState, useEffect } from "react";
+import { userDetail } from "@/types/types";
 
-import { type ChartConfig } from "@/components/ui/chart";
-import { Component, Component2 } from "@/components/ui/circle-chart";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Save, Upload, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,42 +14,30 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Mail } from "@/app/(root)/scan/data";
 import { ScrollArea } from "../ui/scroll-area";
 
-interface MailDisplayProps {
-  mail: Mail | null;
+interface ScanDisplayProps {
+  scan: {
+    id: number;
+    title: string;
+    detail: string;
+  } | null;
+  user: userDetail;
 }
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-];
+export function ScanDisplay({ scan, user }: ScanDisplayProps) {
+  const [loading, setLoading] = useState(false);
 
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "#2563eb",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "#60a5fa",
-  },
-} satisfies ChartConfig;
-
-export function MailDisplay({ mail }: MailDisplayProps) {
-
+  useEffect(() => {
+    if (scan && user) {
+      console.log(scan.title);
+      console.log(user.email);
+    }
+  }, [scan, user]);
 
   const sendScanData = async (message: string) => {
+    console.log("User's input message:", message);
+
     const controller = new AbortController();
 
     if (message.length > 700) {
@@ -60,19 +53,31 @@ export function MailDisplay({ mail }: MailDisplayProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        signal: controller.signal
+        signal: controller.signal,
+        body: JSON.stringify({ message }),
       });
 
       if (!response.ok) {
         throw new Error("Failed to fetch the API.");
       }
 
-      console.log("best");
-
-
+      console.log("Message successfully sent to the API.");
     } catch (error) {
       console.error("Error:", error);
       alert("Something went wrong when fetching from the API.");
+    }
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const inputElement = event.currentTarget.querySelector(
+      'textarea[name="userMessage"]'
+    ) as HTMLTextAreaElement;
+
+    if (inputElement) {
+      sendScanData(inputElement.value);
+      inputElement.value = "";
     }
   };
 
@@ -82,7 +87,7 @@ export function MailDisplay({ mail }: MailDisplayProps) {
         <div className="flex items-center gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" disabled={!mail}>
+              <Button variant="ghost" size="icon" disabled={!scan}>
                 <Upload className="h-4 w-4" />
                 <span className="sr-only">Upload</span>
               </Button>
@@ -91,7 +96,7 @@ export function MailDisplay({ mail }: MailDisplayProps) {
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" disabled={!mail}>
+              <Button variant="ghost" size="icon" disabled={!scan}>
                 <Save className="h-4 w-4" />
                 <span className="sr-only">Save</span>
               </Button>
@@ -117,24 +122,23 @@ export function MailDisplay({ mail }: MailDisplayProps) {
         </div>
       </div>
       <Separator />
-      {mail ? (
+      {scan ? (
         <div className="flex flex-1 flex-col">
           <div className="flex items-start p-4">
             <div className="flex items-start gap-4 text-sm">
               <Avatar>
-                <AvatarImage alt={mail.name} />
-                <AvatarFallback>
-                  {mail.name
-                    .split(" ")
-                    .map((chunk) => chunk[0])
-                    .join("")}
-                </AvatarFallback>
+                <AvatarImage
+                  alt={user.username}
+                  src={user.imageUrl || undefined}
+                />
               </Avatar>
               <div className="grid gap-1">
-                <div className="font-semibold">{mail.name}</div>
-                <div className="line-clamp-1 text-xs">{mail.subject}</div>
+                <div className="font-semibol">
+                  {user.username}
+                </div>
+                <div className="line-clamp-1 text-xs">{scan.title}</div>
                 <div className="line-clamp-1 text-xs">
-                  <span className="font-medium">Reply-To:</span> {mail.email}
+                  <span className="font-medium">Reply-To:</span> {user.email}
                 </div>
               </div>
             </div>
@@ -142,27 +146,19 @@ export function MailDisplay({ mail }: MailDisplayProps) {
           <Separator />
           <ScrollArea className="h-[25vh]">
             <div className="flex-1 whitespace-pre-wrap p-4 text-sm">
-              {mail.text}
+              {scan.detail}
             </div>
           </ScrollArea>
-          <div className="flex">
-            <Component />
-            <Separator orientation="vertical" />
-            <Component2 />
-          </div>
           <div className="p-4">
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="grid gap-4">
                 <Textarea
                   className="p-4"
-                  placeholder={`Reply ${mail.name}...`}
+                  name="userMessage"
+                  placeholder={`Reply to ${user.username}...`}
                 />
                 <div className="flex items-center">
-                  <Button
-                    // onClick={sendScanData}
-                    size="sm"
-                    className="ml-auto"
-                  >
+                  <Button type="submit" size="sm" className="ml-auto">
                     Send
                   </Button>
                 </div>

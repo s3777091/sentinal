@@ -5,7 +5,6 @@ CREATE TABLE "User" (
     "username" TEXT NOT NULL,
     "name" TEXT,
     "apiServerId" INTEGER,
-    "isonline" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -14,6 +13,7 @@ CREATE TABLE "User" (
 CREATE TABLE "ApiServer" (
     "id" SERIAL NOT NULL,
     "apiUrl" VARCHAR(255) NOT NULL,
+    "status" VARCHAR(10) NOT NULL,
 
     CONSTRAINT "ApiServer_pkey" PRIMARY KEY ("id")
 );
@@ -22,7 +22,7 @@ CREATE TABLE "ApiServer" (
 CREATE TABLE "ScanData" (
     "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "title" VARCHAR(255) NOT NULL,
+    "title" TEXT,
     "detail" TEXT,
     "more_detail" TEXT,
     "userId" INTEGER NOT NULL,

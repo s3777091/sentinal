@@ -1,20 +1,23 @@
 import { OrganizationSwitcher, SignOutButton, SignedIn } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
+import { ModeToggle } from "@/components/forms/mode-toggle";
 
 function Topbar() {
   const isUserLoggedIn = true;
 
   return (
-    <nav className="topbar">
+    <nav className="topbar flex items-center justify-between px-4 py-2">
       <Link href="/" className="flex items-center gap-4">
         <Image src="/assets/logo.svg" alt="logo" width={28} height={28} />
-        <p className="text-heading3-bold text-light-1 max-xs:hidden">
+        <p className="text-heading3-bold text-dark-1 dark:text-light-2 max-xs:hidden">
           CyberSentinal
         </p>
       </Link>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-4">
+        <ModeToggle /> {/* Add the ModeToggle component here */}
+
         <div className="block md:hidden">
           <SignedIn>
             <SignOutButton>

@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import MessageBox from "@/components/MessageBox";
 import { userDetail } from "@/types/types";
 import Image from "next/image";
 import Bgdark from "@/public/img/dark/ai-chat/bg-image.png";
+import { useTheme } from "next-themes";
 
 interface Props {
   users: userDetail;
@@ -40,7 +41,7 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
         />
       </div>
       {/* Scrollable message container */}
-      <div className="flex-1 overflow-y-auto mb-4 space-y-4 max-h-[400px]">
+      <div className="flex-1 overflow-y-auto mb-4 space-y-4 max-h">
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -53,7 +54,7 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
                 <img
                   src={msg.user.imageUrl || "/default-avatar.png"}
                   alt={msg.user.username || "User"}
-                  className="w-6 h-6 rounded-full mr-3"
+                  className="w-6 h-6 rounded-full mr-8"
                 />
               </div>
             )}

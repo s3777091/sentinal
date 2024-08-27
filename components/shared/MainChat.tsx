@@ -78,7 +78,7 @@ const MainChat = (props: Props) => {
       user: props.user.username,
       inputMessage: message,
       prompType: typeValue,
-      length: 256
+      length: 384
     };
 
     try {
@@ -162,7 +162,7 @@ const MainChat = (props: Props) => {
         <h1 className="head-text">Workspace</h1>
         <Drawer>
           <DrawerTrigger asChild>
-            <Button variant="ghost" size="icon" style={{ color: "white" }}>
+            <Button variant="ghost" size="icon">
               <Settings className="w-5 h-5" />
               <span className="sr-only">Settings</span>
             </Button>

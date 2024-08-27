@@ -13,36 +13,34 @@ model User {
   username     String        @unique
   name         String?
   apiServerId  Int?
-  isonline     Boolean       @default(false)
   posts        Post[]
   profile      Profile?
   historyChats HistoryChat[] // One User has many HistoryChats
-  scanData     ScanData[]    // One User has many ScanData
+  scanData     ScanData[] // One User has many ScanData
   apiServer    ApiServer?    @relation(fields: [apiServerId], references: [id])
 
   @@unique([email, username]) // Ensure both email and username are unique
-  @@index([apiServerId])       // Index to optimize querying users by apiServerId
+  @@index([apiServerId]) // Index to optimize querying users by apiServerId
 }
 
 model ApiServer {
-  id        Int     @id @default(autoincrement())
-  apiUrl    String  @db.VarChar(255)
-  users     User[]  // One ApiServer can have many Users
-
-  @@index([apiUrl]) // Index to optimize querying by apiUrl
+  id       Int     @id @default(autoincrement())
+  apiUrl   String  @db.VarChar(255)
+  users    User[]
+  status   String  @db.VarChar(10)
+  @@index([apiUrl])
 }
-
 model ScanData {
-  id             Int      @id @default(autoincrement())
-  createdAt      DateTime @default(now())
-  title          String   @db.VarChar(255)
-  detail         String?
-  more_detail    String?
-  userId         Int
-  scanUser       User     @relation(fields: [userId], references: [id])
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  title       String?
+  detail      String?
+  more_detail String?
+  userId      Int
+  scanUser    User     @relation(fields: [userId], references: [id])
 
   @@index([userId]) // Index to optimize querying scan data by userId
-  @@index([title])  // Index to optimize querying by title
+  @@index([title]) // Index to optimize querying by title
 }
 
 model Post {
@@ -55,7 +53,7 @@ model Post {
   authorId  Int
   comments  Comment[] // One Post has many Comments
 
-  @@index([authorId])  // Index to optimize querying by authorId
+  @@index([authorId]) // Index to optimize querying by authorId
   @@index([createdAt]) // Index to optimize querying posts by creation date
 }
 
@@ -83,7 +81,7 @@ model HistoryChat {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   title     String   @db.VarChar(255)
-  chats     Chat[]   // One HistoryChat has many Chats
+  chats     Chat[] // One HistoryChat has many Chats
   User      User?    @relation(fields: [userId], references: [id])
   userId    Int?
 
