@@ -6,7 +6,6 @@ import MessageBox from "@/components/MessageBox";
 import { userDetail } from "@/types/types";
 import Image from "next/image";
 import Bgdark from "@/public/img/dark/ai-chat/bg-image.png";
-import { useTheme } from "next-themes";
 
 interface Props {
   users: userDetail;
@@ -19,7 +18,7 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
 
   const handleSubmit = () => {
     onButtonClick(message);
-    setMessage(""); // Clear the input after submission
+    setMessage("");
   };
 
   return (

@@ -1,7 +1,6 @@
 import { ChatBody } from "@/types/types";
 import { Client } from "@gradio/client";
 import { PrismaClient } from "@prisma/client";
-import { withAccelerate } from "@prisma/extension-accelerate";
 
 const psw: string | undefined = process.env.KAFKA_PASSWORD;
 const hfToken: string | undefined = process.env.HUGGINGFACE_API_KEY;
@@ -22,15 +21,14 @@ if (!psw) {
 }
 
 export async function POST(req: Request): Promise<Response> {
-  const prisma = new PrismaClient().$extends(withAccelerate());
+  const prisma = new PrismaClient();
 
   let user_detail: any = null;
 
   try {
     const { user, inputMessage, prompType } = (await req.json()) as ChatBody;
     user_detail = await prisma.user.findFirst({
-      where: { username: user },
-      cacheStrategy: { swr: 60, ttl: 60 },
+      where: { username: user }
     });
 
     if (!user_detail) {

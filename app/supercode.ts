@@ -1,12 +1,11 @@
 import { ScanArray, userDetail } from "@/types/types";
 import { User } from "@clerk/nextjs/server";
 import { PrismaClient } from "@prisma/client";
-import { withAccelerate } from "@prisma/extension-accelerate";
 import smile from "@/public/img/AI/smile.png";
 import { redirect } from "next/navigation";
 
 export async function getUser(user: User): Promise<userDetail | null> {
-  const prisma = new PrismaClient().$extends(withAccelerate());
+  const prisma = new PrismaClient();
 
   try {
     const { emailAddresses, username: userUsername, imageUrl } = user;
@@ -18,8 +17,7 @@ export async function getUser(user: User): Promise<userDetail | null> {
     let ex_User = await prisma.user.findFirst({
       where: {
         OR: [{ email }, { username }],
-      },
-      cacheStrategy: { swr: 60, ttl: 60 },
+      }
     });
 
     if (ex_User) {
@@ -41,7 +39,7 @@ export async function getUser(user: User): Promise<userDetail | null> {
 }
 
 export async function UserDetailUpdate(user: User): Promise<userDetail | null> {
-  const prisma = new PrismaClient().$extends(withAccelerate());
+  const prisma = new PrismaClient();
   try {
     const {
       emailAddresses,
@@ -56,8 +54,7 @@ export async function UserDetailUpdate(user: User): Promise<userDetail | null> {
     const fullName = `${firstName} ${lastName}`;
 
     let ex_User = await prisma.user.findUnique({
-      where: { email },
-      cacheStrategy: { swr: 60, ttl: 60 },
+      where: { email }
     });
 
     if (!ex_User) {

@@ -1,12 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo, useCallback } from "react";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import Cookies from "js-cookie";
+import React, { useEffect, useState, useCallback } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,21 +8,15 @@ import { ScanDisplay } from "@/components/shared/ScanDisplay";
 import { ScanList } from "@/components/shared/ScanList";
 import { ScanArray, userDetail } from "@/types/types";
 
-interface MailProps {
+interface ScanProps {
   user: userDetail;
-  defaultLayout: number[] | undefined;
   defaultCollapsed?: boolean;
 }
 
-export function ScanMain({ user, defaultLayout, defaultCollapsed }: MailProps) {
+export function ScanMain({ user }: ScanProps) {
   const [scans, setScans] = useState<ScanArray[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-
-  const layout = useMemo(() => {
-    const savedLayout = Cookies.get("react-resizable-panels:layout");
-    return savedLayout ? JSON.parse(savedLayout) : defaultLayout ?? [50, 50];
-  }, [defaultLayout]);
 
   useEffect(() => {
     const fetchScans = async () => {
@@ -69,20 +57,12 @@ export function ScanMain({ user, defaultLayout, defaultCollapsed }: MailProps) {
   return (
     <TooltipProvider delayDuration={0}>
       <Separator />
-      <ResizablePanelGroup
-        direction="horizontal"
-        onLayout={useCallback(
-          (sizes: number[]) => {
-            Cookies.set("react-resizable-panels:layout", JSON.stringify(sizes));
-          },
-          []
-        )}
-        className="h-full min-h-svh min-w-full items-stretch"
-      >
-        <ResizablePanel defaultSize={layout[0]} minSize={30}>
+      <div className="flex h-full min-h-screen min-w-full">
+        {/* Left Panel: Scan List */}
+        <div className="w-1/3 border-r border-gray-200">
           <Tabs defaultValue="all">
             <div className="flex items-center px-4 py-[16px]">
-              <h1 className="text-xl font-bold">Scan</h1>
+              <h1 className="text-xl font-bold">Scan History</h1>
             </div>
             <Separator />
             <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60"></div>
@@ -96,15 +76,16 @@ export function ScanMain({ user, defaultLayout, defaultCollapsed }: MailProps) {
               )}
             </TabsContent>
           </Tabs>
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize={layout[1]} minSize={30}>
+        </div>
+
+        {/* Right Panel: Scan Display */}
+        <div className="w-2/3">
           <ScanDisplay
             scan={scans.find((s) => s.id === selectedId) || null}
             user={user}
           />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+        </div>
+      </div>
       <Separator />
     </TooltipProvider>
   );

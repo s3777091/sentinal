@@ -57,7 +57,6 @@ const ScanItem: React.FC<ScanItemProps> = ({ item, isSelected, onClick }) => {
             <div className="font-semibold">{item.title}</div>
           </div>
         </div>
-        <div className="text-xs font-medium">Level: {item.detail}</div>
       </div>
     </button>
   );

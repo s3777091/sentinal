@@ -1,9 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { withAccelerate } from "@prisma/extension-accelerate";
 
 export async function POST(req: Request): Promise<Response> {
     try {
-        const prisma = new PrismaClient().$extends(withAccelerate());
+        const prisma = new PrismaClient();
         const { user } = await req.json();
 
         if (!user || (!user.email && !user.username)) {
@@ -16,8 +15,7 @@ export async function POST(req: Request): Promise<Response> {
         const ex_User = await prisma.user.findFirst({
             where: {
                 OR: [{ email: user.email }, { username: user.username }],
-            },
-            cacheStrategy: { swr: 60, ttl: 60 },
+            }
         });
 
         if (!ex_User) {
@@ -36,9 +34,10 @@ export async function POST(req: Request): Promise<Response> {
                 id: true,
                 title: true,
                 detail: true,
+                more_detail: true,
             },
             orderBy: {
-                createdAt: "desc",
+                createdAt: 'desc',
             },
         });
 

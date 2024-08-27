@@ -1,5 +1,3 @@
-import { CyberCloud } from "@dad1909/cybersoda";
-
 export interface userDetail {
   email: string;
   username: string;
@@ -12,12 +10,6 @@ export interface ChatBody {
   length: number
 }
 
-export interface KafkaBody {
-  inputMessage: string;
-  prompType: string;
-  length: number;
-  cloud: CyberCloud;
-}
 
 export interface AIMessage {
   username: string;
@@ -30,4 +22,12 @@ export interface ScanArray {
   id: number;
   title: string;
   detail: string;
+  more_detail: string;
+}
+
+export interface ScanInput {
+  github: string;
+  language: string;
+  token: string;
+  user: string;
 }

@@ -1,4 +1,3 @@
-import { CyberCloud } from "@dad1909/cybersoda";
 import { AIMessage, ChatBody, userDetail } from "@/types/types";
 
 export async function GET(req: Request): Promise<Response> {

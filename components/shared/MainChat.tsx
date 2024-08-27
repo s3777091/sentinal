@@ -13,10 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Settings, Share, Loader } from "lucide-react";
 import ModelSelect from "@/components/forms/ModelSelect";
 import ChatMessage from "@/components/forms/ChatMessage";
-import { AIMessage, ChatBody, KafkaBody, userDetail } from "@/types/types";
+import { AIMessage, ChatBody, userDetail } from "@/types/types";
 import aiChat from "@/public/img/AI/sparkling.png";
-import { CyberCloud } from "@dad1909/cybersoda";
-import { userAgent } from "next/server";
 
 const ADD_MESSAGE = "ADD_MESSAGE";
 

@@ -1,83 +1,114 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { userDetail } from "@/types/types";
+import React, { useState, useEffect, useReducer } from "react";
+import { ScanInput, userDetail } from "@/types/types";
 
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Save, Upload, Search } from "lucide-react";
+
+import { Upload, Github, FolderCog } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "../ui/scroll-area";
+import { supportedLanguages } from "@/constants";
+
+const ADD_SCAN_INPUT = "ADD_SCAN";
 
 interface ScanDisplayProps {
   scan: {
     id: number;
     title: string;
     detail: string;
+    more_detail: string;
   } | null;
   user: userDetail;
 }
 
+const isLanguageSupported = async (language: string): Promise<boolean> => {
+  // Define the pattern for valid language names or extensions
+  const languagePattern = /^[a-zA-Z\-]+$/; // Allows letters and hyphens
+
+  // Normalize the input
+  const normalizedLanguage = language.toLowerCase().trim();
+
+  // Validate the language format
+  if (!languagePattern.test(normalizedLanguage)) {
+    console.error("Invalid language format.");
+    alert("Invalid language format.");
+    return false;
+  }
+
+  // Check if the language is supported
+  return supportedLanguages.has(normalizedLanguage);
+};
+
+const checkToken = async (token: string): Promise<boolean> => {
+  const tokenPattern = /^ghp_[A-Za-z0-9]{36}$/;
+
+  // Validate the token format
+  if (!tokenPattern.test(token)) {
+    console.error("Invalid GitHub token format.");
+    alert("Invalid GitHub token format.");
+    return false;
+  } else {
+    return true;
+  }
+};
+
 export function ScanDisplay({ scan, user }: ScanDisplayProps) {
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (scan && user) {
-      console.log(scan.title);
-      console.log(user.email);
-    }
-  }, [scan, user]);
+  const [github, setgithub] = useState<string>("");
+  const [language, setLanguage] = useState<string>("");
+  const [token, setToken] = useState<string>("");
 
-  const sendScanData = async (message: string) => {
-    console.log("User's input message:", message);
-
-    const controller = new AbortController();
-
-    if (message.length > 700) {
-      alert(
-        `Please enter code less than 700 characters. You are currently at ${message.length} characters.`
-      );
-      return;
-    }
-
+  const sendData = async () => {
     try {
-      const response = await fetch("/api/kafka", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        signal: controller.signal,
-        body: JSON.stringify({ message }),
-      });
+      console.log("Starting sendData function");
+      const controller = new AbortController();
+      const isTokenValid = await checkToken(token);
+      const isLangSupported = await isLanguageSupported(language);
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch the API.");
+      console.log("Token valid:", isTokenValid);
+      console.log("Language supported:", isLangSupported);
+
+      if (isTokenValid && isLangSupported) {
+        const body: ScanInput = {
+          github: github,
+          language: language,
+          token: token,
+          user: user.username,
+        };
+
+        console.log("Sending request with body:", body);
+
+        const response = await fetch("/api/github", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          signal: controller.signal,
+          body: JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        } else {
+          alert(
+            "GET github -> send that code to GPU SERVER compute and return back take time pls wait"
+          );
+        }
+      } else {
+        console.error("Invalid token or unsupported language.");
       }
-
-      console.log("Message successfully sent to the API.");
     } catch (error) {
-      console.error("Error:", error);
+      console.log("Error occurred:", error);
       alert("Something went wrong when fetching from the API.");
-    }
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const inputElement = event.currentTarget.querySelector(
-      'textarea[name="userMessage"]'
-    ) as HTMLTextAreaElement;
-
-    if (inputElement) {
-      sendScanData(inputElement.value);
-      inputElement.value = "";
     }
   };
 
@@ -87,21 +118,12 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
         <div className="flex items-center gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" disabled={!scan}>
+              <Button variant="ghost" size="icon" onClick={sendData}>
                 <Upload className="h-4 w-4" />
                 <span className="sr-only">Upload</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Upload</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" disabled={!scan}>
-                <Save className="h-4 w-4" />
-                <span className="sr-only">Save</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Save</TooltipContent>
+            <TooltipContent>Click to upload</TooltipContent>
           </Tooltip>
           <Separator orientation="vertical" className="mx-1 h-6" />
           <Tooltip>
@@ -109,9 +131,34 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
               <PopoverTrigger asChild>
                 <TooltipTrigger asChild>
                   <form>
-                    <div className="relative">
-                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Search" className="pl-8" />
+                    <div className="relative flex items-center">
+                      <div className="relative">
+                        <Github className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Github link"
+                          className="pl-8 pr-4"
+                          value={github}
+                          onChange={(e) => setgithub(e.target.value)}
+                        />
+                      </div>
+                      <div className="relative ml-4">
+                        <FolderCog className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="language to detect"
+                          className="pl-8 pr-4"
+                          value={language}
+                          onChange={(e) => setLanguage(e.target.value)}
+                        />
+                      </div>
+                      <div className="relative ml-4">
+                        <FolderCog className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="token"
+                          className="pl-8 pr-4"
+                          value={token}
+                          onChange={(e) => setToken(e.target.value)}
+                        />
+                      </div>
                     </div>
                   </form>
                 </TooltipTrigger>
@@ -124,6 +171,7 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
       <Separator />
       {scan ? (
         <div className="flex flex-1 flex-col">
+          <div className="p-4"></div>
           <div className="flex items-start p-4">
             <div className="flex items-start gap-4 text-sm">
               <Avatar>
@@ -133,38 +181,17 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
                 />
               </Avatar>
               <div className="grid gap-1">
-                <div className="font-semibol">
-                  {user.username}
-                </div>
+                <div className="font-semibol">{user.username}</div>
                 <div className="line-clamp-1 text-xs">{scan.title}</div>
-                <div className="line-clamp-1 text-xs">
-                  <span className="font-medium">Reply-To:</span> {user.email}
-                </div>
               </div>
             </div>
           </div>
           <Separator />
-          <ScrollArea className="h-[25vh]">
+          <ScrollArea className="h-[80vh] max-h-[80vh]">
             <div className="flex-1 whitespace-pre-wrap p-4 text-sm">
-              {scan.detail}
+              {scan.more_detail}
             </div>
           </ScrollArea>
-          <div className="p-4">
-            <form onSubmit={handleSubmit}>
-              <div className="grid gap-4">
-                <Textarea
-                  className="p-4"
-                  name="userMessage"
-                  placeholder={`Reply to ${user.username}...`}
-                />
-                <div className="flex items-center">
-                  <Button type="submit" size="sm" className="ml-auto">
-                    Send
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </div>
         </div>
       ) : (
         <div className="p-8 text-center text-muted-foreground">

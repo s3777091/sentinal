@@ -15,7 +15,6 @@ model User {
   apiServerId  Int?
   posts        Post[]
   profile      Profile?
-  historyChats HistoryChat[] // One User has many HistoryChats
   scanData     ScanData[] // One User has many ScanData
   apiServer    ApiServer?    @relation(fields: [apiServerId], references: [id])
 
@@ -65,27 +64,6 @@ model Comment {
   postId    Int
 
   @@index([postId]) // Index to optimize querying comments by postId
-}
-
-model Chat {
-  id            Int         @id @default(autoincrement())
-  produce       String      @db.VarChar(255)
-  message       String?
-  historyChat   HistoryChat @relation(fields: [historyChatId], references: [id])
-  historyChatId Int
-
-  @@index([historyChatId]) // Index to optimize querying chats by historyChatId
-}
-
-model HistoryChat {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  title     String   @db.VarChar(255)
-  chats     Chat[] // One HistoryChat has many Chats
-  User      User?    @relation(fields: [userId], references: [id])
-  userId    Int?
-
-  @@index([userId]) // Index to optimize querying history chats by userId
 }
 
 model Profile {
