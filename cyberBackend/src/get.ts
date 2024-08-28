@@ -14,6 +14,7 @@ if (!psw) {
 
 const prisma = new PrismaClient().$extends(withAccelerate());
 
+
 async function main() {
   const cyberReceive = new CyberReceive(psw!, "scan_group");
 
@@ -24,6 +25,19 @@ async function main() {
     detail: string;
   }) => {
     console.log("Received message:");
+
+    // Extract the substring starting from "Title:" to the end of the text
+    const titleStartIndex = message.title.indexOf("Title:");
+    const extractedTitle = titleStartIndex !== -1
+      ? message.title.substring(titleStartIndex).trim()
+      : message.title;
+
+    // Remove the specified string from message.detail
+    const cleanedDetail = message.detail.replace(
+      "Identify the line of code that is vulnerable and describe the type of software vulnerability,no yapping if no vulnerable code found pls return 'no vulnerable'",
+      ""
+    ).trim();
+
     // Find the user by username
     const user = await prisma.user.findUnique({
       where: {
@@ -36,9 +50,9 @@ async function main() {
     if (user) {
       await prisma.scanData.create({
         data: {
-          title: message.title,
+          title: extractedTitle,
           detail: message.level,
-          more_detail: message.detail,
+          more_detail: cleanedDetail,
           userId: user.id,
         },
       });
