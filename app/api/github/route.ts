@@ -23,9 +23,9 @@ async function getFile(
 ): Promise<FileContent | null> {
   const url = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${repoBranch}/${filePath}`;
 
-  const cyber = new CyberSend(psw!, "send_scan_message");
-  await cyber.startProducer();
   try {
+    const cyber = new CyberSend(psw!, "send_scan_message");
+    await cyber.startProducer();
     const response = await axios.get(url, { headers });
     if (response.status === 200) {
       const messageData = [
@@ -35,7 +35,7 @@ async function getFile(
         },
       ];
       // Send the message using CyberSend
-      await cyber.sendMessages(messageData);
+      // await cyber.sendMessages(messageData);
       return {
         path: filePath,
         content: response.data,

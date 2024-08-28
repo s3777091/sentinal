@@ -6,6 +6,8 @@ import MessageBox from "@/components/MessageBox";
 import { userDetail } from "@/types/types";
 import Image from "next/image";
 import Bgdark from "@/public/img/dark/ai-chat/bg-image.png";
+import Bg from "@/public/img/light/ai-chat/bg-image.png";
+import { useTheme } from "next-themes";
 
 interface Props {
   users: userDetail;
@@ -21,20 +23,28 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
     setMessage("");
   };
 
+  const { theme, resolvedTheme } = useTheme();
+
+  // State to check if the theme has been loaded
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
   return (
-    <div
-      className="relative flex h-full w-full flex-col rounded-xl bg-muted/50 p-4"
-      style={{
-        color: "white",
-        backgroundColor: "whitesmoke",
-        borderColor: "white",
-      }}
-    >
+    <div className="relative flex h-full w-full flex-col rounded-xl bg-muted/50 p-4">
       <div className="absolute left-[30%] top-[50%] z-[0] w-[240px] translate-y-[-50%] md:left-[35%] lg:left-[38%] xl:left-[30%] xl:w-[300px]">
         <Image
           width="340"
           height="181"
-          src={Bgdark.src}
+          src={
+            theme === "dark" || resolvedTheme === "dark" ? Bgdark.src : Bg.src
+          }
           className="absolute z-[0] w-[200px] translate-y-[-50%] xl:w-[350px]"
           alt=""
         />

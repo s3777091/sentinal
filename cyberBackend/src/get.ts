@@ -26,11 +26,6 @@ async function main() {
   }) => {
     console.log("Received message:");
 
-    // Extract the substring starting from "Title:" to the end of the text
-    const titleStartIndex = message.title.indexOf("Title:");
-    const extractedTitle = titleStartIndex !== -1
-      ? message.title.substring(titleStartIndex).trim()
-      : message.title;
 
     // Remove the specified string from message.detail
     const cleanedDetail = message.detail.replace(
@@ -50,7 +45,7 @@ async function main() {
     if (user) {
       await prisma.scanData.create({
         data: {
-          title: extractedTitle,
+          title: message.title,
           detail: message.level,
           more_detail: cleanedDetail,
           userId: user.id,
