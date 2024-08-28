@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import MessageBox from "@/components/MessageBox";
 import { userDetail } from "@/types/types";
 import Image from "next/image";
+import { dark } from "@clerk/themes";
+import { useTheme } from 'next-themes';
+
 import Bgdark from "@/public/img/dark/ai-chat/bg-image.png";
 import Bg from "@/public/img/light/ai-chat/bg-image.png";
 import { useTheme } from "next-themes";
@@ -17,6 +20,17 @@ interface Props {
 
 const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
   const [message, setMessage] = useState<string>("");
+  
+  const { theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    // Prevent rendering until the theme is fully loaded
+    return null;
+  }
 
   const handleSubmit = () => {
     onButtonClick(message);
@@ -37,6 +51,15 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
   }
 
   return (
+    <div
+      className="relative flex h-full w-full flex-col rounded-xl bg-muted/50 p-4"
+      style={{
+        color: "white",
+        backgroundColor: theme === "dark" ? "#333" : "#f2f5f9",
+        borderColor: "white",
+      }}
+    >
+      <div className="absolute top-[45%] flex flex-col items-center w-[100%]">
     <div className="relative flex h-full w-full flex-col rounded-xl bg-muted/50 p-4">
       <div className="absolute left-[30%] top-[50%] z-[0] w-[240px] translate-y-[-50%] md:left-[35%] lg:left-[38%] xl:left-[30%] xl:w-[300px]">
         <Image
@@ -86,9 +109,14 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
           placeholder="Type your message here..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          style={{
+            color: theme === "dark" ? "white" : "black",
+            backgroundColor: theme === "dark" ? "#333" : "#f2f5f9",
+            borderColor: theme === "dark" ? "white" : "black"
+          }}
         />
         <Button
-          className="mt-auto flex h-[unset] w-[200px] items-center justify-center rounded-lg px-4 py-5 text-base font-medium"
+          className="mt-auto flex h-[unset] w-[200px] bg-[#7878A3] items-center justify-center rounded-lg px-4 py-5 text-base font-medium"
           onClick={handleSubmit}
         >
           Submit
