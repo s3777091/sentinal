@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/shared/theme-provider";
-import { dark } from "@clerk/themes";
 
 import "../globals.css";
 import LeftSidebar from "@/components/shared/LeftSidebar";

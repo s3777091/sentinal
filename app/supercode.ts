@@ -1,6 +1,7 @@
 import { ScanArray, userDetail } from "@/types/types";
 import { User } from "@clerk/nextjs/server";
 import { PrismaClient } from "@prisma/client";
+
 import smile from "@/public/img/AI/smile.png";
 import { redirect } from "next/navigation";
 
