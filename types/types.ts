@@ -7,7 +7,8 @@ export interface ChatBody {
   user: string;
   inputMessage: string;
   prompType: string;
-  length: number
+  length: number,
+  newConversation: boolean
 }
 
 
@@ -30,4 +31,16 @@ export interface ScanInput {
   language: string;
   token: string;
   user: string;
+}
+
+export interface LanguagePatterns {
+  extractFunctionsAndClasses: (code: string) => string[];
+}
+
+export interface userRecordDb {
+  id: number;
+  email: string;
+  username: string;
+  name: string | null;
+  apiServerId: number | null;
 }

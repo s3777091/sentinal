@@ -15,11 +15,12 @@ model User {
   apiServerId  Int?
   posts        Post[]
   profile      Profile?
-  scanData     ScanData[] // One User has many ScanData
+  scanData     ScanData[]    // One User has many ScanData
   apiServer    ApiServer?    @relation(fields: [apiServerId], references: [id])
+  conversations Conversation[] // One User has many Conversations
 
   @@unique([email, username]) // Ensure both email and username are unique
-  @@index([apiServerId]) // Index to optimize querying users by apiServerId
+  @@index([apiServerId])       // Index to optimize querying users by apiServerId
 }
 
 model ApiServer {
@@ -27,19 +28,21 @@ model ApiServer {
   apiUrl   String  @db.VarChar(255)
   users    User[]
   status   String  @db.VarChar(10)
+
   @@index([apiUrl])
 }
+
 model ScanData {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   title       String?
-  detail      String?
+  level       String?
   more_detail String?
   userId      Int
   scanUser    User     @relation(fields: [userId], references: [id])
 
-  @@index([userId]) // Index to optimize querying scan data by userId
-  @@index([title]) // Index to optimize querying by title
+  @@index([userId])
+  @@index([title])
 }
 
 model Post {
@@ -75,3 +78,16 @@ model Profile {
 
   @@index([userId]) // Index to optimize querying profiles by userId
 }
+
+model Conversation {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  messages   Json     // Store messages as JSON
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])  // Index to optimize querying conversations by userId
+  @@index([createdAt]) // Index to optimize querying conversations by creation date
+}
+

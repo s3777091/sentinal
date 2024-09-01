@@ -17,6 +17,7 @@ import { AIMessage, ChatBody, userDetail } from "@/types/types";
 import aiChat from "@/public/img/AI/sparkling.png";
 
 const ADD_MESSAGE = "ADD_MESSAGE";
+const CLEAR_MESSAGES = "CLEAR_MESSAGES";
 
 interface Message {
   user: userDetail;
@@ -26,15 +27,20 @@ interface AddMessageAction {
   type: typeof ADD_MESSAGE;
   payload: Message;
 }
+interface ClearMessagesAction {
+  type: typeof CLEAR_MESSAGES;
+}
 type MessagesState = Message[];
 
 const messagesReducer = (
   state: MessagesState,
-  action: AddMessageAction
+  action: AddMessageAction | ClearMessagesAction
 ): MessagesState => {
   switch (action.type) {
     case ADD_MESSAGE:
       return [...state, action.payload];
+    case CLEAR_MESSAGES:
+      return []; // Clear the messages
     default:
       return state;
   }
@@ -48,6 +54,7 @@ const MainChat = (props: Props) => {
   const [selectedType, setSelectedType] = useState<string>("");
   const [messages, dispatch] = useReducer(messagesReducer, []); // Initialize messages state
   const [loading, setLoading] = useState<boolean>(false);
+  const [newConversation, setNewConversation] = useState<boolean>(false); // State to track if it's a new conversation
 
   const typeValue = useMemo(() => {
     switch (selectedType) {
@@ -56,7 +63,7 @@ const MainChat = (props: Props) => {
       case "Vulnerable":
         return "vulnerable";
       default:
-        return "vulnerable";
+        return "Library";
     }
   }, [selectedType]);
 
@@ -76,7 +83,8 @@ const MainChat = (props: Props) => {
       user: props.user.username,
       inputMessage: message,
       prompType: typeValue,
-      length: 384
+      length: 384,
+      newConversation: newConversation, // Send newConversation flag
     };
 
     try {
@@ -100,13 +108,14 @@ const MainChat = (props: Props) => {
           user: {
             email: props.user.email,
             username: "AI",
-            imageUrl: aiChat.src
+            imageUrl: aiChat.src,
           },
           message: data.result,
         },
       });
 
       setLoading(false);
+      setNewConversation(false); // Reset the new conversation flag after the first message
     } catch (error) {
       console.error("Error:", error);
       alert("Something went wrong when fetching from the API.");
@@ -118,11 +127,16 @@ const MainChat = (props: Props) => {
     setSelectedType(value);
   };
 
+  const startNewChat = () => {
+    dispatch({ type: CLEAR_MESSAGES }); // Clear the current messages
+    setNewConversation(true); // Set the new conversation flag
+  };
+
   const sendScanMessage = async (message: string) => {
     try {
       dispatch({ type: ADD_MESSAGE, payload: { user: props.user, message } });
       const controller = new AbortController();
-  
+
       if (message.length > 700) {
         alert(
           `Please enter code less than 700 characters. You are currently at ${message.length} characters.`
@@ -146,8 +160,6 @@ const MainChat = (props: Props) => {
       if (!response.ok) {
         throw new Error(`Failed to fetch the API. Status: ${response.status}`);
       }
-
-      
     } catch (error) {
       console.log(error);
       alert("Something went wrong when fetching from the API.");
@@ -177,9 +189,14 @@ const MainChat = (props: Props) => {
             </form>
           </DrawerContent>
         </Drawer>
-        <Button variant="outline" size="sm" className="ml-auto gap-1.5 text-sm">
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-auto gap-1.5 text-sm"
+          onClick={startNewChat} // Attach the startNewChat function to the onClick event
+        >
           <Share className="w-5 h-5" />
-          Save
+          New Chat
         </Button>
       </header>
 

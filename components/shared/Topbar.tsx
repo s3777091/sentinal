@@ -1,10 +1,9 @@
-import { OrganizationSwitcher, SignOutButton, SignedIn } from "@clerk/nextjs";
+import { SignOutButton, SignedIn, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { ModeToggle } from "@/components/forms/mode-toggle";
 
 function Topbar() {
-  const isUserLoggedIn = true;
 
   return (
     <nav className="topbar flex items-center justify-between px-4 py-2">
@@ -17,7 +16,6 @@ function Topbar() {
 
       <div className="flex items-center gap-4">
         <ModeToggle /> {/* Add the ModeToggle component here */}
-
         <div className="block md:hidden">
           <SignedIn>
             <SignOutButton>
@@ -32,8 +30,7 @@ function Topbar() {
             </SignOutButton>
           </SignedIn>
         </div>
-
-        <OrganizationSwitcher
+        <UserButton
           appearance={{ elements: { organizationSwitcherTrigger: "py-2 px4" } }}
         />
       </div>
