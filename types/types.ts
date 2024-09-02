@@ -23,6 +23,7 @@ export interface ScanArray {
   title: string;
   detail: string;
   more_detail: string;
+  severity: "Critical" | "High" | "Medium";
 }
 
 export interface ScanInput {
