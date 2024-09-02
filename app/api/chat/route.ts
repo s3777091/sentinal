@@ -39,7 +39,7 @@ export async function POST(req: Request): Promise<Response> {
     });
   } catch (error) {
     console.error("API error:", error);
-    return new Response(
+    return new NextResponse(
       JSON.stringify({ data: "Our development team is reviewing your error..." }),
       {
         status: 500,

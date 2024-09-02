@@ -13,6 +13,8 @@ const redis = new Redis({
   password: process.env.REDIS_PASSWORD,
 });
 
+
+
 const CACHE_EXPIRATION = 3600; // 1 hour cache expiration
 const MAX_USERS_PER_SERVER = 10;
 const MAX_HISTORY_LENGTH = 10; // Max number of messages in conversation history
@@ -118,71 +120,82 @@ export async function handleVulnerable(
 export async function handleInformation(
   inputMessage: string,
   userId: number,
-  newConversation = false // Default to false, meaning it will continue the existing conversation
+  newConversation = false
 ): Promise<string> {
   try {
-    const conversationKey = `conversation:${userId}`;
-
     let conversationId: number;
+    let messages: { role: string; content: string }[] = [];
 
-    // Start a new conversation by clearing the history in Redis if required
+    // Start a new conversation by creating a new record in the database if required
     if (newConversation) {
-      const newConversation = await startNewConversation(userId);
+      const newConversation = await prisma.conversation.create({
+        data: {
+          userId: userId,
+          messages: [],
+        },
+      });
       conversationId = newConversation.id;
     } else {
-      const storedConversationId = await redis.get(
-        `user:${userId}:currentConversation`
-      );
-      if (storedConversationId) {
-        conversationId = parseInt(storedConversationId, 10);
+      // Fetch the existing conversation for the user from the database
+      const existingConversation = await prisma.conversation.findFirst({
+        where: {
+          userId: userId,
+        },
+        orderBy: {
+          createdAt: 'desc', // Get the most recent conversation
+        },
+      });
+
+      if (existingConversation) {
+        conversationId = existingConversation.id;
+        messages = existingConversation.messages as { role: string; content: string }[];
       } else {
         throw new Error("No existing conversation found.");
       }
     }
 
-    // Add the current user input to the conversation history in Redis
-    await redis.rpush(
-      conversationKey,
-      JSON.stringify({ role: "user", content: inputMessage })
-    );
+    // Add the current user input to the conversation history
+    messages.push({ role: "user", content: inputMessage });
 
-    // Limit the conversation history to a maximum length
-    await redis.ltrim(conversationKey, -MAX_HISTORY_LENGTH, -1);
+    // Limit the conversation history to a maximum length if needed
+    const MAX_HISTORY_LENGTH = 50; // example max length
+    if (messages.length > MAX_HISTORY_LENGTH) {
+      messages = messages.slice(-MAX_HISTORY_LENGTH);
+    }
 
-    // Retrieve the conversation history from Redis
-    const messages = await redis.lrange(conversationKey, 0, -1);
-    const parsedMessages = messages.map((message) => JSON.parse(message));
-
+    // Set up Hugging Face Inference API for generating AI response
     const hf = new HfInference(hfToken);
     let out = "";
+
+    // Generate the AI response using the chatCompletionStream method
     for await (const chunk of hf.chatCompletionStream({
-      model: "mistralai/Mistral-7B-Instruct-v0.2",
-      messages: parsedMessages,
+      model: "mistralai/Mistral-7B-Instruct-v0.2", // Specify the model you are using
+      messages: messages,
       max_tokens: 1024,
       temperature: 0.8,
+      seed: 0,
     })) {
       if (chunk.choices && chunk.choices.length > 0) {
         out += chunk.choices[0].delta.content;
       }
     }
 
-    // Save the assistant's response to the conversation history in Redis
-    await redis.rpush(
-      conversationKey,
-      JSON.stringify({ role: "assistant", content: out })
-    );
+    // Add the assistant's response to the conversation history
+    messages.push({ role: "assistant", content: out });
 
-    // Save the updated conversation to the database
+    // Update the conversation in the database with the new messages
     await prisma.conversation.update({
       where: { id: conversationId },
-      data: { messages: parsedMessages },
+      data: { messages: messages },
     });
 
     return out;
-  } catch {
-    throw NextResponse.json({ data: "API SERVER out of token" });
+  } catch (error) {
+    console.error("Error handling information:", error);
+    throw new Error("Failed to process the request due to server issues.");
   }
 }
+
 
 // Helper function to get or assign a  vbc server
 async function getOrAssignServer(

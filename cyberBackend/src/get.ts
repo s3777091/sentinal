@@ -3,8 +3,6 @@ import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
-
-
 dotenv.config();
 
 const psw = process.env.KAFKA_PASSWORD;
@@ -46,7 +44,7 @@ async function main() {
       await prisma.scanData.create({
         data: {
           title: message.title,
-          detail: message.level,
+          level: message.level,
           more_detail: cleanedDetail,
           userId: user.id,
         },

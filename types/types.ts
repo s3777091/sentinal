@@ -22,7 +22,7 @@ export interface AIMessage {
 export interface ScanArray {
   id: number;
   title: string;
-  detail: string;
+  level: string;
   more_detail: string;
 }
 
@@ -35,6 +35,11 @@ export interface ScanInput {
 
 export interface LanguagePatterns {
   extractFunctionsAndClasses: (code: string) => string[];
+}
+
+export interface FileContent {
+  path: string;
+  content: string[];
 }
 
 export interface userRecordDb {

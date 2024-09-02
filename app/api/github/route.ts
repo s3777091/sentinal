@@ -1,18 +1,14 @@
-import { ScanInput } from "@/types/types";
+import { FileContent, ScanInput } from "@/types/types";
 import axios from "axios";
 import { CyberSend } from "@dad1909/cyber";
 import { extractFunctionsAndClasses } from "@/app/supercode";
-
+import { NextResponse } from "next/server";
 const psw: string | undefined = process.env.KAFKA_PASSWORD;
 
 if (!psw) {
   throw new Error("Please add the Kafka password in .env or .env.local");
 }
 
-interface FileContent {
-  path: string;
-  content: string[];
-}
 
 async function getFile(
   repoOwner: string,
@@ -26,21 +22,23 @@ async function getFile(
   const url = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${repoBranch}/${filePath}`;
 
   try {
-    // const cyber = new CyberSend(psw!, "send_scan_message");
-    // await cyber.startProducer();
+    const cyber = new CyberSend(psw!, "send_scan_message");
+    await cyber.startProducer();
     const response = await axios.get(url, { headers });
     if (response.status === 200) {
       const data = await extractFunctionsAndClasses(response.data, lang);
       
-      // const messageData = [
-      //   {
-      //     username: user,
-      //     message_send: data,
-      //     path: filePath
-      //   },
-      // ];
-      // Send the message using CyberSend
-      // await cyber.sendMessages(messageData);
+      for (const block of data) {
+        const messageData = [
+          {
+            username: user,
+            message_send: block,
+            path: filePath
+          },
+        ];
+        await cyber.sendMessages(messageData);
+      }
+
       return {
         path: filePath,
         content: data,

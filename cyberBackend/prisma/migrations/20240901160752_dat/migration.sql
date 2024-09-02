@@ -23,7 +23,7 @@ CREATE TABLE "ScanData" (
     "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "title" TEXT,
-    "detail" TEXT,
+    "level" TEXT,
     "more_detail" TEXT,
     "userId" INTEGER NOT NULL,
 
@@ -62,6 +62,17 @@ CREATE TABLE "Profile" (
     CONSTRAINT "Profile_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Conversation" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "messages" JSONB NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Conversation_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -98,6 +109,12 @@ CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
 -- CreateIndex
 CREATE INDEX "Profile_userId_idx" ON "Profile"("userId");
 
+-- CreateIndex
+CREATE INDEX "Conversation_userId_idx" ON "Conversation"("userId");
+
+-- CreateIndex
+CREATE INDEX "Conversation_createdAt_idx" ON "Conversation"("createdAt");
+
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_apiServerId_fkey" FOREIGN KEY ("apiServerId") REFERENCES "ApiServer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
@@ -112,3 +129,6 @@ ALTER TABLE "Comment" ADD CONSTRAINT "Comment_postId_fkey" FOREIGN KEY ("postId"
 
 -- AddForeignKey
 ALTER TABLE "Profile" ADD CONSTRAINT "Profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Conversation" ADD CONSTRAINT "Conversation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

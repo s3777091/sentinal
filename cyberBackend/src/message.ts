@@ -10,7 +10,7 @@ async function fetchCompletion() {
         messages: [
             { role: "user", content: "How do you make cheese? ,just the answer" },
         ],
-        max_tokens: 500,
+        max_tokens: 1024,
         temperature: 0.1,
         seed: 0,
         

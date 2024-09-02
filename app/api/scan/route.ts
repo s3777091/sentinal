@@ -33,7 +33,7 @@ export async function POST(req: Request): Promise<Response> {
             select: {
                 id: true,
                 title: true,
-                detail: true,
+                level: true,
                 more_detail: true,
             },
             orderBy: {

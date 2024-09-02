@@ -23,7 +23,7 @@ interface ScanDisplayProps {
   scan: {
     id: number;
     title: string;
-    detail: string;
+    level: string;
     more_detail: string;
   } | null;
   user: userDetail;
