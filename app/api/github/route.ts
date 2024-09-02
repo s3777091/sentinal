@@ -1,6 +1,7 @@
 import { ScanInput } from "@/types/types";
 import axios from "axios";
 import { CyberSend } from "@dad1909/cyber";
+import { extractFunctionsAndClasses } from "@/app/supercode";
 
 const psw: string | undefined = process.env.KAFKA_PASSWORD;
 
@@ -10,7 +11,7 @@ if (!psw) {
 
 interface FileContent {
   path: string;
-  content: string;
+  content: string[];
 }
 
 async function getFile(
@@ -18,27 +19,31 @@ async function getFile(
   repoName: string,
   repoBranch: string,
   filePath: string,
+  lang : string,
   user: string,
   headers: any
 ): Promise<FileContent | null> {
   const url = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${repoBranch}/${filePath}`;
 
   try {
-    const cyber = new CyberSend(psw!, "send_scan_message");
-    await cyber.startProducer();
+    // const cyber = new CyberSend(psw!, "send_scan_message");
+    // await cyber.startProducer();
     const response = await axios.get(url, { headers });
     if (response.status === 200) {
-      const messageData = [
-        {
-          username: user,
-          message_send: response.data,
-        },
-      ];
+      const data = await extractFunctionsAndClasses(response.data, lang);
+      
+      // const messageData = [
+      //   {
+      //     username: user,
+      //     message_send: data,
+      //     path: filePath
+      //   },
+      // ];
       // Send the message using CyberSend
       // await cyber.sendMessages(messageData);
       return {
         path: filePath,
-        content: response.data,
+        content: data,
       };
     } else {
       console.log(
@@ -89,6 +94,7 @@ async function getFolder(
               repo,
               branch,
               filePath,
+              lang,
               user,
               headers
             );
@@ -113,7 +119,7 @@ async function getFolder(
 function extractDirectoryPath(
   url: string,
   repo: string,
-  branch: string
+  branch: string 
 ): string | null {
   const startIndex =
     url.indexOf(`${repo}/contents/`) + `${repo}/contents/`.length;

@@ -98,11 +98,12 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
 
         if (!response.ok) {
           throw new Error(`API request failed with status ${response.status}`);
-        } else {
-          alert(
-            "GET github -> send that code to GPU SERVER compute and return back take time pls wait"
-          );
-        }
+      } else {
+          alert("GET github -> send that code to GPU SERVER compute and return back take time pls wait");
+      }
+      const data = await response.json();
+
+      console.log(data);
       } else {
         console.error("Invalid token or unsupported language.");
       }

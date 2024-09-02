@@ -42,7 +42,7 @@ const ModelSelect = ({ onSelectType }: Props) => {
             id="model"
             className="items-start [&_[data-description]]:hidden"
           >
-            <SelectValue placeholder="Select a model" />
+            <SelectValue placeholder="Select a prompts" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="Library">
@@ -71,20 +71,6 @@ const ModelSelect = ({ onSelectType }: Props) => {
                   </p>
                   <p className="text-xs" data-description>
                     Detect about sofware vulnerable.
-                  </p>
-                </div>
-              </div>
-            </SelectItem>
-            <SelectItem value="Message">
-              <div className="flex items-start gap-3 text-muted-foreground">
-                <MessageSquare className="w-6 h-6" />
-                <div className="grid gap-0.5">
-                  <p>
-                    Neural{" "}
-                    <span className="font-medium text-foreground">Message</span>
-                  </p>
-                  <p className="text-xs" data-description>
-                    Can chat about anything
                   </p>
                 </div>
               </div>
