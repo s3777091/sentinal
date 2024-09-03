@@ -18,11 +18,11 @@ export const sidebarLinks = [
       label: "Message",
     },
     {
-      imgURL: "/assets/user.svg",
-      darkImageUrl: "/assets/darkuser.svg",
-      route: "/profile",
-      label: "Profile",
-    },
+      imgURL: "/assets/message.svg",
+      darkImageUrl: "/assets/darkmessage.svg",
+      route: "/post",
+      label: "Post",
+    }
   ];
   
   export const profileTabs = [

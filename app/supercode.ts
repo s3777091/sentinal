@@ -2,9 +2,9 @@ import { LanguagePatterns, userDetail } from "@/types/types";
 import { User } from "@clerk/nextjs/server";
 import { PrismaClient } from "@prisma/client";
 import smile from "@/public/img/AI/smile.png";
-import { redirect } from "next/navigation";
 
-export async function getUser(user: User): Promise<userDetail | null> {
+
+export async function getUser(user: User): Promise<userDetail> {
   const prisma = new PrismaClient();
 
   try {
@@ -13,73 +13,35 @@ export async function getUser(user: User): Promise<userDetail | null> {
     const email = emailAddresses[0].emailAddress;
     const username = userUsername || email.split("@")[0];
 
-    // Modify the query to check for both email and username
+    // Check if the user exists in the database
     let ex_User = await prisma.user.findFirst({
       where: {
         OR: [{ email }, { username }],
       },
     });
 
-    if (ex_User) {
-      return {
-        email: email,
-        username: ex_User.username || "anonymous",
-        imageUrl: imageUrl || smile.src,
-      };
-    } else {
-      redirect("/sign-in");
-      return null;
-    }
-  } catch (error) {
-    console.error("Error:", error);
-    return null;
-  } finally {
-    await prisma.$disconnect();
-  }
-}
-
-export async function UserDetailUpdate(user: User): Promise<userDetail | null> {
-  const prisma = new PrismaClient();
-  try {
-    const {
-      emailAddresses,
-      username: userUsername,
-      firstName,
-      lastName,
-      imageUrl,
-    } = user;
-
-    const email = emailAddresses[0].emailAddress;
-    const username = userUsername || email.split("@")[0];
-    const fullName = `${firstName} ${lastName}`;
-
-    let ex_User = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    // If the user does not exist, create a new user
     if (!ex_User) {
       ex_User = await prisma.user.create({
         data: {
           email,
           username,
-          name: fullName,
-          profile: {
-            create: {
-              image: imageUrl,
-              bio: "",
-            },
-          },
+          image: imageUrl || smile.src,
         },
       });
     }
+
+    // Return the user details
     return {
-      email: email,
-      username: ex_User.username,
-      imageUrl: imageUrl || smile.src,
+      email: ex_User.email,
+      username: ex_User.username || "anonymous",
+      userid: ex_User.id,
+      imageUrl: ex_User.image || smile.src,
     };
   } catch (error) {
     console.error("Error:", error);
-    return null;
+    // Optionally, rethrow the error or return a fallback userDetail object
+    throw new Error("Failed to get or create user.");
   } finally {
     await prisma.$disconnect();
   }

@@ -108,6 +108,7 @@ const MainChat = (props: Props) => {
           user: {
             email: props.user.email,
             username: "AI",
+            userid: props.user.userid,
             imageUrl: aiChat.src,
           },
           message: data.result,

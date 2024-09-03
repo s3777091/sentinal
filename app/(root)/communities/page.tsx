@@ -2,31 +2,22 @@
 import React from "react";
 import { currentUser } from "@clerk/nextjs/server";
 import Community from "@/components/shared/community";
-import { UserDetailUpdate } from "@/app/supercode";
-import smile from "@/public/img/AI/smile.png";
-
+import { getUser } from "@/app/supercode";
 import { redirect } from "next/navigation";
 
-const CommunityWrapper = async () => {
+const CommunityWrapper = async ({ searchParams }: { searchParams: { [key: string]: string | undefined } }) => {
+  
   const user = await currentUser();
-  let useDetail = null;
-
   if (!user) {
     redirect("/sign-in");
-    return null;
-  } else {
-    [useDetail] = await Promise.all([UserDetailUpdate(user)]);
   }
+  const userDetail = await getUser(user);
 
   return (
-    <Community
-      user={
-        useDetail || {
-          username: "Guest",
-          imageUrl: smile.src,
-        }
-      }
-    />
+    <>
+      <h1 className='head-text'>Communities</h1>
+      <Community user={userDetail} searchParams={searchParams} />
+    </>
   );
 };
 

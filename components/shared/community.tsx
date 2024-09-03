@@ -1,107 +1,110 @@
-'use client'
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import Like from "@/public/assets/like.svg";
-import Comment from "@/public/assets/comment.svg";
-import Share from "@/public/assets/share.svg";
+"use client";
+
+import React, { Suspense, useCallback, useEffect, useReducer } from "react";
+import { useRouter } from "next/navigation";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { userDetail } from "@/types/types";
-import { UserDetailUpdate } from "@/app/supercode";
+import { Post, userDetail } from "@/types/types";
+import PostCard from "./PostCard";
+import Loading from "@/app/(root)/communities/loading";
 
-interface Post {
-  id: number;
-  author: string;
-  avatar: string;
-  content: string;
-  timestamp: string;
-  likes: number;
-  comments: number;
-  shares: number;
+// Define actions for the reducer
+type Action =
+  | { type: "SET_POSTS"; posts: Post[]; page: number }
+  | { type: "SET_NEXT"; isNext: boolean }
+  | { type: "SET_INPUT_VALUE"; inputValue: string };
+
+interface State {
+  posts: Post[];
+  inputValue: string;
+  isNext: boolean;
 }
-
-const initialPosts: Post[] = [
-    {
-      id: 1,
-      author: 'An Nguyen',
-      avatar: '/assets/avatar1.jpg',
-      content: 'Morning!',
-      timestamp: '2h ago',
-      likes: 34,
-      comments: 12,
-      shares: 4,
-    },
-    {
-      id: 2,
-      author: 'Hu Tao',
-      avatar: '/assets/avatar2.jpg',
-      content: 'How are you?',
-      timestamp: '5h ago',
-      likes: 22,
-      comments: 8,
-      shares: 2,
-    },
-    {
-      id: 3,
-      author: 'Hu Tao',
-      avatar: '/assets/avatar2.jpg',
-      content: 'How are you?',
-      timestamp: '5h ago',
-      likes: 22,
-      comments: 8,
-      shares: 2,
-    },
-    {
-      id: 4,
-      author: 'Kafka',
-      avatar: '/assets/avatar3.jpg',
-      content: 'Nice to meet you.',
-      timestamp: '1d ago',
-      likes: 54,
-      comments: 16,
-      shares: 7,
-    },
-    {
-      id: 5,
-      author: 'Kafka',
-      avatar: '/assets/avatar3.jpg',
-      content: 'Nice to meet you.',
-      timestamp: '1d ago',
-      likes: 54,
-      comments: 16,
-      shares: 7,
-    },
-    {
-      id: 6,
-      author: 'Kafka',
-      avatar: '/assets/avatar3.jpg',
-      content: 'Nice to meet you.',
-      timestamp: '1d ago',
-      likes: 54,
-      comments: 16,
-      shares: 7,
-    },
-  ];
 
 interface AvatarProps {
   user: userDetail;
+  searchParams?: { [key: string]: string | undefined };
 }
 
-const Community = ({ user }: AvatarProps) => {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
-  const [inputValue, setInputValue] = useState<string>("");
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    console.log(inputValue);
-    setInputValue("");
+// Initial state
+const initialState: State = {
+  posts: [],
+  inputValue: "",
+  isNext: false,
+};
+
+// Reducer function
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case "SET_POSTS":
+      return {
+        ...state,
+        posts: action.page === 1 ? action.posts : [...state.posts, ...action.posts],
+      };
+    case "SET_NEXT":
+      return { ...state, isNext: action.isNext };
+    case "SET_INPUT_VALUE":
+      return { ...state, inputValue: action.inputValue };
+    default:
+      return state;
+  }
+}
+
+const Community = ({ user, searchParams = {} }: AvatarProps) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { posts, inputValue, isNext } = state;
+  const router = useRouter();
+
+  const fetchPosts = useCallback(async (query = "", page = 1) => {
+    try {
+      const response = await fetch(
+        `/api/post?pageNumber=${page}&pageSize=20${query}`
+      );
+      const data = await response.json();
+      dispatch({ type: "SET_POSTS", posts: data.posts, page });
+      dispatch({ type: "SET_NEXT", isNext: data.isNext });
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const query = searchParams.q ? `&q=${searchParams.q}` : "";
+    const pageNumber = searchParams.page ? +searchParams.page : 1;
+    fetchPosts(query, pageNumber);
+  }, [searchParams, fetchPosts]);
+
+  const handleSearchSubmit = useCallback(
+    (event: React.FormEvent) => {
+      event.preventDefault();
+      const newParams = new URLSearchParams({
+        q: inputValue,
+        page: "1",
+      });
+      window.location.search = newParams.toString();
+    },
+    [inputValue]
+  );
+
+  const loadMorePosts = useCallback(() => {
+    const currentPage = searchParams.page ? +searchParams.page : 1;
+    const newPage = currentPage + 1;
+    const newParams = new URLSearchParams({
+      q: inputValue,
+      page: newPage.toString(),
+    });
+    window.location.search = newParams.toString();
+  }, [inputValue, searchParams.page]);
+
+  const handleReadMore = (id: number) => {
+    router.push(`/detail/${id}`);
   };
 
   return (
     <div className="min-h-[100vh] bg-zinc-900 text-gray-200 p-4">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-white">Community</h1>
-        <form className="flex mb-8" onSubmit={handleSubmit}>
-        <img
+        <form className="flex mb-8" onSubmit={handleSearchSubmit}>
+          <img
             src={user.imageUrl || "/default-avatar.png"}
             alt={user.username || "User"}
             className="w-10 h-10 rounded-full"
@@ -109,53 +112,26 @@ const Community = ({ user }: AvatarProps) => {
           <Input
             className="ml-4 w-full"
             type="text"
-            placeholder="What do you think?"
+            placeholder="Search posts"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) =>
+              dispatch({ type: "SET_INPUT_VALUE", inputValue: e.target.value })
+            }
           />
           <Button type="submit" className="ml-4">
-            Post
+            Search
           </Button>
         </form>
 
-        {posts.map((post) => (
-          <div
-            key={post.id}
-            className="bg-zinc-800 p-6 rounded-lg mb-3 shadow-md transition transform hover:scale-105 duration-300"
-          >
-            <div className="flex items-center mb-4">
-              <Image
-                src={post.avatar}
-                alt={`${post.author}'s avatar`}
-                width={48}
-                height={48}
-                className="w-12 h-12 rounded-full mr-4"
-              />
-              <div>
-                <h2 className="text-xl font-semibold">{post.author}</h2>
-                <p className="text-gray-400 text-sm">{post.timestamp}</p>
-              </div>
-            </div>
-            <p className="mb-4 text-lg">{post.content}</p>
-            <div className="flex justify-between text-gray-400 text-sm">
-              <div className="flex items-center space-x-2">
-                <button className="flex items-center hover:text-red-600">
-                  <Like />
-                  <span>{post.likes}</span>
-                </button>
-                <button className="flex items-center hover:text-zinc-500">
-                  <Comment />
-                  <span>{post.comments}</span>
-                </button>
-                <button className="flex items-center hover:text-zinc-500">
-                  <Share />
-                  <span>{post.shares}</span>
-                </button>
-              </div>
-              <button className="text-white hover:underline">Read more</button>
-            </div>
+        <Suspense fallback={<Loading />}>
+          <PostCard posts={posts} onReadMore={handleReadMore} />
+        </Suspense>
+
+        {isNext && (
+          <div className="flex justify-center mt-8">
+            <Button onClick={loadMorePosts}>Load more</Button>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

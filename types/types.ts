@@ -1,6 +1,7 @@
 export interface userDetail {
   email: string;
   username: string;
+  userid: number;
   imageUrl: string
 }
 export interface ChatBody {
@@ -49,4 +50,19 @@ export interface userRecordDb {
   username: string;
   name: string | null;
   apiServerId: number | null;
+}
+
+
+export interface Post {
+  id: number;
+  author: {
+    id: number;
+    username: string;
+    image: string;
+  };
+  content: string;
+  createdAt: string;
+  likes: number;
+  comments: number;
+  shares: number;
 }

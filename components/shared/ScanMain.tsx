@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";  // Assuming Button is used for
 
 interface ScanProps {
   user: userDetail;
-  defaultCollapsed?: boolean;
 }
 
 export function ScanMain({ user }: ScanProps) {
@@ -83,7 +82,7 @@ export function ScanMain({ user }: ScanProps) {
               {/* Dropdown Menu for Filters */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline">Filter by Vulnerabilities</Button>
+                  <Button variant="outline">Level Filter</Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuLabel>Types</DropdownMenuLabel>

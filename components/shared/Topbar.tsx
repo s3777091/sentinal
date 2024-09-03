@@ -1,4 +1,4 @@
-import { SignOutButton, SignedIn, UserButton } from "@clerk/nextjs";
+import { RedirectToSignIn, SignOutButton, SignedIn, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { ModeToggle } from "@/components/forms/mode-toggle";
