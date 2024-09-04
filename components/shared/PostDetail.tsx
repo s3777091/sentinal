@@ -17,7 +17,7 @@ export default function PostDetail({ post, user }: PostDetailProps) {
   return (
     <div
       key={post.id}
-      className="bg-zinc-800 p-6 rounded-lg mb-3 shadow-md transition transform hover:scale-105 duration-300"
+      className="bg-gray-200 dark:bg-zinc-800 p-6 rounded-lg mb-3 shadow-md transition transform hover:scale-105 duration-300"
     >
       {/* Post Author Info */}
       <div className="flex items-center mb-4">
@@ -56,14 +56,14 @@ export default function PostDetail({ post, user }: PostDetailProps) {
           </div>
           <div className="lg:w-1/2 lg:ml-6 mt-4 lg:mt-0">
             <div className="post-comments">
-              <h3 className="text-lg text-white">Comments</h3>
+              <h3 className="text-lg text-black dark:text-white">Comments</h3>
               {post.comments.length > 0 ? (
                 post.comments.map((comment) => (
                   <div
                     key={comment.id}
-                    className="bg-zinc-700 p-4 rounded-lg mt-3"
+                    className="bg-gray-300 dark:bg-zinc-700 p-4 rounded-lg mt-3"
                   >
-                    <p className="text-gray-300">{comment.content}</p>
+                    <p className="text-black dark:text-gray-300">{comment.content}</p>
                     <small className="text-gray-500">
                       By {comment.author?.username || "Unknown"} on{" "}
                       {new Date(comment.createdAt).toLocaleString()}
@@ -85,11 +85,11 @@ export default function PostDetail({ post, user }: PostDetailProps) {
         </div>
       ) : (
         <div className="post-comments">
-          <h3 className="text-lg text-white mt-8">Comments</h3>
+          <h3 className="text-lg text-black dark:text-white mt-8">Comments</h3>
           {post.comments.length > 0 ? (
             post.comments.map((comment) => (
               <div key={comment.id} className="bg-zinc-700 p-4 rounded-lg mt-3">
-                <p className="text-gray-300">{comment.content}</p>
+                <p className="text-black dark:text-gray-300">{comment.content}</p>
                 <small className="text-gray-500">
                   By {comment.author?.username || "Unknown"} on{" "}
                   {new Date(comment.createdAt).toLocaleString()}

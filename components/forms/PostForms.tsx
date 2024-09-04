@@ -81,7 +81,7 @@ const PostForm = ({ user }: UserProps) => {
   return (
     <Form {...form}>
       <form
-        className="mt-10 flex flex-col justify-start gap-10 p-6 bg-white rounded-lg shadow-md"
+        className="mt-10 flex flex-col justify-start gap-10 p-6 bg-white dark:bg-zinc-900 rounded-lg shadow-md"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         {/* Title Field */}
@@ -134,7 +134,7 @@ const PostForm = ({ user }: UserProps) => {
           name="imageUrl"
           render={({ field }) => (
             <FormItem className="flex flex-col gap-3">
-              <FormLabel className="text-lg font-semibold text-gray-700">
+              <FormLabel className="text-lg font-semibold text-gray-700 ">
                 Upload Image
               </FormLabel>
               <FormControl>
@@ -167,7 +167,7 @@ const PostForm = ({ user }: UserProps) => {
             disabled={isLoading}
           >
             {isLoading && <Loader />}
-            Post Scyber
+            Post to Skira
           </Button>
         </div>
       </form>

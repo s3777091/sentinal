@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Settings, Share, Loader } from "lucide-react";
-import ModelSelect from "@/components/forms/ModelSelect";
+import ChatSelect from "@/components/forms/ChatSelect";
 import ChatMessage from "@/components/forms/ChatMessage";
 import { AIMessage, ChatBody, userDetail } from "@/types/types";
 import aiChat from "@/public/img/AI/sparkling.png";
@@ -171,25 +171,7 @@ const MainChat = (props: Props) => {
     <div className="flex flex-col h-screen">
       <header className="sticky top-0 z-10 flex h-[50px] items-center gap-1 border-b px-4">
         <h1 className="head-text">Workspace</h1>
-        <Drawer>
-          <DrawerTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Settings className="w-5 h-5" />
-              <span className="sr-only">Settings</span>
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent className="max-h-[80vh]">
-            <DrawerHeader>
-              <DrawerTitle>Configuration</DrawerTitle>
-              <DrawerDescription>
-                Configure the settings for the model and messages.
-              </DrawerDescription>
-            </DrawerHeader>
-            <form className="grid w-full items-start gap-6 overflow-auto p-4 pt-0">
-              <ModelSelect onSelectType={handleSelectType} />
-            </form>
-          </DrawerContent>
-        </Drawer>
+        <ChatSelect onSelectType={handleSelectType} />
         <Button
           variant="outline"
           size="sm"

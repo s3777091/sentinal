@@ -18,8 +18,8 @@ export const sidebarLinks = [
       label: "Message",
     },
     {
-      imgURL: "/assets/message.svg",
-      darkImageUrl: "/assets/darkmessage.svg",
+      imgURL: "/assets/file-up.svg",
+      darkImageUrl: "/assets/darkfile-up.svg",
       route: "/post",
       label: "Post",
     }

@@ -1,14 +1,21 @@
 "use client";
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useState, useMemo, useEffect, useReducer } from "react";
 import { ScanInput, userDetail } from "@/types/types";
-
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-import { Upload, Github, FolderCog } from "lucide-react";
+import ModelSelect from "@/components/forms/ModelSelect";
+import { Upload, Github, FolderCog, Settings } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -66,6 +73,22 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
   const [github, setgithub] = useState<string>("");
   const [language, setLanguage] = useState<string>("");
   const [token, setToken] = useState<string>("");
+  const [selectedType, setSelectedType] = useState<string>("");
+
+  const typeValue = useMemo(() => {
+    switch (selectedType) {
+      case "Library":
+        return "information";
+      case "Vulnerable":
+        return "vulnerable";
+      default:
+        return "Library";
+    }
+  }, [selectedType]);
+
+  const handleSelectType = (value: string) => {
+    setSelectedType(value);
+  };
 
   const sendData = async () => {
     try {
@@ -117,6 +140,25 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
     <div className="flex min-w-fit h-full max-md:w-1/2 flex-col">
       <div className="flex items-center p-2">
         <div className="flex items-center gap-2">
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Settings className="w-5 h-5" />
+              <span className="sr-only">Settings</span>
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="max-h-[80vh]">
+            <DrawerHeader>
+              <DrawerTitle>Configuration</DrawerTitle>
+              <DrawerDescription>
+                Configure the settings for the model and messages.
+              </DrawerDescription>
+            </DrawerHeader>
+            <form className="grid w-full items-start gap-6 overflow-auto p-4 pt-0">
+              <ModelSelect onSelectType={handleSelectType} />
+            </form>
+          </DrawerContent>
+        </Drawer>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" onClick={sendData}>

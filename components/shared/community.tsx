@@ -101,7 +101,7 @@ const Community = ({ searchParams = {} }: AvatarProps) => {
   };
 
   return (
-    <div className="min-h-[100vh] bg-zinc-900 text-gray-200 p-4">
+    <div className="min-h-[100vh] bg-light-1 dark:bg-zinc-900 text-gray-200 p-4">
       <div className="max-w-3xl mx-auto">
         <form className="flex mb-8" onSubmit={handleSearchSubmit}>
           <Input
