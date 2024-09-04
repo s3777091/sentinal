@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Post, userDetail } from "@/types/types";
 import PostCard from "./PostCard";
-import Loading from "@/app/(root)/communities/loading";
+import Loading from "../LoadiComponents/Loading";
+
 
 // Define actions for the reducer
 type Action =
@@ -101,7 +102,7 @@ const Community = ({ searchParams = {} }: AvatarProps) => {
   };
 
   return (
-    <div className="min-h-[100vh] bg-zinc-900 text-gray-200 p-4">
+    <div className="min-h-[100vh] bg-light-1 dark:bg-zinc-900 text-gray-200 p-4">
       <div className="max-w-3xl mx-auto">
         <form className="flex mb-8" onSubmit={handleSearchSubmit}>
           <Input

@@ -12,7 +12,7 @@ const PostCard: React.FC<PostCardProps> = React.memo(({ posts, onReadMore }) => 
       {posts.map((post) => (
         <div
           key={post.id}
-          className="bg-zinc-800 p-6 rounded-lg mb-3 shadow-md transition transform hover:scale-105 duration-300"
+          className="bg-gray-200 dark:bg-zinc-800 p-6 rounded-lg mb-3 shadow-md transition transform hover:scale-105 duration-300"
         >
           <div className="flex items-center mb-4">
             <img
@@ -23,14 +23,14 @@ const PostCard: React.FC<PostCardProps> = React.memo(({ posts, onReadMore }) => 
               className="w-12 h-12 rounded-full mr-4"
             />
             <div>
-              <h2 className="text-xl font-semibold">{post.author.username}</h2>
-              <p className="text-gray-400 text-sm">
+              <h2 className="text-black dark:text-gray-400 text-xl font-semibold">{post.author.username}</h2>
+              <p className="text-black dark:text-gray-400 text-sm">
                 {new Date(post.createdAt).toLocaleString()}
               </p>
             </div>
           </div>
-          <p className="mb-4 text-lg">{post.content}</p>
-          <div className="flex justify-between text-gray-400 text-sm">
+          <p className="text-black dark:text-gray-400 mb-4 text-lg">{post.content}</p>
+          <div className="flex justify-between text-black dark:text-gray-400 text-sm">
             <div className="flex items-center space-x-2">
               <button className="flex items-center hover:text-red-600">
                 <span>{post.likes}</span>
@@ -43,7 +43,7 @@ const PostCard: React.FC<PostCardProps> = React.memo(({ posts, onReadMore }) => 
               </button>
             </div>
             <button
-              className="text-white hover:underline"
+              className="text-dark-1 dark:text-white hover:underline"
               onClick={() => onReadMore(post.id)}
             >
               Read more

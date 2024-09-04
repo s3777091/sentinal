@@ -26,7 +26,7 @@ const FileUploader = ({ fieldChange, mediaUrl, previewUrl }: FileUploaderProps) 
   return (
     <div
       {...getRootProps()}
-      className="flex flex-col items-center justify-center h-80 bg-dark-3 rounded-xl cursor-pointer"
+      className="flex flex-col items-center justify-center border h-80 dark:border-slate-800 border-slate-200 bg-white dark:bg-dark-3 rounded-xl cursor-pointer"
     >
       <input {...getInputProps()} className="cursor-pointer" />
 
@@ -48,7 +48,7 @@ const FileUploader = ({ fieldChange, mediaUrl, previewUrl }: FileUploaderProps) 
             className="w-24 h-auto sm:w-32 lg:w-48" // Responsive size
             alt="file upload"
           />
-          <h3 className="base-medium text-light-2 mb-2 mt-6">Drag photo here</h3>
+          <h3 className="base-medium text-dark-3 dark:text-light-2 mb-2 mt-6">Drag photo here</h3>
           <p className="text-light-4 small-regular mb-6">SVG, PNG, JPG</p>
 
           <Button type="button" className="shad-button_dark_4">

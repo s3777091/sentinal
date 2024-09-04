@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 import { ScanDisplay } from "@/components/shared/ScanDisplay";
@@ -23,7 +24,6 @@ export function ScanMain({ user }: ScanProps) {
   // Filter state
   const [filterCritical, setFilterCritical] = useState(false);
   const [filterHigh, setFilterHigh] = useState(false);
-  const [filterMedium, setFilterMedium] = useState(false);
 
   useEffect(() => {
     const fetchScans = async () => {
@@ -65,7 +65,6 @@ export function ScanMain({ user }: ScanProps) {
   const filteredScans = scans.filter((scan) => {
     if (filterCritical && scan.severity !== "Critical") return false;
     if (filterHigh && scan.severity !== "High") return false;
-    if (filterMedium && scan.severity !== "Medium") return false;
     return true;
   });
 
@@ -76,37 +75,52 @@ export function ScanMain({ user }: ScanProps) {
         {/* Left Panel: Scan List */}
         <div className="w-1/3 border-r border-gray-200">
           <Tabs defaultValue="all">
-            <div className="flex items-center justify-between px-4 py-[16Spx]">
+            <div className="relative flex items-center justify-between p-2">
               <h1 className="text-xl font-bold">Scan History</h1>
 
               {/* Dropdown Menu for Filters */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">Level Filter</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuLabel>Types</DropdownMenuLabel>
-                  <DropdownMenuCheckboxItem
-                    checked={filterCritical}
-                    onCheckedChange={setFilterCritical}
-                  >
-                    Critical
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={filterHigh}
-                    onCheckedChange={setFilterHigh}
-                  >
-                    High
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={filterMedium}
-                    onCheckedChange={setFilterMedium}
-                  >
-                    Medium
-                  </DropdownMenuCheckboxItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+              <div className="relative">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      className="w-full sm:w-32 md:w-24 lg:w-48 px-2 sm:px-4 md:px-6 lg:px-8 text-sm sm:text-base md:text-lg"
+                    >
+                      Filter
+                    </Button>
+                  </DropdownMenuTrigger>
+                  
+                  <DropdownMenuContent className="w-full max-w-full sm:max-w-md md:max-w-lg overflow-x-auto">
+                    <DropdownMenuLabel>Types</DropdownMenuLabel>
+                    
+                    <div className="space-y-4 p-4">
+                      <div className="flex items-center space-x-2">
+                        <Switch 
+                          checked={filterCritical} 
+                          onCheckedChange={setFilterCritical} 
+                          id="critical-switch"
+                        />
+                        <label htmlFor="critical-switch" className="text-sm font-medium">
+                          Critical
+                        </label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Switch 
+                          checked={filterHigh} 
+                          onCheckedChange={setFilterHigh} 
+                          id="high-switch"
+                        />
+                        <label htmlFor="high-switch" className="text-sm font-medium">
+                          High
+                        </label>
+                      </div>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                </div>
+              </div>
+
 
             <Separator />
 

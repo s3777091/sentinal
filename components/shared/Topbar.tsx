@@ -7,11 +7,8 @@ function Topbar() {
 
   return (
     <nav className="topbar flex items-center justify-between px-4 py-2">
-      <Link href="/" className="flex items-center gap-4">
-        <Image src="/assets/logo.svg" alt="logo" width={28} height={28} />
-        <p className="text-heading3-bold text-dark-1 dark:text-light-2 max-xs:hidden">
-          CyberSentinal
-        </p>
+      <Link href="/" className="flex items-center gap-4 mt-6 ml-4">
+        <Image src="/img/skira.png" alt="logo" width={128} height={128} />
       </Link>
 
       <div className="flex items-center gap-4">

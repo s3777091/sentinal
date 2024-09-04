@@ -80,7 +80,7 @@ function PostComment({ postId, currentUserImg, currentUserId }: Props) {
                   type='text'
                   {...field}
                   placeholder='Comment...'
-                  className='no-focus text-light-1 outline-none'
+                  className='no-focus text-black dark:text-light-1 outline-none'
                 />
               </FormControl>
             </FormItem>
