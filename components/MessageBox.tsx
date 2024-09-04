@@ -1,6 +1,5 @@
 import { Card } from '@/components/ui/card';
 import ReactMarkdown from 'react-markdown';
-import { useTheme } from 'next-themes';
 
 export default function MessageBox(props: { output: string }) {
   const { output } = props;

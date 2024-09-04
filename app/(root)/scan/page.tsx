@@ -8,6 +8,7 @@ const ScanPage = async () => {
   if (!user) {
     redirect("/sign-in");
   }
+  
   const uderDetail = await getUser(user);
 
   return (

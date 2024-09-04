@@ -22,7 +22,6 @@ interface State {
 }
 
 interface AvatarProps {
-  user: userDetail;
   searchParams?: { [key: string]: string | undefined };
 }
 
@@ -39,7 +38,8 @@ function reducer(state: State, action: Action): State {
     case "SET_POSTS":
       return {
         ...state,
-        posts: action.page === 1 ? action.posts : [...state.posts, ...action.posts],
+        posts:
+          action.page === 1 ? action.posts : [...state.posts, ...action.posts],
       };
     case "SET_NEXT":
       return { ...state, isNext: action.isNext };
@@ -50,7 +50,7 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-const Community = ({ user, searchParams = {} }: AvatarProps) => {
+const Community = ({ searchParams = {} }: AvatarProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { posts, inputValue, isNext } = state;
   const router = useRouter();
@@ -104,11 +104,6 @@ const Community = ({ user, searchParams = {} }: AvatarProps) => {
     <div className="min-h-[100vh] bg-zinc-900 text-gray-200 p-4">
       <div className="max-w-3xl mx-auto">
         <form className="flex mb-8" onSubmit={handleSearchSubmit}>
-          <img
-            src={user.imageUrl || "/default-avatar.png"}
-            alt={user.username || "User"}
-            className="w-10 h-10 rounded-full"
-          />
           <Input
             className="ml-4 w-full"
             type="text"

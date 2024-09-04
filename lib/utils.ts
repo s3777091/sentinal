@@ -12,6 +12,8 @@ export function isBase64Image(imageData: string) {
   return base64Regex.test(imageData);
 }
 
+export const convertFileToUrl = (file: File) => URL.createObjectURL(file);
+
 // created by chatgpt
 export function formatDateString(dateString: string) {
   const options: Intl.DateTimeFormatOptions = {

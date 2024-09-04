@@ -1,5 +1,4 @@
 // server/CommunityWrapper.tsx
-import React from "react";
 import { currentUser } from "@clerk/nextjs/server";
 import Community from "@/components/shared/community";
 import { getUser } from "@/app/supercode";
@@ -16,7 +15,7 @@ const CommunityWrapper = async ({ searchParams }: { searchParams: { [key: string
   return (
     <>
       <h1 className='head-text'>Communities</h1>
-      <Community user={userDetail} searchParams={searchParams} />
+      <Community searchParams={searchParams} />
     </>
   );
 };

@@ -1,40 +1,38 @@
 "use client";
 
 import * as z from "zod";
-import Image from "next/image";
 import { useForm } from "react-hook-form";
-import { usePathname, useRouter } from "next/navigation";
-import { ChangeEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { postSchema } from "@/lib/validations/Post";
+import { useUploadThing } from "@/lib/uploadthing";
+import { userDetail } from "@/types/types";
+import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea";
+import FileUploader from "@/components/shared/FileUploader";
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
+  FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-
-import { postSchema } from "@/lib/validations/Post";
-import { useUploadThing } from "@/lib/uploadthing";
-import { isBase64Image } from "@/lib/utils";
-import { userDetail } from "@/types/types";
+import { Input } from "../ui/input";
+import Loader from "../shared/Loader";
 
 interface UserProps {
   user: userDetail;
 }
 
-const PostVul = ({ user }: UserProps) => {
+const PostForm = ({ user }: UserProps) => {
   const router = useRouter();
-  const pathname = usePathname();
   const { startUpload } = useUploadThing("media");
 
   const [files, setFiles] = useState<File[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Initialize the form with Zod validation schema
   const form = useForm<z.infer<typeof postSchema>>({
@@ -49,12 +47,10 @@ const PostVul = ({ user }: UserProps) => {
 
   // Handle form submission
   const onSubmit = async (values: z.infer<typeof postSchema>) => {
-    const blob = values.imageUrl ?? "";
+    setIsLoading(true);
 
-    const hasImageChanged = isBase64Image(blob);
-    if (hasImageChanged) {
+    if (files.length > 0) {
       const imgRes = await startUpload(files);
-
       if (imgRes && imgRes[0].url) {
         values.imageUrl = imgRes[0].url;
       }
@@ -66,7 +62,7 @@ const PostVul = ({ user }: UserProps) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values), // Include imageUrl in the submission
+        body: JSON.stringify(values),
       });
 
       if (response.ok) {
@@ -77,30 +73,8 @@ const PostVul = ({ user }: UserProps) => {
       }
     } catch (error) {
       console.error("Failed to create post:", error);
-    }
-  };
-
-  const handleImage = (
-    e: ChangeEvent<HTMLInputElement>,
-    fieldChange: (value: string) => void
-  ) => {
-    e.preventDefault();
-
-    const fileReader = new FileReader();
-
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      setFiles(Array.from(e.target.files));
-
-      if (!file.type.includes("image")) return;
-
-      fileReader.onload = async (event) => {
-        const imageDataUrl = event.target?.result?.toString() || "";
-        fieldChange(imageDataUrl);
-        setPreviewUrl(imageDataUrl); // Set the preview URL for the image
-      };
-
-      fileReader.readAsDataURL(file);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -110,6 +84,7 @@ const PostVul = ({ user }: UserProps) => {
         className="mt-10 flex flex-col justify-start gap-10 p-6 bg-white rounded-lg shadow-md"
         onSubmit={form.handleSubmit(onSubmit)}
       >
+        {/* Title Field */}
         <FormField
           control={form.control}
           name="title"
@@ -131,6 +106,7 @@ const PostVul = ({ user }: UserProps) => {
           )}
         />
 
+        {/* Content Field */}
         <FormField
           control={form.control}
           name="content"
@@ -152,6 +128,7 @@ const PostVul = ({ user }: UserProps) => {
           )}
         />
 
+        {/* Image Upload Field */}
         <FormField
           control={form.control}
           name="imageUrl"
@@ -161,41 +138,41 @@ const PostVul = ({ user }: UserProps) => {
                 Upload Image
               </FormLabel>
               <FormControl>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImage(e, field.onChange)}
-                  className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <FileUploader
+                  fieldChange={(files) => {
+                    setFiles(files);
+                    setPreviewUrl(URL.createObjectURL(files[0])); // Update preview URL
+                    field.onChange(""); // Clear imageUrl to let FileUploader handle it
+                  }}
+                  mediaUrl={field.value || ""}
+                  previewUrl={previewUrl} // Pass the previewUrl correctly
                 />
               </FormControl>
-              {previewUrl && (
-                <div className="mt-3">
-                  <Image
-                    src={previewUrl}
-                    alt="Uploaded image preview"
-                    width={400}
-                    height={300}
-                    className="rounded-md object-contain"
-                  />
-                </div>
-              )}
               <FormMessage />
             </FormItem>
           )}
         />
-
-        <Button
-          type="submit"
-          className="self-end px-6 py-3 rounded-md hover:bg-blue-700 
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-          dark:bg-dark-2 dark:text-light-1
-          "
-        >
-          Post Scyber
-        </Button>
+        {/* Submit and Cancel Buttons */}
+        <div className="flex gap-4 items-center justify-end">
+          <Button
+            type="button"
+            className="shad-button_dark_4"
+            onClick={() => router.back()}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            className="shad-button_primary whitespace-nowrap"
+            disabled={isLoading}
+          >
+            {isLoading && <Loader />}
+            Post Scyber
+          </Button>
+        </div>
       </form>
     </Form>
   );
 };
 
-export default PostVul;
+export default PostForm;

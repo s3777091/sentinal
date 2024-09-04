@@ -1,12 +1,13 @@
-import { LanguagePatterns, userDetail } from "@/types/types";
+import { LanguagePatterns, PostDetail, userDetail } from "@/types/types";
 import { User } from "@clerk/nextjs/server";
 import { PrismaClient } from "@prisma/client";
 import smile from "@/public/img/AI/smile.png";
+import { cache } from "react";
+import { string } from "zod";
 
+const prisma = new PrismaClient();
 
 export async function getUser(user: User): Promise<userDetail> {
-  const prisma = new PrismaClient();
-
   try {
     const { emailAddresses, username: userUsername, imageUrl } = user;
 
@@ -118,7 +119,9 @@ function extractPythonBlocks(code: string, startKeywords: string[]): string[] {
         );
         currentIndentLevel = indentLevel;
       }
-    } else if (startKeywords.some((keyword) => trimmedLine.startsWith(keyword))) {
+    } else if (
+      startKeywords.some((keyword) => trimmedLine.startsWith(keyword))
+    ) {
       currentBlock = [line];
       insideBlock = true;
       currentIndentLevel = indentLevel;
@@ -155,7 +158,9 @@ function extractBracketedBlocks(
         currentBlock = [];
         insideBlock = false;
       }
-    } else if (startKeywords.some((keyword) => trimmedLine.startsWith(keyword))) {
+    } else if (
+      startKeywords.some((keyword) => trimmedLine.startsWith(keyword))
+    ) {
       currentBlock = [line];
       openBracesCount = (trimmedLine.match(/{/g) || []).length;
       insideBlock = openBracesCount > 0;
@@ -182,3 +187,34 @@ export async function extractFunctionsAndClasses(
 
   return extractor.extractFunctionsAndClasses(codeMessage);
 }
+
+export const getPostDetail = cache(async (postId: string): Promise<PostDetail | null> => {
+  return await prisma.post.findUnique({
+    where: { id: parseInt(postId, 10) },
+    include: {
+      author: {
+        select: {
+          id: true,
+          username: true,
+          image: true,
+          bio: true,
+        },
+      },
+      comments: {
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          postId: true,
+          author: {
+            select: {
+              id: true,
+              username: true,
+              image: true,
+            },
+          },
+        },
+      },
+    },
+  });
+});

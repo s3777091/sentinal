@@ -30,7 +30,7 @@ export async function POST(req: Request): Promise<Response> {
       data: {
         title,
         content,
-        imageUrl: finalImageUrl, // Include the imageUrl in the database entry
+        imageUrl: finalImageUrl,
         author: {
           connect: { id: authorId }
         }
@@ -85,21 +85,7 @@ export async function GET(req: Request): Promise<Response> {
             username: true,
             image: true,
           },
-        },
-        comments: {
-          select: {
-            id: true,
-            content: true,
-            createdAt: true,
-            author: {
-              select: {
-                id: true,
-                username: true,
-                image: true,
-              },
-            },
-          },
-        },
+        }
       },
     });
 

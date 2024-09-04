@@ -2,16 +2,15 @@ export interface userDetail {
   email: string;
   username: string;
   userid: number;
-  imageUrl: string
+  imageUrl: string;
 }
 export interface ChatBody {
   user: string;
   inputMessage: string;
   prompType: string;
-  length: number,
-  newConversation: boolean
+  length: number;
+  newConversation: boolean;
 }
-
 
 export interface AIMessage {
   username: string;
@@ -52,7 +51,6 @@ export interface userRecordDb {
   apiServerId: number | null;
 }
 
-
 export interface Post {
   id: number;
   author: {
@@ -66,3 +64,28 @@ export interface Post {
   comments: number;
   shares: number;
 }
+
+export interface PostDetail {
+  id: number;
+  title: string;
+  content: string | null;
+  imageUrl: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  author: {
+    id: number;
+    username: string;
+    image: string | null;
+    bio: string | null;
+  };
+  comments: Array<{
+    id: number;
+    content: string;
+    createdAt: Date;
+    author: {
+      id: number;
+      username: string;
+      image: string | null;
+    };
+  }>;
+};
