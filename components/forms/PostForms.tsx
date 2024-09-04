@@ -20,7 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "../ui/input";
-import Loader from "../shared/Loader";
+import Loader from "../LoadiComponents/Loader";
 
 interface UserProps {
   user: userDetail;

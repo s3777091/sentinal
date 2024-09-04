@@ -2,9 +2,9 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getPostDetail, getUser } from "@/app/supercode"; // Import the type
 import { currentUser } from "@clerk/nextjs/server";
-import Loading from "../../communities/loading";
 import PostDetailComponent from "@/components/shared/PostDetail";
 import { PostDetail } from "@/types/types";
+import Loading from "@/components/LoadiComponents/Loading";
 
 export const revalidate = 0;
 
