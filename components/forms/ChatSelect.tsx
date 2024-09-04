@@ -42,7 +42,7 @@ const ChatSelect = ({ onSelectType }: Props) => {
           <SelectContent>
             <SelectItem value="Library">
               <div className="flex items-start gap-3 text-muted-foreground">
-                <Library className="w-6 h-6 mt-3 ml-[-6px]" />
+                <Library className="w-6 h-6" />
                 <div className="grid">
                   <p>
                     Neural{" "}
@@ -56,7 +56,7 @@ const ChatSelect = ({ onSelectType }: Props) => {
             </SelectItem>
             <SelectItem value="Vulnerable">
               <div className="flex items-start gap-3 text-muted-foreground">
-                <BugOff className="w-6 h-6 mt-3 ml-[-6px]" />
+                <BugOff className="w-6 h-6" />
                 <div className="grid">
                   <p>
                     Neural{" "}
