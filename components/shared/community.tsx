@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Post, userDetail } from "@/types/types";
 import PostCard from "./PostCard";
-import Loading from "@/app/(root)/communities/loading";
+import Loading from "../LoadiComponents/Loading";
 
 // Define actions for the reducer
 type Action =

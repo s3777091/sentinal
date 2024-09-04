@@ -15,3 +15,10 @@ export const UserValidation = z.object({
     .min(3, { message: "Minimum 3 characters." })
     .max(1000, { message: "Maximum 1000 caracters." }),
 });
+
+export const UserDetailCheck = z.object({
+  email: z.string().email(),
+  username: z.string().min(1),
+  userid: z.string(),
+  imageUrl: z.string().url().optional(),
+});

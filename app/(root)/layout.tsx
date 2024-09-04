@@ -50,7 +50,6 @@ export default function RootLayout({
             </ClerkLoading>
             <ClerkLoaded>
               <Topbar />
-
               <main className="flex flex-row">
                 <LeftSidebar />
                 <section className="main-container">
