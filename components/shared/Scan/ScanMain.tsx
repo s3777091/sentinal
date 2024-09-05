@@ -22,9 +22,8 @@ export function ScanMain({ user }: ScanProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Filter state
-  const [filterCritical, setFilterCritical] = useState(false);
-  const [filterHigh, setFilterHigh] = useState(false);
+  // Filter state for the new switch
+  const [isDeepScan, setIsDeepScan] = useState(false);
 
   useEffect(() => {
     const fetchScans = async () => {
@@ -61,14 +60,14 @@ export function ScanMain({ user }: ScanProps) {
     setSelectedId(id);
   }, []);
 
-  // Modular filter logic to avoid complex in-place filtering
+  // Modular filter logic based on the switch state
   const filteredScans = useMemo(() => {
     return scans.filter((scan) => {
-      if (filterCritical && scan.severity !== "Critical") return false;
-      if (filterHigh && scan.severity !== "High") return false;
+      if (isDeepScan && scan.severity !== "Deep") return false; // Assuming "Deep" is a severity level in your data
+      if (!isDeepScan && scan.severity !== "Normal") return false; // Assuming "Normal" is another severity level
       return true;
     });
-  }, [scans, filterCritical, filterHigh]);
+  }, [scans, isDeepScan]);
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -80,41 +79,34 @@ export function ScanMain({ user }: ScanProps) {
             <div className="relative flex items-center justify-between p-2">
               <h1 className="text-xl font-bold">Scan History</h1>
 
-              {/* Dropdown Menu for Filters */}
+              {/* Dropdown Menu for Filter */}
               <div className="relative">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full sm:w-32 md:w-24 lg:w-48 px-2 sm:px-4 md:px-6 lg:px-8 text-sm sm:text-base md:text-lg"
+                      className="w-full sm:w-32 md:w-24 lg:w-48 px-2 sm:px-4 md:px-6 lg:px-8 text-sm sm:text-base md:text-lg dark:bg-zinc-950"
                     >
                       Filter
                     </Button>
                   </DropdownMenuTrigger>
 
                   <DropdownMenuContent className="w-full max-w-full sm:max-w-md md:max-w-lg overflow-x-auto">
-                    <DropdownMenuLabel>Severity</DropdownMenuLabel>
+                    <DropdownMenuLabel>Scan Type</DropdownMenuLabel>
 
                     <div className="space-y-4 p-4">
                       <div className="flex items-center space-x-2">
                         <Switch
-                          checked={filterCritical}
-                          onCheckedChange={setFilterCritical}
-                          id="critical-switch"
+                          checked={isDeepScan}
+                          onCheckedChange={setIsDeepScan}
+                          id="scan-switch"
                         />
-                        <label htmlFor="critical-switch" className="text-sm font-medium">
-                          Critical
-                        </label>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          checked={filterHigh}
-                          onCheckedChange={setFilterHigh}
-                          id="high-switch"
-                        />
-                        <label htmlFor="high-switch" className="text-sm font-medium">
-                          High
+                        <label
+                          htmlFor="scan-switch"
+                          className="text-sm font-medium"
+                          style={{ width: "60px", textAlign: "center" }}  // Adjust the width as needed
+                        >
+                          {isDeepScan ? "Deep" : "Normal"}
                         </label>
                       </div>
                     </div>

@@ -106,14 +106,40 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
               </Button>
             </DrawerTrigger>
             <DrawerContent className="max-h-[80vh]">
-              <DrawerHeader>
+              <DrawerHeader className="mx-4">
                 <DrawerTitle>Configuration</DrawerTitle>
                 <DrawerDescription>
                   Configure the settings for the model and messages.
                 </DrawerDescription>
               </DrawerHeader>
               <form className="grid w-full items-start gap-6 overflow-auto p-4 pt-0">
-                <ModelSelect onSelectType={handleSelectType} />
+                <div className="relative mx-4 mt-2">
+                  <Github className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Github link"
+                    className="pl-8 pr-4"
+                    value={github}
+                    onChange={(e) => setgithub(e.target.value)}
+                  />
+                </div>
+                <div className="relative mx-4">
+                  <FolderCog className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="language to detect"
+                    className="pl-8 pr-4"
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                  />
+                </div>
+                <div className="relative mx-4 mb-2">
+                  <FolderCog className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="token"
+                    className="pl-8 pr-4"
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
+                  />
+                </div>
               </form>
             </DrawerContent>
           </Drawer>
@@ -133,33 +159,6 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
                 <TooltipTrigger asChild>
                   <form>
                     <div className="relative flex items-center">
-                      <div className="relative">
-                        <Github className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          placeholder="Github link"
-                          className="pl-8 pr-4"
-                          value={github}
-                          onChange={(e) => setgithub(e.target.value)}
-                        />
-                      </div>
-                      <div className="relative ml-4">
-                        <FolderCog className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          placeholder="language to detect"
-                          className="pl-8 pr-4"
-                          value={language}
-                          onChange={(e) => setLanguage(e.target.value)}
-                        />
-                      </div>
-                      <div className="relative ml-4">
-                        <FolderCog className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          placeholder="token"
-                          className="pl-8 pr-4"
-                          value={token}
-                          onChange={(e) => setToken(e.target.value)}
-                        />
-                      </div>
                     </div>
                   </form>
                 </TooltipTrigger>

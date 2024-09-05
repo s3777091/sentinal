@@ -13,9 +13,8 @@ export function ScanList({ items, onSelect }: ScanListProps) {
   const [selectedId, setSelectedId] = React.useState<number | null>(null);
 
   // State for filters
-  const [filterCritical, setFilterCritical] = React.useState<boolean>(false);
-  const [filterHigh, setFilterHigh] = React.useState<boolean>(false);
-  const [filterMedium, setFilterMedium] = React.useState<boolean>(false);
+  const [isDeepScan, setIsDeepScan] = React.useState<boolean>(false);
+
 
   const handleSelection = React.useCallback(
     (id: number) => {
@@ -29,49 +28,17 @@ export function ScanList({ items, onSelect }: ScanListProps) {
 
   // Filter items based on the selected filters
   const filteredItems = items.filter((item) => {
-    if (filterCritical && item.severity !== "Critical") return false;
-    if (filterHigh && item.severity !== "High") return false;
-    if (filterMedium && item.severity !== "Medium") return false;
+    if (isDeepScan && item.severity !== "Deep") return false;
+    if (!isDeepScan && item.severity !== "Normal") return false;
     return true;
   });
+  
 
   return (
     <div className="flex flex-col h-[100vh]">
       {/* Filter Section */}
       <div className="p-4">
         <div className="flex gap-4">
-          <div className="flex items-center">
-            <Checkbox
-              checked={filterCritical}
-              onCheckedChange={(checked) => setFilterCritical(!!checked)}
-              id="filter-critical"
-            />
-            <label htmlFor="filter-critical" className="ml-2">
-              Critical
-            </label>
-          </div>
-
-          <div className="flex items-center">
-            <Checkbox
-              checked={filterHigh}
-              onCheckedChange={(checked) => setFilterHigh(!!checked)}
-              id="filter-high"
-            />
-            <label htmlFor="filter-high" className="ml-2">
-              High
-            </label>
-          </div>
-
-          <div className="flex items-center">
-            <Checkbox
-              checked={filterMedium}
-              onCheckedChange={(checked) => setFilterMedium(!!checked)}
-              id="filter-medium"
-            />
-            <label htmlFor="filter-medium" className="ml-2">
-              Medium
-            </label>
-          </div>
         </div>
       </div>
 
