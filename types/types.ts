@@ -1,11 +1,11 @@
 export interface userDetail {
   email: string;
   username: string;
-  userid: number;
+  userid: string;
   imageUrl: string;
 }
 export interface ChatBody {
-  user: string;
+  userID: number;
   inputMessage: string;
   prompType: string;
   length: number;
@@ -76,7 +76,6 @@ export interface PostDetail {
     id: number;
     username: string;
     image: string | null;
-    bio: string | null;
   };
   comments: Array<{
     id: number;

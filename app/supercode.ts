@@ -1,61 +1,7 @@
 import { LanguagePatterns, PostDetail, userDetail } from "@/types/types";
-import { User } from "@clerk/nextjs/server";
-import { PrismaClient } from "@prisma/client";
-import smile from "@/public/img/AI/smile.png";
 import { cache } from "react";
-import { string } from "zod";
-import { useUserStore } from "@/lib/store";
 
-const prisma = new PrismaClient();
-
-
-
-export const getUser = cache(async (user: User): Promise<userDetail> => {
-  const { setUserDetail, userDetail } = useUserStore.getState();
-  
-  if (userDetail) {
-    return userDetail;
-  }
-
-  try {
-    const { emailAddresses, username: userUsername, imageUrl } = user;
-    const email = emailAddresses[0].emailAddress;
-    const username = userUsername || email.split("@")[0];
-
-    let ex_User = await prisma.user.findFirst({
-      where: {
-        OR: [{ email }, { username }],
-      },
-    });
-
-    if (!ex_User) {
-      ex_User = await prisma.user.create({
-        data: {
-          email,
-          username,
-          image: imageUrl || smile.src,
-        },
-      });
-    }
-
-    const userData = {
-      email: ex_User.email,
-      username: ex_User.username || "anonymous",
-      userid: ex_User.id,
-      imageUrl: ex_User.image || smile.src,
-    };
-
-    // Set user data in Zustand store
-    setUserDetail(userData);
-
-    return userData;
-  } catch (error) {
-    console.error("Error:", error);
-    throw new Error("Failed to get or create user.");
-  } finally {
-    await prisma.$disconnect();
-  }
-});
+import { prisma } from "@/lib/db"; // Ensure you're importing the prisma client correctly
 
 
 const languagePatterns: Record<string, LanguagePatterns> = {
@@ -198,6 +144,7 @@ export async function extractFunctionsAndClasses(
   return extractor.extractFunctionsAndClasses(codeMessage);
 }
 
+
 export const getPostDetail = cache(async (postId: string): Promise<PostDetail | null> => {
   return await prisma.post.findUnique({
     where: { id: parseInt(postId, 10) },
@@ -207,7 +154,6 @@ export const getPostDetail = cache(async (postId: string): Promise<PostDetail | 
           id: true,
           username: true,
           image: true,
-          bio: true,
         },
       },
       comments: {

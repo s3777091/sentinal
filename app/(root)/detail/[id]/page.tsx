@@ -1,25 +1,24 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { getPostDetail, getUser } from "@/app/supercode"; // Import the type
+import { getPostDetail } from "@/app/supercode";
 import { currentUser } from "@clerk/nextjs/server";
-import PostDetailComponent from "@/components/shared/PostDetail";
+import PostDetailComponent from "@/components/shared/Post/PostDetail";
 import { PostDetail } from "@/types/types";
-import Loading from "@/components/LoadiComponents/Loading";
+import Loading from "@/components/Loading/Loading";
 
 export const revalidate = 0;
 
 async function Page({ params }: { params: { id: string } }) {
-  // Get the current user
-  const user = await currentUser();
+  // Fetch user and post data in parallel
+  const [user, post] = await Promise.all([currentUser(), getPostDetail(params.id)]);
+
+  // Redirect to sign-in if user is not logged in
   if (!user) {
     redirect("/sign-in");
+    return;
   }
 
-  const userDetail = await getUser(user);
-
-  // Fetch the post details with author and comments
-  const post: PostDetail | null = await getPostDetail(params.id);
-
+  // Handle post not found
   if (!post) {
     return (
       <section className="relative">
@@ -28,10 +27,17 @@ async function Page({ params }: { params: { id: string } }) {
     );
   }
 
+  const userProfile = {
+    email: user.emailAddresses[0]?.emailAddress || "ghost@gmail.com",
+    username: user.username || "unknown",
+    userid: user.id.toString(),
+    imageUrl: user.imageUrl
+  };
+
   return (
     <section className="relative">
       <Suspense fallback={<Loading />}>
-        <PostDetailComponent post={post} user={userDetail} />
+        <PostDetailComponent post={post} user={userProfile} />
       </Suspense>
     </section>
   );

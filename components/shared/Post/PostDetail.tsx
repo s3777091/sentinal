@@ -1,11 +1,11 @@
 import Image from "next/image";
-import PostComment from "@/components/forms/PostComment";
+import PostComment from "@/components/forms/Post/PostComment";
 import { Post, User, Comment } from "@prisma/client";
 import { userDetail } from "@/types/types"; // Assuming you have a custom userDetail type
 
 interface PostDetailProps {
     post: Omit<Post, "authorId"> & {
-    author: Pick<User, "id" | "username" | "image" | "bio">;
+    author: Pick<User, "id" | "username" | "image">;
     comments: (Omit<Comment, "authorId" | "postId"> & {
       author: Pick<User, "id" | "username" | "image">;
     })[];

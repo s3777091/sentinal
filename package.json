@@ -37,9 +37,9 @@
     "axios": "^1.7.5",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "ioredis": "^5.4.1",
     "kafkajs": "^2.2.4",
     "lucide-react": "^0.394.0",
+    "micro": "^10.0.1",
     "next": "^14.2.7",
     "next-themes": "^0.3.0",
     "react": "^18",
@@ -50,14 +50,13 @@
     "react-resizable-panels": "^2.0.23",
     "recharts": "^2.12.7",
     "sharp": "^0.33.5",
-    "svix": "^1.24.0",
+    "svix": "^1.32.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "uploadthing": "^6.12.0",
     "uuid": "^10.0.0",
     "vaul": "^0.9.1",
-    "zod": "^3.23.8",
-    "zustand": "^4.5.5"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",

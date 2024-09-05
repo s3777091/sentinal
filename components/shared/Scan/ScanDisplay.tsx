@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useEffect, useReducer } from "react";
+import React, { useState, useMemo } from "react";
 import { ScanInput, userDetail } from "@/types/types";
 import {
   Drawer,
@@ -21,8 +21,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "../ui/scroll-area";
-import { supportedLanguages } from "@/constants";
+import { ScrollArea } from "../../ui/scroll-area";
 
 const ADD_SCAN_INPUT = "ADD_SCAN";
 
@@ -35,37 +34,6 @@ interface ScanDisplayProps {
   } | null;
   user: userDetail;
 }
-
-const isLanguageSupported = async (language: string): Promise<boolean> => {
-  // Define the pattern for valid language names or extensions
-  const languagePattern = /^[a-zA-Z\-]+$/; // Allows letters and hyphens
-
-  // Normalize the input
-  const normalizedLanguage = language.toLowerCase().trim();
-
-  // Validate the language format
-  if (!languagePattern.test(normalizedLanguage)) {
-    console.error("Invalid language format.");
-    alert("Invalid language format.");
-    return false;
-  }
-
-  // Check if the language is supported
-  return supportedLanguages.has(normalizedLanguage);
-};
-
-const checkToken = async (token: string): Promise<boolean> => {
-  const tokenPattern = /^ghp_[A-Za-z0-9]{36}$/;
-
-  // Validate the token format
-  if (!tokenPattern.test(token)) {
-    console.error("Invalid GitHub token format.");
-    alert("Invalid GitHub token format.");
-    return false;
-  } else {
-    return true;
-  }
-};
 
 export function ScanDisplay({ scan, user }: ScanDisplayProps) {
   const [loading, setLoading] = useState(false);
@@ -92,44 +60,34 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
 
   const sendData = async () => {
     try {
-      console.log("Starting sendData function");
       const controller = new AbortController();
-      const isTokenValid = await checkToken(token);
-      const isLangSupported = await isLanguageSupported(language);
 
-      console.log("Token valid:", isTokenValid);
-      console.log("Language supported:", isLangSupported);
+      const body: ScanInput = {
+        github: github,
+        language: language,
+        token: token,
+        user: user.username,
+      };
 
-      if (isTokenValid && isLangSupported) {
-        const body: ScanInput = {
-          github: github,
-          language: language,
-          token: token,
-          user: user.username,
-        };
+      const response = await fetch("/api/github", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+        body: JSON.stringify(body),
+      });
 
-        console.log("Sending request with body:", body);
-
-        const response = await fetch("/api/github", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          signal: controller.signal,
-          body: JSON.stringify(body),
-        });
-
-        if (!response.ok) {
-          throw new Error(`API request failed with status ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
       } else {
-          alert("GET github -> send that code to GPU SERVER compute and return back take time pls wait");
+        alert(
+          "GET github -> send that code to GPU SERVER compute and return back take time pls wait"
+        );
       }
       const data = await response.json();
 
       console.log(data);
-      } else {
-        console.error("Invalid token or unsupported language.");
-      }
     } catch (error) {
       console.log("Error occurred:", error);
       alert("Something went wrong when fetching from the API.");
@@ -140,25 +98,25 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
     <div className="flex min-w-fit h-full max-md:w-1/2 flex-col">
       <div className="flex items-center p-2">
         <div className="flex items-center gap-2">
-        <Drawer>
-          <DrawerTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Settings className="w-5 h-5" />
-              <span className="sr-only">Settings</span>
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent className="max-h-[80vh]">
-            <DrawerHeader>
-              <DrawerTitle>Configuration</DrawerTitle>
-              <DrawerDescription>
-                Configure the settings for the model and messages.
-              </DrawerDescription>
-            </DrawerHeader>
-            <form className="grid w-full items-start gap-6 overflow-auto p-4 pt-0">
-              <ModelSelect onSelectType={handleSelectType} />
-            </form>
-          </DrawerContent>
-        </Drawer>
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Settings className="w-5 h-5" />
+                <span className="sr-only">Settings</span>
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="max-h-[80vh]">
+              <DrawerHeader>
+                <DrawerTitle>Configuration</DrawerTitle>
+                <DrawerDescription>
+                  Configure the settings for the model and messages.
+                </DrawerDescription>
+              </DrawerHeader>
+              <form className="grid w-full items-start gap-6 overflow-auto p-4 pt-0">
+                <ModelSelect onSelectType={handleSelectType} />
+              </form>
+            </DrawerContent>
+          </Drawer>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" onClick={sendData}>

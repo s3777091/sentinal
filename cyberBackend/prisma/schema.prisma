@@ -9,18 +9,20 @@ datasource db {
 
 model User {
   id           Int           @id @default(autoincrement())
+  userId       String        @unique
   email        String        @unique
   username     String        @unique
   name         String?
-  apiServerId  Int?
+  image        String?
   posts        Post[]
-  profile      Profile?
-  scanData     ScanData[]    // One User has many ScanData
+  comments     Comment[]
+  scanData     ScanData[]
+  apiServerId  Int?
   apiServer    ApiServer?    @relation(fields: [apiServerId], references: [id])
-  conversations Conversation[] // One User has many Conversations
+  conversations Conversation[]
 
-  @@unique([email, username]) // Ensure both email and username are unique
-  @@index([apiServerId])       // Index to optimize querying users by apiServerId
+  @@unique([email, username])
+  @@index([apiServerId])
 }
 
 model ApiServer {
@@ -51,6 +53,7 @@ model Post {
   updatedAt DateTime  @updatedAt
   title     String    @db.VarChar(255)
   content   String?
+  imageUrl  String?   // Added imageUrl field to store the uploaded image URL
   author    User      @relation(fields: [authorId], references: [id])
   authorId  Int
   comments  Comment[] // One Post has many Comments
@@ -65,18 +68,10 @@ model Comment {
   content   String
   post      Post     @relation(fields: [postId], references: [id])
   postId    Int
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
 
   @@index([postId]) // Index to optimize querying comments by postId
-}
-
-model Profile {
-  id     Int     @id @default(autoincrement())
-  bio    String?
-  user   User    @relation(fields: [userId], references: [id])
-  image  String?
-  userId Int     @unique
-
-  @@index([userId]) // Index to optimize querying profiles by userId
 }
 
 model Conversation {
@@ -90,4 +85,3 @@ model Conversation {
   @@index([userId])  // Index to optimize querying conversations by userId
   @@index([createdAt]) // Index to optimize querying conversations by creation date
 }
-

@@ -1,52 +1,43 @@
-import { ChatBody } from "@/types/types";
-import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { handleInformation, handleVulnerable, startNewConversation } from "@/app/chatback";
+import {
+  handleInformation,
+  handleVulnerable,
+  startNewConversation,
+} from "@/app/chatback";
+import { chatBodySchema } from "@/lib/validations/Chat";
 
-export async function POST(req: Request): Promise<Response> {
-  const prisma = new PrismaClient();
-
+export async function POST(req: Request): Promise<NextResponse> {
   try {
-    const { user, inputMessage, prompType, newConversation } = (await req.json()) as ChatBody;
+    const parsedData = chatBodySchema.parse(await req.json());
 
-    // Find the user by username to get the user ID
-    const userRecord = await prisma.user.findUnique({
-      where: { username: user },
-    });
-
-    if (!userRecord) {
-      return new Response(JSON.stringify({ result: "User not found" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    const { userID, inputMessage, prompType, newConversation } = parsedData;
 
     // Optionally start a new conversation if requested
     if (newConversation) {
-      await startNewConversation(userRecord.id);
+      await startNewConversation(userID);
     }
 
     let out: string;
     if (prompType === "information") {
-      out = await handleInformation(inputMessage, userRecord.id, newConversation);
+      out = await handleInformation(inputMessage, userID, newConversation);
     } else {
-      out = await handleVulnerable(userRecord, inputMessage);
+      out = await handleVulnerable(userID, inputMessage);
     }
 
-    return new Response(JSON.stringify({ result: out }), {
+    return new NextResponse(JSON.stringify({ result: out }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("API error:", error);
     return new NextResponse(
-      JSON.stringify({ data: "Our development team is reviewing your error..." }),
+      JSON.stringify({
+        data: "Our development team is reviewing your error...",
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
       }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

@@ -1,18 +1,10 @@
 "use client";
 
 import React, { useState, useMemo, useReducer, useEffect, useRef } from "react";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Settings, Share, Loader } from "lucide-react";
-import ChatSelect from "@/components/forms/ChatSelect";
-import ChatMessage from "@/components/forms/ChatMessage";
+import ChatSelect from "@/components/forms/Chat/ChatSelect";
+import ChatMessage from "@/components/forms/Chat/ChatMessage";
 import { AIMessage, ChatBody, userDetail } from "@/types/types";
 import aiChat from "@/public/img/AI/sparkling.png";
 
@@ -80,11 +72,11 @@ const MainChat = (props: Props) => {
 
     setLoading(true);
     const body: ChatBody = {
-      user: props.user.username,
+      userID: props.user.userid,
       inputMessage: message,
       prompType: typeValue,
       length: 384,
-      newConversation: newConversation, // Send newConversation flag
+      newConversation: newConversation,
     };
 
     try {
@@ -106,7 +98,7 @@ const MainChat = (props: Props) => {
         type: ADD_MESSAGE,
         payload: {
           user: {
-            email: props.user.email,
+            email: "skira_admin@gmail.com",
             username: "AI",
             userid: props.user.userid,
             imageUrl: aiChat.src,
@@ -116,7 +108,7 @@ const MainChat = (props: Props) => {
       });
 
       setLoading(false);
-      setNewConversation(false); // Reset the new conversation flag after the first message
+      setNewConversation(false);
     } catch (error) {
       console.error("Error:", error);
       alert("Something went wrong when fetching from the API.");
@@ -131,40 +123,6 @@ const MainChat = (props: Props) => {
   const startNewChat = () => {
     dispatch({ type: CLEAR_MESSAGES }); // Clear the current messages
     setNewConversation(true); // Set the new conversation flag
-  };
-
-  const sendScanMessage = async (message: string) => {
-    try {
-      dispatch({ type: ADD_MESSAGE, payload: { user: props.user, message } });
-      const controller = new AbortController();
-
-      if (message.length > 700) {
-        alert(
-          `Please enter code less than 700 characters. You are currently at ${message.length} characters.`
-        );
-        return;
-      }
-
-      const body = {
-        message: message,
-      };
-
-      const response = await fetch("/api/kafka", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        signal: controller.signal,
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch the API. Status: ${response.status}`);
-      }
-    } catch (error) {
-      console.log(error);
-      alert("Something went wrong when fetching from the API.");
-    }
   };
 
   return (

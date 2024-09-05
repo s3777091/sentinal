@@ -9,20 +9,20 @@ datasource db {
 
 model User {
   id           Int           @id @default(autoincrement())
+  user_Id      String       @unique
   email        String        @unique
   username     String        @unique
   name         String?
-  bio          String?
   image        String?
   posts        Post[]
-  comments     Comment[]     // Add this line to define the inverse relation
-  scanData     ScanData[]    // One User has many ScanData
+  comments     Comment[]
+  scanData     ScanData[]
   apiServerId  Int?
   apiServer    ApiServer?    @relation(fields: [apiServerId], references: [id])
-  conversations Conversation[] // One User has many Conversations
+  conversations Conversation[]
 
-  @@unique([email, username]) // Ensure both email and username are unique
-  @@index([apiServerId])       // Index to optimize querying users by apiServerId
+  @@unique([email, username])
+  @@index([apiServerId])
 }
 
 model ApiServer {
@@ -40,8 +40,8 @@ model ScanData {
   title       String?
   level       String?
   more_detail String?
-  userId      Int
-  scanUser    User     @relation(fields: [userId], references: [id])
+  userId      String
+  scanUser    User     @relation(fields: [userId], references: [user_Id])
 
   @@index([userId])
   @@index([title])
@@ -54,8 +54,8 @@ model Post {
   title     String    @db.VarChar(255)
   content   String?
   imageUrl  String?   // Added imageUrl field to store the uploaded image URL
-  author    User      @relation(fields: [authorId], references: [id])
-  authorId  Int
+  author    User      @relation(fields: [authorId], references: [user_Id])
+  authorId  String
   comments  Comment[] // One Post has many Comments
 
   @@index([authorId]) // Index to optimize querying by authorId
@@ -68,19 +68,19 @@ model Comment {
   content   String
   post      Post     @relation(fields: [postId], references: [id])
   postId    Int
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
+  author    User     @relation(fields: [authorId], references: [user_Id])
+  authorId  String
 
   @@index([postId]) // Index to optimize querying comments by postId
 }
 
 model Conversation {
   id         Int      @id @default(autoincrement())
-  userId     Int
+  userId     String
   messages   Json     // Store messages as JSON
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  user       User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [user_Id])
 
   @@index([userId])  // Index to optimize querying conversations by userId
   @@index([createdAt]) // Index to optimize querying conversations by creation date

@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Post, userDetail } from "@/types/types";
-import PostCard from "./PostCard";
-import Loading from "../LoadiComponents/Loading";
+import PostCard from "./Post/PostCard";
+import Loading from "../Loading/Loading";
 
 // Define actions for the reducer
 type Action =

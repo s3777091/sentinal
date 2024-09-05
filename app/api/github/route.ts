@@ -3,19 +3,22 @@ import axios from "axios";
 import { CyberSend } from "@dad1909/cyber";
 import { extractFunctionsAndClasses } from "@/app/supercode";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+import { scanInputSchema } from "@/lib/validations/Scan";
+import { currentUser } from "@clerk/nextjs/server";
+
 const psw: string | undefined = process.env.KAFKA_PASSWORD;
 
 if (!psw) {
   throw new Error("Please add the Kafka password in .env or .env.local");
 }
 
-
 async function getFile(
   repoOwner: string,
   repoName: string,
   repoBranch: string,
   filePath: string,
-  lang : string,
+  lang: string,
   user: string,
   headers: any
 ): Promise<FileContent | null> {
@@ -27,13 +30,13 @@ async function getFile(
     const response = await axios.get(url, { headers });
     if (response.status === 200) {
       const data = await extractFunctionsAndClasses(response.data, lang);
-      
+
       for (const block of data) {
         const messageData = [
           {
             username: user,
             message_send: block,
-            path: filePath
+            path: filePath,
           },
         ];
         await cyber.sendMessages(messageData);
@@ -117,7 +120,7 @@ async function getFolder(
 function extractDirectoryPath(
   url: string,
   repo: string,
-  branch: string 
+  branch: string
 ): string | null {
   const startIndex =
     url.indexOf(`${repo}/contents/`) + `${repo}/contents/`.length;
@@ -128,9 +131,14 @@ function extractDirectoryPath(
   return null;
 }
 
-export async function POST(req: Request): Promise<Response> {
+// POST request handler
+export async function POST(req: Request): Promise<NextResponse> {
   try {
-    const { github, language, token, user } = (await req.json()) as ScanInput;
+    // Parse and validate the request body
+    const json = await req.json();
+    const parsedInput = scanInputSchema.parse(json); // Validate with Zod
+
+    const { github, language, token, username } = parsedInput;
 
     const headers = {
       Authorization: `token ${token}`,
@@ -142,22 +150,38 @@ export async function POST(req: Request): Promise<Response> {
     const repo = urlParts[1];
     const branch = urlParts[2] || "main";
 
-    if (!owner || !repo || !branch) {
-      throw new Error("Invalid GitHub repository information provided.");
-    }
+    const files = await getFolder(
+      owner,
+      repo,
+      branch,
+      language,
+      username,
+      headers
+    );
 
-    const files = await getFolder(owner, repo, branch, language, user, headers);
-
-    return new Response(JSON.stringify(files, null, 2), {
+    return new NextResponse(JSON.stringify(files, null, 2), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
       },
     });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      // Handle validation errors from Zod
+      return new NextResponse(
+        JSON.stringify({ errors: "Wrong validation input" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
     console.error("Error:", error);
-    return new Response("Something went wrong while processing the request", {
-      status: 500,
-    });
+    return new NextResponse(
+      "Something went wrong while processing the request",
+      {
+        status: 500,
+      }
+    );
   }
 }

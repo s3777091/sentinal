@@ -3,7 +3,7 @@ import * as z from "zod";
 const bannedWords = ["spam", "advertisement", "wtf"];
 
 export const postSchema = z.object({
-  authorId: z.number().int().positive(),
+  authorId: z.string(),
   title: z
     .string()
     .min(1, "Title is required")

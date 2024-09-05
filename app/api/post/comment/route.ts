@@ -1,9 +1,8 @@
-import { PrismaClient } from "@prisma/client";
 import { PostCommentValidation } from "@/lib/validations/Post";
+import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
-
-export async function POST(req: Request): Promise<Response> {
+export async function POST(req: Request): Promise<NextResponse> {
   try {
     // Parse the incoming request body to extract data
     const data = await req.json();
@@ -24,17 +23,15 @@ export async function POST(req: Request): Promise<Response> {
     });
 
     // Return a success response
-    return new Response(JSON.stringify(comment), {
+    return new NextResponse(JSON.stringify(comment), {
       status: 201,
       headers: {
         "Content-Type": "application/json",
       },
     });
   } catch (error) {
-    console.error("Error creating comment:", error);
-
     // Return an error response
-    return new Response("Failed to create comment", {
+    return new NextResponse("Failed to create comment", {
       status: 500,
     });
   } finally {

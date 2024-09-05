@@ -8,9 +8,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { postSchema } from "@/lib/validations/Post";
 import { useUploadThing } from "@/lib/uploadthing";
 import { userDetail } from "@/types/types";
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
-import FileUploader from "@/components/shared/FileUploader";
+import { Button } from "../../ui/button";
+import { Textarea } from "../../ui/textarea";
+import FileUploader from "@/components/shared/Post/FileUploader";
 import {
   Form,
   FormField,
@@ -19,8 +19,8 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "../ui/input";
-import Loader from "../LoadiComponents/Loader";
+import { Input } from "../../ui/input";
+import Loader from "../../Loading/Loader";
 
 interface UserProps {
   user: userDetail;
@@ -41,7 +41,7 @@ const PostForm = ({ user }: UserProps) => {
       title: "",
       content: "",
       imageUrl: "",
-      authorId: user.userid, // Ensure this matches your schema
+      authorId: user.userid
     },
   });
 

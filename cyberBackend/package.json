@@ -7,6 +7,7 @@
         "dev": "ts-node src/index.ts",
         "main": "ts-node main.ts",
         "get": "ts-node src/get.ts",
+        "data": "ts-node prisma/seed.ts",
         "build": "npx tsc"
     },
     "author": "",
