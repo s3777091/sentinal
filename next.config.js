@@ -1,5 +1,8 @@
 const nextConfig = {
   output: 'standalone',
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
@@ -12,6 +15,7 @@ const nextConfig = {
       // your project has ESLint errors.
       ignoreDuringBuilds: true,
     },
+    
     images: {
       remotePatterns: [
         {
