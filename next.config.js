@@ -1,4 +1,5 @@
 const nextConfig = {
+  output: 'standalone',
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
@@ -31,7 +32,7 @@ const nextConfig = {
         },
         {
           protocol: "https",
-          hostname: "utfs.io", // Add this entry for utfs.io
+          hostname: "utfs.io",
         },
       ],
     },
