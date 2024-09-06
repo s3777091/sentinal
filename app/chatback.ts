@@ -1,4 +1,3 @@
-import { userRecordDb } from "@/types/types";
 import { HfInference } from "@huggingface/inference";
 import { Client } from "@gradio/client";
 import { prisma } from "@/lib/db";
@@ -171,10 +170,10 @@ export async function handleInformation(
     let out = "";
 
     for await (const chunk of hf.chatCompletionStream({
-      model: "mistralai/Mistral-7B-Instruct-v0.2",
+      model: "meta-llama/Meta-Llama-3-70B-Instruct",
       messages,
       max_tokens: 1024,
-      temperature: 0.8,
+      temperature: 1.0,
       seed: 0,
     })) {
       if (chunk.choices && chunk.choices.length > 0) {

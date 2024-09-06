@@ -1,10 +1,10 @@
-import { currentUser } from "@clerk/nextjs/server";
-import { ScanMain } from "@/components/shared/Scan/ScanMain";
-import { redirect } from "next/navigation";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import MainChat from "@/components/shared/Chat/MainChat";
 import smile from "@/public/img/AI/smile.png";
-import { UserDetail } from "@/types/types";
+import { redirect } from "next/navigation";
+import { currentUser } from "@clerk/nextjs/server";
 
-const ScanPage = async () => {
+const Chat = async () => {
   const user = await currentUser();
 
   // Redirect to sign-in if user is not logged in
@@ -14,17 +14,19 @@ const ScanPage = async () => {
   }
 
   // Prepare the user profile with defaults for missing fields
-  const userProfile : UserDetail = {
+  const userProfile = {
     email: user.emailAddresses[0]?.emailAddress || "ghost@gmail.com",
     username: user.username || "unknown",
     userid: user.id.toString(),
     imageUrl: user.imageUrl || smile.src,
   };
   return (
-    <div className="min-h-[100vh] flex-col md:flex">
-      <ScanMain user={userProfile} />
-    </div>
+    <TooltipProvider>
+      <div className="grid h-  w-full">
+        <MainChat user={userProfile} />
+      </div>
+    </TooltipProvider>
   );
 };
 
-export default ScanPage;
+export default Chat;

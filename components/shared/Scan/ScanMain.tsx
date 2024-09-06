@@ -8,12 +8,12 @@ import { Switch } from "@/components/ui/switch";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 import { ScanDisplay } from "@/components/shared/Scan/ScanDisplay";
 import { ScanList } from "@/components/shared/Scan/ScanList";
-import { ScanArray, userDetail } from "@/types/types";
+import { ScanArray, UserDetail } from "@/types/types";
 import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading/Loading";  // Assuming you have a Loading component
 
 interface ScanProps {
-  user: userDetail;
+  user: UserDetail;
 }
 
 export function ScanMain({ user }: ScanProps) {

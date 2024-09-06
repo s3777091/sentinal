@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import { ScanInput, userDetail } from "@/types/types";
+import { ScanInput, UserDetail } from "@/types/types";
 import {
   Drawer,
   DrawerContent,
@@ -32,7 +32,7 @@ interface ScanDisplayProps {
     level: string;
     more_detail: string;
   } | null;
-  user: userDetail;
+  user: UserDetail;
 }
 
 export function ScanDisplay({ scan, user }: ScanDisplayProps) {

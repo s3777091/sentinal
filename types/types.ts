@@ -1,11 +1,12 @@
-export interface userDetail {
+export interface UserDetail {
   email: string;
   username: string;
   userid: string;
-  imageUrl: string;
+  imageUrl: string | null; // Allow for null in case the user does not have an image
 }
+
 export interface ChatBody {
-  userID: number;
+  userID: string;
   inputMessage: string;
   prompType: string;
   length: number;
@@ -19,6 +20,7 @@ export interface AIMessage {
   type: string;
   lendata: number;
 }
+
 export interface ScanArray {
   id: number;
   title: string;
@@ -43,12 +45,12 @@ export interface FileContent {
   content: string[];
 }
 
-export interface userRecordDb {
+export interface UserRecordDb {
   id: number;
   email: string;
   username: string;
-  name: string | null;
-  apiServerId: number | null;
+  name: string | null; // Name can be null
+  apiServerId: number | null; // Server ID can be null
 }
 
 export interface Post {
@@ -56,26 +58,30 @@ export interface Post {
   author: {
     id: number;
     username: string;
-    image: string;
+    image: string | null; // Image can be null
   };
   content: string;
   createdAt: string;
-  likes: number;
-  comments: number;
-  shares: number;
+  comments: Array<{
+    id: number;
+    author: {
+      id: number;
+      image: string | null;
+    };
+  }>;
 }
 
 export interface PostDetail {
   id: number;
   title: string;
-  content: string | null;
-  imageUrl: string | null;
+  content: string | null; // Content can be null
+  imageUrl: string | null; // Image can be null
   createdAt: Date;
   updatedAt: Date;
   author: {
     id: number;
     username: string;
-    image: string | null;
+    image: string | null; // Image can be null
   };
   comments: Array<{
     id: number;
@@ -84,7 +90,7 @@ export interface PostDetail {
     author: {
       id: number;
       username: string;
-      image: string | null;
+      image: string | null; // Commenter's image can be null
     };
   }>;
-};
+}

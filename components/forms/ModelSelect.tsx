@@ -10,12 +10,8 @@ import {
 
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import {
-  Rabbit,
-  Bird,
-  Turtle,
   Library,
   BugOff,
-  MessageSquare,
 } from "lucide-react";
 import {
   Card,
