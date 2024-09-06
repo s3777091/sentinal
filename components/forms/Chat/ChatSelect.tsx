@@ -8,22 +8,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import {
-  Rabbit,
-  Bird,
-  Turtle,
   Library,
   BugOff,
-  MessageSquare,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 interface Props {
   onSelectType: (Value: string) => void;

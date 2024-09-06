@@ -1,16 +1,13 @@
 import React from "react";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/shared/App/theme-provider";
 import { neobrutalism } from "@clerk/themes";
-import "../globals.css";
+import "../globals.css"; // Ensure your fonts are loaded in globals.css
 import LeftSidebar from "@/components/shared/App/LeftSidebar";
 import Bottombar from "@/components/shared/App/Bottombar";
 import Topbar from "@/components/shared/App/Topbar";
 import DogLoad from "@/components/Loading/DogLoad";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Skira",
@@ -33,7 +30,8 @@ export default function RootLayout({
       }}
     >
       <html lang="en">
-        <body className={inter.className}>
+        {/* Apply the Inter font family globally via CSS */}
+        <body className="font-inter">
           <ThemeProvider
             attribute="class"
             defaultTheme="system"

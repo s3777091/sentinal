@@ -2,7 +2,7 @@ export const sidebarLinks = [
     {
       imgURL: "/assets/darkearth.svg",
       darkImageUrl: "/assets/earth.svg",
-      route: "/communities",
+      route: "/",
       label: "Communities",
     },
     {
@@ -14,7 +14,7 @@ export const sidebarLinks = [
     {
       imgURL: "/assets/message.svg",
       darkImageUrl: "/assets/darkmessage.svg",
-      route: "/",
+      route: "/chat",
       label: "Message",
     },
     {
