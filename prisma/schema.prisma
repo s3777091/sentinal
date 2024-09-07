@@ -8,17 +8,16 @@ datasource db {
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
-  user_Id      String       @unique
-  email        String        @unique
-  username     String        @unique
-  name         String?
-  image        String?
-  posts        Post[]
-  comments     Comment[]
-  scanData     ScanData[]
-  apiServerId  Int?
-  apiServer    ApiServer?    @relation(fields: [apiServerId], references: [id])
+  id            Int            @id @default(autoincrement())
+  user_Id       String         @unique
+  email         String         @unique
+  username      String         @unique
+  name          String?
+  image         String?
+  posts         Post[]
+  scanData      ScanData[]
+  apiServerId   Int?
+  apiServer     ApiServer?     @relation(fields: [apiServerId], references: [id])
   conversations Conversation[]
 
   @@unique([email, username])
@@ -26,10 +25,10 @@ model User {
 }
 
 model ApiServer {
-  id       Int     @id @default(autoincrement())
-  apiUrl   String  @db.VarChar(255)
-  users    User[]
-  status   String  @db.VarChar(10)
+  id     Int    @id @default(autoincrement())
+  apiUrl String @db.VarChar(255)
+  users  User[]
+  status String @db.VarChar(10)
 
   @@index([apiUrl])
 }
@@ -48,40 +47,28 @@ model ScanData {
 }
 
 model Post {
-  id        Int       @id @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  title     String    @db.VarChar(255)
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  room      String   @unique
+  updatedAt DateTime @updatedAt
+  title     String   @db.VarChar(255)
   content   String?
-  imageUrl  String?   // Added imageUrl field to store the uploaded image URL
-  author    User      @relation(fields: [authorId], references: [user_Id])
+  imageUrl  String? // Added imageUrl field to store the uploaded image URL
+  author    User     @relation(fields: [authorId], references: [user_Id])
   authorId  String
-  comments  Comment[] // One Post has many Comments
 
   @@index([authorId]) // Index to optimize querying by authorId
   @@index([createdAt]) // Index to optimize querying posts by creation date
 }
 
-model Comment {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  content   String
-  post      Post     @relation(fields: [postId], references: [id])
-  postId    Int
-  author    User     @relation(fields: [authorId], references: [user_Id])
-  authorId  String
-
-  @@index([postId]) // Index to optimize querying comments by postId
-}
-
 model Conversation {
-  id         Int      @id @default(autoincrement())
-  userId     String
-  messages   Json     // Store messages as JSON
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  user       User     @relation(fields: [userId], references: [user_Id])
+  id        Int      @id @default(autoincrement())
+  userId    String
+  messages  Json // Store messages as JSON
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [user_Id])
 
-  @@index([userId])  // Index to optimize querying conversations by userId
+  @@index([userId]) // Index to optimize querying conversations by userId
   @@index([createdAt]) // Index to optimize querying conversations by creation date
 }

@@ -9,10 +9,17 @@ import Bottombar from "@/components/shared/App/Bottombar";
 import Topbar from "@/components/shared/App/Topbar";
 import DogLoad from "@/components/Loading/DogLoad";
 
+import { Inter } from "next/font/google";
+
 export const metadata: Metadata = {
   title: "Skira",
   description: "A Next.js 14 Skira application",
 };
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter'
+})
 
 export default function RootLayout({
   children,
@@ -30,8 +37,7 @@ export default function RootLayout({
       }}
     >
       <html lang="en">
-        {/* Apply the Inter font family globally via CSS */}
-        <body className="font-inter">
+        <body className={`${inter.variable} font-sans`}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"

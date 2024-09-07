@@ -2,6 +2,9 @@ import { postSchema } from "@/lib/validations/Post";
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+import { nanoid } from "nanoid";
+import { liveblocks } from "@/lib/liveblocks";
+
 export async function POST(req: Request): Promise<NextResponse> {
   try {
     // Parse the incoming request body to extract data
@@ -21,6 +24,8 @@ export async function POST(req: Request): Promise<NextResponse> {
       );
     }
 
+    // If no room exists, create a new one
+    const roomId = nanoid(); // Generates a new room ID
     // Destructure the validated data
     const { authorId, title, content, imageUrl } = result.data;
 
@@ -31,12 +36,25 @@ export async function POST(req: Request): Promise<NextResponse> {
     const post = await prisma.post.create({
       data: {
         title,
+        room: roomId,
         content,
         imageUrl: finalImageUrl,
         author: {
-          connect: { user_Id: authorId },  // Connect using user_Id, not id
+          connect: { user_Id: authorId }, // Connect using user_Id, not id
         },
       },
+    });
+    //create room
+
+    const metadata = {
+      post: content || "",
+      title,
+    };
+
+    // Create the room with public access (allow anyone to read/write)
+    await liveblocks.createRoom(roomId, {
+      metadata,
+      defaultAccesses: ["room:write"], // Allow anyone to read and write
     });
 
     // Return a success response with the created post data
@@ -53,7 +71,6 @@ export async function POST(req: Request): Promise<NextResponse> {
     });
   }
 }
-
 
 export async function GET(req: Request): Promise<NextResponse> {
   try {
@@ -82,16 +99,6 @@ export async function GET(req: Request): Promise<NextResponse> {
           select: {
             username: true,
             image: true,
-          },
-        },
-        comments: {
-          include: {
-            author: {
-              select: {
-                username: true,
-                image: true,
-              },
-            },
           },
         },
       },

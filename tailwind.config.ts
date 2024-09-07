@@ -172,6 +172,9 @@ module.exports = {
       ],
     },
     extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -208,7 +211,7 @@ module.exports = {
         },
         "primary-500": "#877EFF",
         "secondary-500": "#FFB620",
-        "blue": "#0095F6",
+        blue: "#0095F6",
         "logout-btn": "#FF5A5A",
         "navbar-menu": "rgba(16, 16, 18, 0.6)",
         "dark-1": "#000000",

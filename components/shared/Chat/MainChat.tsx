@@ -143,7 +143,6 @@ const MainChat = (props: Props) => {
 
       <main className="flex-1 flex flex-col p-4 overflow-hidden">
         <ChatMessage
-          users={props.user}
           onButtonClick={handleMessage} // Call handleButtonClick on button click
           messages={messages}
         />

@@ -12,8 +12,8 @@ function Topbar() {
   const handleSignOut = async () => {
     try {
       const { signOut } = useClerk();
-      await signOut(); // Perform sign-out
-      router.push("/sign-in"); // Redirect to sign-in page after logging out
+      await signOut();
+      router.push("/sign-in");
     } catch (error) {
       console.error("Error during sign-out:", error);
     }

@@ -1,16 +1,24 @@
+"use client";
+
 import Image from "next/image";
-import PostComment from "@/components/forms/Post/PostComment";
-import { Post, User, Comment } from "@prisma/client";
-import { UserDetail } from "@/types/types"; // Assuming you have a custom userDetail type
+import { Post, User } from "@prisma/client";
+import { UserDetail } from "@/types/types";
+import smile from "@/public/img/AI/smile.png";
+
+import Loading from "@/components/Loading/Loading";
+import { LiveProvider } from "./LiveProvider";
+
+import { RoomProvider } from "@liveblocks/react/suspense";
+
+import { ClientSideSuspense } from "@liveblocks/react";
+import { CollaborativeApp } from "./CollaborativeApp";
+import { ErrorBoundary } from "react-error-boundary";
 
 interface PostDetailProps {
-    post: Omit<Post, "authorId"> & {
+  post: Omit<Post, "authorId"> & {
     author: Pick<User, "id" | "username" | "image">;
-    comments: (Omit<Comment, "authorId" | "postId"> & {
-      author: Pick<User, "id" | "username" | "image">;
-    })[];
   };
-  user: UserDetail; // Assuming userDetail contains 'userid' and 'imageUrl'
+  user: UserDetail;
 }
 
 export default function PostDetail({ post, user }: PostDetailProps) {
@@ -22,8 +30,8 @@ export default function PostDetail({ post, user }: PostDetailProps) {
       {/* Post Author Info */}
       <div className="flex items-center mb-4">
         <Image
-          src={post.author?.image || "/default-avatar.png"} // Use post author image or default
-          alt={`${post.author?.username || "Unknown"}'s avatar`} // Handle missing username
+          src={post.author?.image || smile.src}
+          alt={`${post.author?.username || "Unknown"}'s avatar`}
           width={48}
           height={48}
           className="w-12 h-12 rounded-full mr-4"
@@ -54,69 +62,31 @@ export default function PostDetail({ post, user }: PostDetailProps) {
               objectFit="cover"
             />
           </div>
-          <div className="lg:w-1/2 lg:ml-6 mt-4 lg:mt-0">
-            <div className="post-comments">
-              <h3 className="text-lg text-black dark:text-white">Comments</h3>
-              {post.comments.length > 0 ? (
-                post.comments.map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="bg-gray-300 dark:bg-zinc-700 p-4 rounded-lg mt-3"
-                  >
-                    <p className="text-black dark:text-gray-300">{comment.content}</p>
-                    <small className="text-gray-500">
-                      By {comment.author?.username || "Unknown"} on{" "}
-                      {new Date(comment.createdAt).toLocaleString()}
-                    </small>
-                    <Image
-                      src={comment.author?.image || "/default-avatar.png"} // Comment author image
-                      alt={`${comment.author?.username || "Unknown"}'s avatar`}
-                      width={32}
-                      height={32}
-                      className="w-8 h-8 rounded-full mr-2"
-                    />
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500">No comments yet.</p>
-              )}
-            </div>
-          </div>
         </div>
       ) : (
         <div className="post-comments">
           <h3 className="text-lg text-black dark:text-white mt-8">Comments</h3>
-          {post.comments.length > 0 ? (
-            post.comments.map((comment) => (
-              <div key={comment.id} className="bg-zinc-700 p-4 rounded-lg mt-3">
-                <p className="text-black dark:text-gray-300">{comment.content}</p>
-                <small className="text-gray-500">
-                  By {comment.author?.username || "Unknown"} on{" "}
-                  {new Date(comment.createdAt).toLocaleString()}
-                </small>
-                <Image
-                  src={comment.author?.image || "/default-avatar.png"} // Comment author image
-                  alt={`${comment.author?.username || "Unknown"}'s avatar`}
-                  width={32}
-                  height={32}
-                  className="w-8 h-8 rounded-full mr-2"
-                />
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No comments yet.</p>
-          )}
         </div>
       )}
 
       {/* Add the PostComment form */}
-      <div className="mt-8">
-        <PostComment
-          postId={post.id.toString()}
-          currentUserImg={user.imageUrl || "/default-avatar.png"}
-          currentUserId={user.userid.toString()}
-        />
-      </div>
+      <LiveProvider>
+        <RoomProvider id={post.room}>
+          <ErrorBoundary
+            fallback={
+              <div className="error">
+                There was an error while getting threads.
+              </div>
+            }
+          >
+            <ClientSideSuspense fallback={<Loading />}>
+              <div className="mt-8">
+                <CollaborativeApp />
+              </div>
+            </ClientSideSuspense>
+          </ErrorBoundary>
+        </RoomProvider>
+      </LiveProvider>
     </div>
   );
 }

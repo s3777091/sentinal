@@ -8,14 +8,15 @@ import Image from "next/image";
 import Bgdark from "@/public/img/dark/ai-chat/bg-image.png";
 import Bg from "@/public/img/light/ai-chat/bg-image.png";
 import { useTheme } from "next-themes";
+import smile from "@/public/img/AI/smile.png";
+
 
 interface Props {
-  users: UserDetail;
   onButtonClick: (message: string) => void;
   messages: { user: UserDetail; message: string }[];
 }
 
-const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
+const ChatMessage = ({ onButtonClick, messages }: Props) => {
   const [message, setMessage] = useState<string>("");
 
   const handleSubmit = () => {
@@ -24,8 +25,6 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
   };
 
   const { theme, resolvedTheme } = useTheme();
-
-  // State to check if the theme has been loaded
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -61,7 +60,7 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
             {msg.user.username === "AI" && (
               <div className="flex items-center">
                 <img
-                  src={msg.user.imageUrl || "/default-avatar.png"}
+                  src={msg.user.imageUrl || smile.src}
                   alt={msg.user.username || "User"}
                   className="w-6 h-6 rounded-full mr-8"
                 />
@@ -70,7 +69,7 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
             <MessageBox output={`${msg.message}`} />
             {msg.user.username !== "AI" && (
               <img
-                src={msg.user.imageUrl || "/default-avatar.png"}
+                src={msg.user.imageUrl || smile.src}
                 alt={msg.user.username || "User"}
                 className="w-6 h-6 rounded-full ml-3"
               />

@@ -1,5 +1,4 @@
 import Community from "@/components/shared/community";
-
 const Home = async ({
   searchParams,
 }: {

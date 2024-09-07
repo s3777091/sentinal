@@ -11,7 +11,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-
+RUN prisma generate
 RUN npm run build
 
 FROM base AS runner
