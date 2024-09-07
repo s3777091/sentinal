@@ -6,16 +6,16 @@ import { Composer, Thread } from "@liveblocks/react-ui";
 
 export function CollaborativeApp() {
   const { threads } = useThreads();
-
-  console.log(threads);
-
   return (
     <div>
       {threads.map((thread) => (
-        <Thread key={thread.id} thread={thread} />
+        <Thread key={thread.id} thread={thread} className="thread thread-text" overrides={{
+            THREAD_COMPOSER_PLACEHOLDER: "Reply to post..."
+        }}/>
       ))}
-
-      <Composer />
+      <Composer  className="composer composer-text" overrides={{
+        COMPOSER_PLACEHOLDER: "Reply to post...."
+      }}/>
     </div>
   );
 }

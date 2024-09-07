@@ -51,15 +51,15 @@ export default function PostDetail({ post, user }: PostDetailProps) {
 
       {/* Post Image if available */}
       {post.imageUrl ? (
-        <div className="flex flex-col lg:flex-row">
-          <div className="lg:w-1/2 flex-shrink-0">
+        <div className="flex justify-center mb-6">
+          <div className="w-full max-w-3xl">
             <Image
               src={post.imageUrl}
               alt="Post image"
               width={600}
               height={400}
               className="rounded-lg shadow-md"
-              objectFit="cover"
+              style={{ objectFit: "cover", width: "100%", height: "auto" }}
             />
           </div>
         </div>

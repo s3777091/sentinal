@@ -3,13 +3,22 @@
 @tailwind utilities;
 
 @import "@liveblocks/react-ui/styles.css";
-
+@import "@liveblocks/react-ui/styles/dark/media-query.css";
 
 @layer components {
   /* Main Container */
   .main-container {
     @apply flex min-h-screen flex-1 flex-col items-center px-6 pb-10 pt-20 max-md:pb-32 sm:px-10;
     @apply bg-light-1 dark:bg-dark-2;
+  }
+  .thread,
+  .composer {
+    @apply bg-light-1 dark:bg-dark-2;
+  }
+
+  .thread-text,
+  .composer-text {
+    @apply text-dark-2 dark:text-light-2;
   }
 
   /* Head Text */
@@ -720,4 +729,17 @@
   85% {
     transform: translateY(0.15vmax);
   }
+}
+
+.lb-root {
+  --lb-accent: #44f;
+}
+
+.thread,
+.composer {
+  position: relative;
+  margin-bottom: 20px; /* Ensure spacing between threads */
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 4%), 0 2px 6px rgb(0 0 0 / 4%), 0 8px 26px rgb(0 0 0 / 6%);
 }

@@ -13,18 +13,6 @@ export function LiveProvider({ children }: PropsWithChildren) {
           const user = await getClerkUsers({ userIds });
           return user;
       }}
-      resolveMentionSuggestions={async ({ text }) => {
-        const response = await fetch(
-          `/api/user/search?text=${encodeURIComponent(text)}`
-        );
-
-        if (!response.ok) {
-          throw new Error("Problem resolving mention suggestions");
-        }
-
-        const userIds = await response.json();
-        return userIds;
-      }}
     >
       {children}
     </LiveblocksProvider>
