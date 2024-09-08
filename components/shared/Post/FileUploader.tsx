@@ -1,11 +1,12 @@
 import { useCallback } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react"; // Import the Upload icon from Lucide
 
 type FileUploaderProps = {
   fieldChange: (files: File[]) => void;
   mediaUrl: string;
-  previewUrl?: string | null; // Allow previewUrl to be optional
+  previewUrl?: string | null;
 };
 
 const FileUploader = ({ fieldChange, mediaUrl, previewUrl }: FileUploaderProps) => {
@@ -26,9 +27,15 @@ const FileUploader = ({ fieldChange, mediaUrl, previewUrl }: FileUploaderProps) 
   return (
     <div
       {...getRootProps()}
-      className="flex flex-col items-center justify-center border h-80 dark:border-slate-800 border-slate-200 bg-white dark:bg-dark-3 rounded-xl cursor-pointer"
+      className="relative flex flex-col items-center justify-center border h-80 dark:border-slate-800 border-slate-200 bg-white dark:bg-dark-3 rounded-xl cursor-pointer shadow-lg overflow-hidden hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors duration-300"
     >
-      <input {...getInputProps()} className="cursor-pointer" />
+      <input {...getInputProps()} className="absolute inset-0 cursor-pointer opacity-0" />
+
+      {/* Background Image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-10"
+        style={{ backgroundImage: "url('/assets/upload-bg.jpg')" }}
+      />
 
       {previewUrl ? (
         <>
@@ -36,20 +43,16 @@ const FileUploader = ({ fieldChange, mediaUrl, previewUrl }: FileUploaderProps) 
             <img
               src={previewUrl}
               alt="Preview"
-              className="file_uploader-img w-full max-w-xs sm:max-w-sm lg:max-w-md max-h-40 object-contain rounded-md" // Set maximum height here
+              className="w-full max-w-xs sm:max-w-sm lg:max-w-md max-h-40 object-contain rounded-md shadow-md"
             />
           </div>
-          <p className="file_uploader-label">Click or drag photo to replace</p>
+          <p className="text-gray-600 dark:text-gray-300 mt-2">Click or drag photo to replace</p>
         </>
       ) : (
-        <div className="file_uploader-box flex flex-col items-center justify-center">
-          <img
-            src="/assets/file-upload.svg"
-            className="w-24 h-auto sm:w-32 lg:w-48" // Responsive size
-            alt="file upload"
-          />
-          <h3 className="base-medium text-dark-3 dark:text-light-2 mb-2 mt-6">Drag photo here</h3>
-          <p className="text-light-4 small-regular mb-6">SVG, PNG, JPG</p>
+        <div className="flex flex-col items-center justify-center text-center">
+          <Upload className="w-12 h-12 sm:w-16 sm:h-16 lg:w-24 lg:h-24 text-gray-500 dark:text-gray-400 mb-6" />
+          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">Drag photo here</h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">SVG, PNG, JPG</p>
 
           <Button type="button" className="shad-button_dark_4">
             Select from computer

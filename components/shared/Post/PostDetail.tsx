@@ -55,32 +55,41 @@ export default function PostDetail({ post, user }: PostDetailProps) {
             />
           </div>
           <div className="lg:w-1/2 lg:ml-6 mt-4 lg:mt-0">
-            <div className="post-comments">
-              <h3 className="text-lg text-black dark:text-white">Comments</h3>
-              {post.comments.length > 0 ? (
-                post.comments.map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="bg-gray-300 dark:bg-zinc-700 p-4 rounded-lg mt-3"
-                  >
-                    <p className="text-black dark:text-gray-300">{comment.content}</p>
-                    <small className="text-gray-500">
-                      By {comment.author?.username || "Unknown"} on{" "}
-                      {new Date(comment.createdAt).toLocaleString()}
-                    </small>
-                    <Image
-                      src={comment.author?.image || "/default-avatar.png"} // Comment author image
-                      alt={`${comment.author?.username || "Unknown"}'s avatar`}
-                      width={32}
-                      height={32}
-                      className="w-8 h-8 rounded-full mr-2"
-                    />
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500">No comments yet.</p>
-              )}
-            </div>
+          <div className="post-comments">
+  <h3 className="text-lg text-black dark:text-white mb-4">Comments</h3>
+  {post.comments.length > 0 ? (
+    post.comments.map((comment) => (
+      <div
+        key={comment.id}
+        className="flex items-start space-x-3 bg-gray-100 dark:bg-zinc-800 p-3 rounded-lg mt-3"
+      >
+        <Image
+          src={comment.author?.image || "/default-avatar.png"}
+          alt={`${comment.author?.username || "Unknown"}'s avatar`}
+          width={40}
+          height={40}
+          className="w-10 h-10 rounded-full"
+        />
+        <div className="flex-1">
+          <div className="bg-gray-200 dark:bg-zinc-700 p-3 rounded-lg">
+            <p className="font-semibold text-black dark:text-white">
+              {comment.author?.username || "Unknown"}
+            </p>
+            <p className="text-black dark:text-gray-300 mt-1">
+              {comment.content}
+            </p>
+          </div>
+          <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            {new Date(comment.createdAt).toLocaleString()}
+          </div>
+        </div>
+      </div>
+    ))
+  ) : (
+    <p className="text-gray-500">No comments yet.</p>
+  )}
+</div>
+
           </div>
         </div>
       ) : (

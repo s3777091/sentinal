@@ -147,12 +147,6 @@ const MainChat = (props: Props) => {
           onButtonClick={handleMessage} // Call handleButtonClick on button click
           messages={messages}
         />
-
-        {loading && (
-          <div className="flex justify-center items-center">
-            <div className="loader"></div>
-          </div>
-        )}
       </main>
     </div>
   );

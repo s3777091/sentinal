@@ -15,11 +15,17 @@ export async function POST(req: Request): Promise<NextResponse> {
 
     // Create a new comment using Prisma
     const comment = await prisma.comment.create({
+
       data: {
+
         content: content,
+
         post: { connect: { id: parseInt(postId, 10) } },
-        author: { connect: { id: parseInt(authorId, 10) } },
+
+        author: { connect: { user_Id: authorId } },
+
       },
+
     });
 
     // Return a success response

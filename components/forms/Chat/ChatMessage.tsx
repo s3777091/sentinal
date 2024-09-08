@@ -17,10 +17,12 @@ interface Props {
 
 const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
   const [message, setMessage] = useState<string>("");
+  const [isTyping, setIsTyping] = useState<boolean>(false);
 
   const handleSubmit = () => {
     onButtonClick(message);
     setMessage("");
+    setIsTyping(true);  // Set AI typing state to true
   };
 
   const { theme, resolvedTheme } = useTheme();
@@ -31,6 +33,13 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    // Check if the last message is from AI, then stop typing indicator
+    if (messages.length > 0 && messages[messages.length - 1].user.username === "AI") {
+      setIsTyping(false);
+    }
+  }, [messages]);  // This effect runs whenever `messages` is updated
 
   if (!mounted) {
     return null;
@@ -77,6 +86,19 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
             )}
           </div>
         ))}
+        {/* Loading spinner */}
+        {isTyping && (
+          <div className="flex items-start justify-start mt-4">
+            <div className="flex items-center">
+              <img
+                src={"/img/AI/sparkling.png"}
+                alt="AI Loading"
+                className="w-6 h-6 rounded-full mr-8"
+              />
+              <div className="loader" style={{ display: 'inline-block' }}></div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Input and submit button always at the bottom */}
@@ -94,6 +116,7 @@ const ChatMessage = ({ users, onButtonClick, messages }: Props) => {
           Submit
         </Button>
       </div>
+      
     </div>
   );
 };
