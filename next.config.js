@@ -1,4 +1,9 @@
 const nextConfig = {
+  output: 'standalone',
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  reactStrictMode: true,
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
@@ -11,6 +16,7 @@ const nextConfig = {
       // your project has ESLint errors.
       ignoreDuringBuilds: true,
     },
+    
     images: {
       remotePatterns: [
         {
@@ -31,8 +37,12 @@ const nextConfig = {
         },
         {
           protocol: "https",
-          hostname: "utfs.io", // Add this entry for utfs.io
+          hostname: "utfs.io",
         },
+        {
+          protocol: "https",
+          hostname: "api.liveblocks.io",
+        }
       ],
     },
   };

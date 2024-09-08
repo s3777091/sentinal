@@ -1,9 +1,23 @@
-import { RedirectToSignIn, SignOutButton, SignedIn, UserButton } from "@clerk/nextjs";
+"use client";
+
+import { SignedIn, UserButton, useClerk } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // Use next/navigation instead of next/router
 import { ModeToggle } from "@/components/forms/mode-toggle";
 
 function Topbar() {
+  const router = useRouter(); // Now using next/navigation's useRouter
+
+  const handleSignOut = async () => {
+    try {
+      const { signOut } = useClerk();
+      await signOut();
+      router.push("/sign-in");
+    } catch (error) {
+      console.error("Error during sign-out:", error);
+    }
+  };
 
   return (
     <nav className="topbar flex items-center justify-between px-4 py-2">
@@ -15,16 +29,14 @@ function Topbar() {
         <ModeToggle /> {/* Add the ModeToggle component here */}
         <div className="block md:hidden">
           <SignedIn>
-            <SignOutButton>
-              <div className="flex cursor-pointer">
-                <Image
-                  src="/assets/logout.svg"
-                  alt="logout"
-                  width={24}
-                  height={24}
-                />
-              </div>
-            </SignOutButton>
+            <div className="flex cursor-pointer" onClick={handleSignOut}>
+              <Image
+                src="/assets/logout.svg"
+                alt="logout"
+                width={24}
+                height={24}
+              />
+            </div>
           </SignedIn>
         </div>
         <UserButton

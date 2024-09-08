@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "../../ui/scroll-area";
+import smile from "@/public/img/AI/smile.png";
 
 const ADD_SCAN_INPUT = "ADD_SCAN";
 
@@ -177,7 +178,7 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
               <Avatar>
                 <AvatarImage
                   alt={user.username}
-                  src={user.imageUrl || undefined}
+                  src={user.imageUrl || smile.src}
                 />
               </Avatar>
               <div className="grid gap-1">

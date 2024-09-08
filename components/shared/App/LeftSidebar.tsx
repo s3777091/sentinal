@@ -10,7 +10,6 @@ import { useTheme } from "next-themes";
 import React, { useEffect, useState } from "react";
 
 const LeftSidebar = () => {
-  const router = useRouter();
   const pathname = usePathname();
   const { userId } = useAuth();
   const { theme, resolvedTheme } = useTheme();

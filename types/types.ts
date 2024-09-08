@@ -55,6 +55,7 @@ export interface UserRecordDb {
 
 export interface Post {
   id: number;
+  title: string;
   author: {
     id: number;
     username: string;
@@ -71,9 +72,11 @@ export interface Post {
   }>;
 }
 
+
 export interface PostDetail {
   id: number;
   title: string;
+  room: string;
   content: string | null; // Content can be null
   imageUrl: string | null; // Image can be null
   createdAt: Date;
@@ -83,14 +86,4 @@ export interface PostDetail {
     username: string;
     image: string | null; // Image can be null
   };
-  comments: Array<{
-    id: number;
-    content: string;
-    createdAt: Date;
-    author: {
-      id: number;
-      username: string;
-      image: string | null; // Commenter's image can be null
-    };
-  }>;
 }

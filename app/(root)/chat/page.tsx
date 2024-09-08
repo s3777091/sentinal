@@ -10,8 +10,8 @@ const Chat = async () => {
   // Redirect to sign-in if user is not logged in
   if (!user) {
     redirect("/sign-in");
-    return;
   }
+
 
   // Prepare the user profile with defaults for missing fields
   const userProfile = {

@@ -119,7 +119,7 @@ const Community = ({ searchParams = {} }: AvatarProps) => {
         </form>
 
         <Suspense fallback={<Loading />}>
-          <PostCard posts={posts} onReadMore={handleReadMore} />
+          <PostCard posts={posts} />
         </Suspense>
 
         {isNext && (

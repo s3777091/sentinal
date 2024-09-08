@@ -155,21 +155,6 @@ export const getPostDetail = cache(async (postId: string): Promise<PostDetail | 
           image: true,
         },
       },
-      comments: {
-        select: {
-          id: true,
-          content: true,
-          createdAt: true,
-          postId: true,
-          author: {
-            select: {
-              id: true,
-              username: true,
-              image: true,
-            },
-          },
-        },
-      },
     },
   });
 });
