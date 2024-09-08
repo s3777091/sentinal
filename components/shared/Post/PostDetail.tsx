@@ -1,7 +1,7 @@
 import Image from "next/image";
 import PostComment from "@/components/forms/Post/PostComment";
 import { Post, User, Comment } from "@prisma/client";
-import { userDetail } from "@/types/types"; // Assuming you have a custom userDetail type
+import { UserDetail } from "@/types/types"; // Assuming you have a custom userDetail type
 
 interface PostDetailProps {
     post: Omit<Post, "authorId"> & {
@@ -10,7 +10,7 @@ interface PostDetailProps {
       author: Pick<User, "id" | "username" | "image">;
     })[];
   };
-  user: userDetail; // Assuming userDetail contains 'userid' and 'imageUrl'
+  user: UserDetail; // Assuming userDetail contains 'userid' and 'imageUrl'
 }
 
 export default function PostDetail({ post, user }: PostDetailProps) {

@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Settings, Share, Loader } from "lucide-react";
 import ChatSelect from "@/components/forms/Chat/ChatSelect";
 import ChatMessage from "@/components/forms/Chat/ChatMessage";
-import { AIMessage, ChatBody, userDetail } from "@/types/types";
+import { AIMessage, ChatBody, UserDetail } from "@/types/types";
 import aiChat from "@/public/img/AI/sparkling.png";
 
 const ADD_MESSAGE = "ADD_MESSAGE";
 const CLEAR_MESSAGES = "CLEAR_MESSAGES";
 
 interface Message {
-  user: userDetail;
+  user: UserDetail;
   message: string;
 }
 interface AddMessageAction {
@@ -39,7 +39,7 @@ const messagesReducer = (
 };
 
 interface Props {
-  user: userDetail;
+  user: UserDetail;
 }
 
 const MainChat = (props: Props) => {
@@ -100,7 +100,7 @@ const MainChat = (props: Props) => {
           user: {
             email: "skira_admin@gmail.com",
             username: "AI",
-            userid: props.user.userid,
+            userid: "skira",
             imageUrl: aiChat.src,
           },
           message: data.result,

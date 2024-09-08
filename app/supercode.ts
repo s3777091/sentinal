@@ -1,6 +1,5 @@
-import { LanguagePatterns, PostDetail, userDetail } from "@/types/types";
+import { LanguagePatterns, PostDetail } from "@/types/types";
 import { cache } from "react";
-
 import { prisma } from "@/lib/db"; // Ensure you're importing the prisma client correctly
 
 

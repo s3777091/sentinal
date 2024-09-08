@@ -21,9 +21,8 @@ export async function POST(req: Request): Promise<NextResponse> {
         content: content,
 
         post: { connect: { id: parseInt(postId, 10) } },
-
+        
         author: { connect: { user_Id: authorId } },
-
       },
 
     });

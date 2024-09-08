@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Post, userDetail } from "@/types/types";
+import { Post, UserDetail } from "@/types/types";
 import PostCard from "./Post/PostCard";
 import Loading from "../Loading/Loading";
 

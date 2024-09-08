@@ -3,16 +3,16 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import MessageBox from "@/components/MessageBox";
-import { userDetail } from "@/types/types";
+import { UserDetail } from "@/types/types";
 import Image from "next/image";
 import Bgdark from "@/public/img/dark/ai-chat/bg-image.png";
 import Bg from "@/public/img/light/ai-chat/bg-image.png";
 import { useTheme } from "next-themes";
 
 interface Props {
-  users: userDetail;
+  users: UserDetail;
   onButtonClick: (message: string) => void;
-  messages: { user: userDetail; message: string }[];
+  messages: { user: UserDetail; message: string }[];
 }
 
 const ChatMessage = ({ users, onButtonClick, messages }: Props) => {

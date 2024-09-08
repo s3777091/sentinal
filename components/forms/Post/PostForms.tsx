@@ -7,7 +7,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { postSchema } from "@/lib/validations/Post";
 import { useUploadThing } from "@/lib/uploadthing";
-import { userDetail } from "@/types/types";
+import { UserDetail } from "@/types/types";
 import { Button } from "../../ui/button";
 import { Textarea } from "../../ui/textarea";
 import FileUploader from "@/components/shared/Post/FileUploader";
@@ -23,7 +23,7 @@ import { Input } from "../../ui/input";
 import Loader from "../../Loading/Loader";
 
 interface UserProps {
-  user: userDetail;
+  user: UserDetail;
 }
 
 const PostForm = ({ user }: UserProps) => {

@@ -53,15 +53,15 @@ export async function POST(req: Request): Promise<NextResponse> {
     });
   }
 }
+
+
 export async function GET(req: Request): Promise<NextResponse> {
   try {
-    // Extract query parameters
     const url = new URL(req.url);
     const pageNumber = Number(url.searchParams.get("pageNumber")) || 1;
     const pageSize = Number(url.searchParams.get("pageSize")) || 20;
     const searchQuery = url.searchParams.get("q")?.toLowerCase() || "";
 
-    // Calculate the number of posts to skip based on the page number and page size
     const skipAmount = (pageNumber - 1) * pageSize;
 
     // Fetch the posts with pagination and optional search
@@ -80,15 +80,23 @@ export async function GET(req: Request): Promise<NextResponse> {
       include: {
         author: {
           select: {
-            id: true,
             username: true,
             image: true,
+          },
+        },
+        comments: {
+          include: {
+            author: {
+              select: {
+                username: true,
+                image: true,
+              },
+            },
           },
         },
       },
     });
 
-    // Count the total number of posts matching the search query
     const totalPostsCount = await prisma.post.count({
       where: {
         OR: [
@@ -98,16 +106,13 @@ export async function GET(req: Request): Promise<NextResponse> {
       },
     });
 
-    // Determine if there are more pages of posts available
     const isNext = totalPostsCount > skipAmount + posts.length;
 
-    // Return a success response with the fetched posts and pagination info
     return new NextResponse(JSON.stringify({ posts, isNext }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    // Return an error response
     return new NextResponse(
       JSON.stringify({ error: "Failed to get list of posts" }),
       {

@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import React, { useCallback, memo } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react"; // Import the Upload icon from Lucide
@@ -9,7 +9,7 @@ type FileUploaderProps = {
   previewUrl?: string | null;
 };
 
-const FileUploader = ({ fieldChange, mediaUrl, previewUrl }: FileUploaderProps) => {
+const FileUploader = memo(({ fieldChange, previewUrl }: FileUploaderProps) => {
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[]) => {
       fieldChange(acceptedFiles);
@@ -36,24 +36,27 @@ const FileUploader = ({ fieldChange, mediaUrl, previewUrl }: FileUploaderProps) 
         className="absolute inset-0 bg-cover bg-center opacity-10"
         style={{ backgroundImage: "url('/assets/upload-bg.jpg')" }}
       />
-
+      <input {...getInputProps()} className="cursor-pointer" />
       {previewUrl ? (
         <>
           <div className="flex justify-center w-full p-5 lg:p-10">
             <img
               src={previewUrl}
               alt="Preview"
-              className="w-full max-w-xs sm:max-w-sm lg:max-w-md max-h-40 object-contain rounded-md shadow-md"
+              className="file_uploader-img w-full max-w-xs sm:max-w-sm lg:max-w-md max-h-40 object-contain rounded-md"
             />
           </div>
           <p className="text-gray-600 dark:text-gray-300 mt-2">Click or drag photo to replace</p>
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center text-center">
-          <Upload className="w-12 h-12 sm:w-16 sm:h-16 lg:w-24 lg:h-24 text-gray-500 dark:text-gray-400 mb-6" />
-          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">Drag photo here</h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-4">SVG, PNG, JPG</p>
-
+        <div className="file_uploader-box flex flex-col items-center justify-center">
+          <img
+            src="/assets/file-upload.svg"
+            className="w-24 h-auto sm:w-32 lg:w-48"
+            alt="file upload"
+          />
+          <h3 className="base-medium text-dark-3 dark:text-light-2 mb-2 mt-6">Drag photo here</h3>
+          <p className="text-light-4 small-regular mb-6">SVG, PNG, JPG</p>
           <Button type="button" className="shad-button_dark_4">
             Select from computer
           </Button>
@@ -61,6 +64,6 @@ const FileUploader = ({ fieldChange, mediaUrl, previewUrl }: FileUploaderProps) 
       )}
     </div>
   );
-};
+});
 
 export default FileUploader;
