@@ -75,7 +75,10 @@ const ChatMessage = ({ onButtonClick, messages }: Props) => {
                 />
               </div>
             )}
-            <MessageBox output={`${msg.message}`} />
+            <MessageBox
+              output={`${msg.message}`}
+              className={msg.user.username === "AI" ? "bg-[#34344c] dark:bg-[#7a7777] text-white" : ""}
+            />
             {msg.user.username !== "AI" && (
               <img
                 src={msg.user.imageUrl || smile.src}
@@ -84,6 +87,7 @@ const ChatMessage = ({ onButtonClick, messages }: Props) => {
               />
             )}
           </div>
+
         ))}
         {/* Loading spinner */}
         {isTyping && (
