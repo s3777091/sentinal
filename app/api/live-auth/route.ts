@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       name: `${firstName} ${lastName}`,
       email: emailAddresses[0].emailAddress,
       avatar: imageUrl,
-      color: getUserColor(id),  // Make sure this returns a string
+      color: getUserColor(id),
     },
   };
 

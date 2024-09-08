@@ -1,14 +1,9 @@
 "use server";
 
-import { nanoid } from "nanoid";
 import { liveblocks } from "../liveblocks";
-import { revalidatePath } from "next/cache";
 import { parseStringify } from "../utils";
 
-declare type createCommentParams = {
-  postID: string;
-  title: string;
-};
+
 // Get the comment (room) by postID
 export const getComment = async ({ postID }: { postID: string }) => {
   try {

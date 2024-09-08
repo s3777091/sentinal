@@ -53,8 +53,7 @@ function reducer(state: State, action: Action): State {
 const Community = ({ searchParams = {} }: AvatarProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { posts, inputValue, isNext } = state;
-  const router = useRouter();
-
+  
   const fetchPosts = useCallback(async (query = "", page = 1) => {
     try {
       const response = await fetch(
@@ -95,10 +94,6 @@ const Community = ({ searchParams = {} }: AvatarProps) => {
     });
     window.location.search = newParams.toString();
   }, [inputValue, searchParams.page]);
-
-  const handleReadMore = (id: number) => {
-    router.push(`/detail/${id}`);
-  };
 
   return (
     <div className="min-h-[100vh] bg-light-1 dark:bg-zinc-900 text-gray-200 p-4">

@@ -12,7 +12,6 @@ const Chat = async () => {
     redirect("/sign-in");
   }
 
-
   // Prepare the user profile with defaults for missing fields
   const userProfile = {
     email: user.emailAddresses[0]?.emailAddress || "ghost@gmail.com",
@@ -20,6 +19,7 @@ const Chat = async () => {
     userid: user.id.toString(),
     imageUrl: user.imageUrl || smile.src,
   };
+  
   return (
     <TooltipProvider>
       <div className="grid h-  w-full">

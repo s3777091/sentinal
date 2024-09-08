@@ -4,8 +4,6 @@ import Image from "next/image";
 import { Post, User } from "@prisma/client";
 import { UserDetail } from "@/types/types";
 import smile from "@/public/img/AI/smile.png";
-
-import Loading from "@/components/Loading/Loading";
 import { LiveProvider } from "./LiveProvider";
 
 import { RoomProvider } from "@liveblocks/react/suspense";
@@ -13,15 +11,15 @@ import { RoomProvider } from "@liveblocks/react/suspense";
 import { ClientSideSuspense } from "@liveblocks/react";
 import { CollaborativeApp } from "./CollaborativeApp";
 import { ErrorBoundary } from "react-error-boundary";
+import CommentLoading from "@/components/Loading/CommentLoading";
 
 interface PostDetailProps {
   post: Omit<Post, "authorId"> & {
     author: Pick<User, "id" | "username" | "image">;
-  };
-  user: UserDetail;
+  }
 }
 
-export default function PostDetail({ post, user }: PostDetailProps) {
+export default function PostDetail({ post }: PostDetailProps) {
   return (
     <div
       key={post.id}
@@ -79,7 +77,7 @@ export default function PostDetail({ post, user }: PostDetailProps) {
               </div>
             }
           >
-            <ClientSideSuspense fallback={<Loading />}>
+            <ClientSideSuspense fallback={<CommentLoading />}>
               <div className="mt-8">
                 <CollaborativeApp />
               </div>

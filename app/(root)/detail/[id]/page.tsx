@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { getPostDetail } from "@/app/supercode";
+
 import { currentUser } from "@clerk/nextjs/server";
 import PostDetailComponent from "@/components/shared/Post/PostDetail";
-import { PostDetail } from "@/types/types";
 import Loading from "@/components/Loading/Loading";
+import { getPostDetail } from "@/lib/action/post.action";
 
 export const revalidate = 0;
 
@@ -15,7 +15,6 @@ async function Page({ params }: { params: { id: string } }) {
   // Redirect to sign-in if user is not logged in
   if (!user) {
     redirect("/sign-in");
-    return;
   }
 
   // Handle post not found
@@ -27,17 +26,10 @@ async function Page({ params }: { params: { id: string } }) {
     );
   }
 
-  const userProfile = {
-    email: user.emailAddresses[0]?.emailAddress || "ghost@gmail.com",
-    username: user.username || "unknown",
-    userid: user.id.toString(),
-    imageUrl: user.imageUrl
-  };
-
   return (
     <section className="relative">
       <Suspense fallback={<Loading />}>
-        <PostDetailComponent post={post} user={userProfile} />
+        <PostDetailComponent post={post} />
       </Suspense>
     </section>
   );

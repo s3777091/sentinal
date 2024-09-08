@@ -142,19 +142,3 @@ export async function extractFunctionsAndClasses(
 
   return extractor.extractFunctionsAndClasses(codeMessage);
 }
-
-
-export const getPostDetail = cache(async (postId: string): Promise<PostDetail | null> => {
-  return await prisma.post.findUnique({
-    where: { id: parseInt(postId, 10) },
-    include: {
-      author: {
-        select: {
-          id: true,
-          username: true,
-          image: true,
-        },
-      },
-    },
-  });
-});
