@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useMemo, useReducer, useEffect, useRef } from "react";
+import React, { useState, useMemo, useReducer} from "react";
 import { Button } from "@/components/ui/button";
-import { Settings, Share, Loader } from "lucide-react";
+import { Share} from "lucide-react";
 import ChatSelect from "@/components/forms/Chat/ChatSelect";
 import ChatMessage from "@/components/forms/Chat/ChatMessage";
-import { AIMessage, ChatBody, UserDetail } from "@/types/types";
+import { ChatBody, UserDetail } from "@/types/types";
 import aiChat from "@/public/img/AI/sparkling.png";
 
 const ADD_MESSAGE = "ADD_MESSAGE";
