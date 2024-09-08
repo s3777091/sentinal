@@ -1,20 +1,15 @@
-import {
-  CommentBodyInlineElement
-} from "@liveblocks/node";
+import { CommentBodyInlineElement } from "@liveblocks/node";
 import { WebhookHandler } from "@liveblocks/node";
 import { liveblocks } from "@/lib/liveblocks";
 import { prisma } from "@/lib/db";
 import { HfInference } from "@huggingface/inference";
 
-const webhookHandler = new WebhookHandler(
-  process.env.WEBHOOKS_AI_DETECT_POST as string
-);
+const webhookHandler = new WebhookHandler(process.env.WEBHOOKS_AI_DETECT_POST as string);
 
 export async function POST(request: Request) {
   const body = await request.json();
   const headers = request.headers;
 
-  let messages: { role: string; content: string }[] = [];
 
   // Verify if this is a real webhook request
   let event;
@@ -28,13 +23,28 @@ export async function POST(request: Request) {
     return new Response("Could not verify webhook call", { status: 400 });
   }
 
-  if (event.type !== "roomCreated") {
-    return new Response("Event type not used", { status: 400 });
+  const roomId = event.data.roomId ?? null;
+
+  if (!roomId) {
+    return new Response("roomId is null", { status: 400 });
   }
 
-  // Get the roomId from the event
-  const { roomId } = event.data;
+  // Handle different event types
+  switch (event.type) {
+    case "roomCreated":
+      await handleRoomCreated(roomId);
+      break;
+    case "roomDeleted":
+      await handleRoomDeleted(roomId);
+      break;
+    default:
+      return new Response("Event type not supported", { status: 400 });
+  }
 
+  return new Response("Event processed successfully", { status: 200 });
+}
+
+async function handleRoomCreated(roomId: string) {
   // Find the post related to this room
   const post = await prisma.post.findUnique({
     where: {
@@ -45,6 +55,8 @@ export async function POST(request: Request) {
   if (!post) {
     throw new Error("Post does not exist");
   }
+
+  let messages: { role: string; content: string }[] = [];
 
   // Add the post title and content to the conversation
   messages.push({
@@ -76,9 +88,10 @@ export async function POST(request: Request) {
   if (isRelevant) {
     const solutionMessage = `The following vulnerabilities were detected, along with the proposed solutions:\n\n${aiResponse}`;
 
-    const messageAsChildren: CommentBodyInlineElement[] = [
-      { text: solutionMessage },
-    ];
+    const messageAsChildren: CommentBodyInlineElement[] = [{ text: solutionMessage }];
+
+    // Instead of passing the entire post in metadata, save a reference to the post (e.g., post ID)
+    const postReference = post.id; // Use post ID as a reference
 
     // Create a new thread with the vulnerability and solution message
     await liveblocks.createThread({
@@ -96,6 +109,9 @@ export async function POST(request: Request) {
             ],
           },
         },
+        metadata: {
+          postId: postReference, // Save the post reference (ID) instead of the full content
+        },
       },
     });
 
@@ -111,9 +127,18 @@ export async function POST(request: Request) {
       },
     });
     await liveblocks.deleteRoom(roomId);
-    return new Response(
-      "Post and room deleted as the content is not relevant to vulnerable code.",
-      { status: 200 }
-    );
+    return new Response("Post and room deleted as the content is not relevant to vulnerable code.", {
+      status: 200,
+    });
   }
+}
+
+async function handleRoomDeleted(roomId: string) {
+  // Handle logic for when a room is deleted
+  await prisma.post.deleteMany({
+    where: {
+      room: roomId,
+    },
+  });
+  console.log(`Room ${roomId} and associated posts have been deleted.`);
 }
