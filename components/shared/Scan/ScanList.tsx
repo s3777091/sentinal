@@ -12,10 +12,6 @@ interface ScanListProps {
 export function ScanList({ items, onSelect }: ScanListProps) {
   const [selectedId, setSelectedId] = React.useState<number | null>(null);
 
-  // State for filters
-  const [isDeepScan, setIsDeepScan] = React.useState<boolean>(false);
-
-
   const handleSelection = React.useCallback(
     (id: number) => {
       setSelectedId(id);
@@ -26,27 +22,18 @@ export function ScanList({ items, onSelect }: ScanListProps) {
 
   const isSelected = (id: number) => selectedId === id;
 
-  // Filter items based on the selected filters
-  const filteredItems = items.filter((item) => {
-    if (isDeepScan && item.severity !== "Deep") return false;
-    if (!isDeepScan && item.severity !== "Normal") return false;
-    return true;
-  });
-  
-
   return (
     <div className="flex flex-col h-[100vh]">
       {/* Filter Section */}
       <div className="p-4">
-        <div className="flex gap-4">
-        </div>
+        <div className="flex gap-4"></div>
       </div>
 
       {/* Scrollable List */}
       <ScrollArea className="flex-1">
         <div className="flex flex-col gap-2 p-4 pt-0">
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item) => (
+          {items.length > 0 ? (
+            items.map((item) => (
               <MemoizedScanItem
                 key={item.id}
                 item={item}

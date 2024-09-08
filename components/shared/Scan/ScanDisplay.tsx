@@ -23,6 +23,7 @@ import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "../../ui/scroll-area";
 import smile from "@/public/img/AI/smile.png";
+import { scanInputSchema } from "@/lib/validations/Scan";
 
 const ADD_SCAN_INPUT = "ADD_SCAN";
 
@@ -44,17 +45,6 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
   const [token, setToken] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
 
-  const typeValue = useMemo(() => {
-    switch (selectedType) {
-      case "Library":
-        return "information";
-      case "Vulnerable":
-        return "vulnerable";
-      default:
-        return "Library";
-    }
-  }, [selectedType]);
-
   const handleSelectType = (value: string) => {
     setSelectedType(value);
   };
@@ -69,6 +59,8 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
         token: token,
         user: user.username,
       };
+      
+      const parsedInput = scanInputSchema.parse(body);
 
       const response = await fetch("/api/github", {
         method: "POST",
@@ -76,7 +68,7 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
           "Content-Type": "application/json",
         },
         signal: controller.signal,
-        body: JSON.stringify(body),
+        body: JSON.stringify(parsedInput),
       });
 
       if (!response.ok) {
@@ -91,7 +83,6 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
       console.log(data);
     } catch (error) {
       console.log("Error occurred:", error);
-      alert("Something went wrong when fetching from the API.");
     }
   };
 
@@ -159,8 +150,7 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
               <PopoverTrigger asChild>
                 <TooltipTrigger asChild>
                   <form>
-                    <div className="relative flex items-center">
-                    </div>
+                    <div className="relative flex items-center"></div>
                   </form>
                 </TooltipTrigger>
               </PopoverTrigger>

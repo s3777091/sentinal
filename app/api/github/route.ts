@@ -25,8 +25,8 @@ async function getFile(
   const url = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${repoBranch}/${filePath}`;
 
   try {
-    const cyber = new CyberSend(psw!, "send_scan_message");
-    await cyber.startProducer();
+    // const cyber = new CyberSend(psw!, "send_scan_message");
+    // await cyber.startProducer();
     const response = await axios.get(url, { headers });
     if (response.status === 200) {
       const data = await extractFunctionsAndClasses(response.data, lang);
@@ -39,7 +39,10 @@ async function getFile(
             path: filePath,
           },
         ];
-        await cyber.sendMessages(messageData);
+
+        console.log(block);
+        
+        // await cyber.sendMessages(messageData);
       }
 
       return {
@@ -136,9 +139,7 @@ export async function POST(req: Request): Promise<NextResponse> {
   try {
     // Parse and validate the request body
     const json = await req.json();
-    const parsedInput = scanInputSchema.parse(json); // Validate with Zod
-
-    const { github, language, token, username } = parsedInput;
+    const { github, language, token, username } = json;
 
     const headers = {
       Authorization: `token ${token}`,

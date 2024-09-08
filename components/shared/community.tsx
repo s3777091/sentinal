@@ -23,6 +23,7 @@ interface State {
 
 interface AvatarProps {
   searchParams?: { [key: string]: string | undefined };
+  userName: string
 }
 
 // Initial state
@@ -50,9 +51,20 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-const Community = ({ searchParams = {} }: AvatarProps) => {
+const Community = ({ searchParams = {}, userName}: AvatarProps) => {
+
+  
   const [state, dispatch] = useReducer(reducer, initialState);
   const { posts, inputValue, isNext } = state;
+  const handleEditPost = (postId: string) => {
+    console.log("Edit post with ID:", postId);
+    // Implement your logic here
+  };
+
+  const handleDeletePost = (postId: string) => {
+    console.log("Delete post with ID:", postId);
+    // Implement your logic here
+  };
   
   const fetchPosts = useCallback(async (query = "", page = 1) => {
     try {
@@ -96,7 +108,7 @@ const Community = ({ searchParams = {} }: AvatarProps) => {
   }, [inputValue, searchParams.page]);
 
   return (
-    <div className="min-h-[100vh] bg-light-1 dark:bg-zinc-900 text-gray-200 p-4">
+    <div className="min-h-[100vh] bg-light-1 dark:bg-dark-2 text-gray-200 p-4">
       <div className="max-w-3xl mx-auto">
         <form className="flex mb-8" onSubmit={handleSearchSubmit}>
           <Input
@@ -114,7 +126,10 @@ const Community = ({ searchParams = {} }: AvatarProps) => {
         </form>
 
         <Suspense fallback={<Loading />}>
-          <PostCard posts={posts} />
+        <PostCard
+          posts={posts}
+          user={userName} // This should be a function
+        />
         </Suspense>
 
         {isNext && (

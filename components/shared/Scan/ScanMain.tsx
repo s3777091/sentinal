@@ -62,11 +62,9 @@ export function ScanMain({ user }: ScanProps) {
 
   // Modular filter logic based on the switch state
   const filteredScans = useMemo(() => {
-    return scans.filter((scan) => {
-      if (isDeepScan && scan.severity !== "Deep") return false; // Assuming "Deep" is a severity level in your data
-      if (!isDeepScan && scan.severity !== "Normal") return false; // Assuming "Normal" is another severity level
-      return true;
-    });
+    return scans.filter(scan =>
+      isDeepScan ? scan.severity === "Deep" : scan.severity === "Normal"
+    );
   }, [scans, isDeepScan]);
 
   return (
@@ -87,12 +85,12 @@ export function ScanMain({ user }: ScanProps) {
                       variant="outline"
                       className="w-full sm:w-32 md:w-24 lg:w-48 px-2 sm:px-4 md:px-6 lg:px-8 text-sm sm:text-base md:text-lg dark:bg-zinc-950"
                     >
-                      Filter
+                      Mode
                     </Button>
                   </DropdownMenuTrigger>
 
                   <DropdownMenuContent className="w-full max-w-full sm:max-w-md md:max-w-lg overflow-x-auto">
-                    <DropdownMenuLabel>Scan Type</DropdownMenuLabel>
+                    <DropdownMenuLabel>Type</DropdownMenuLabel>
 
                     <div className="space-y-4 p-4">
                       <div className="flex items-center space-x-2">

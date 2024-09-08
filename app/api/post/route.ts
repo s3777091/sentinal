@@ -1,22 +1,19 @@
-import { postSchema } from "@/lib/validations/Post";
+import { postEdited, postSchema } from "@/lib/validations/Post";
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
-
 import { nanoid } from "nanoid";
 import { liveblocks } from "@/lib/liveblocks";
+import { Liveblocks } from "@liveblocks/node";
 
-export async function POST(req: Request): Promise<NextResponse> {
+// PUT method to update a post
+export async function PUT(req: Request): Promise<NextResponse> {
   try {
-    // Parse the incoming request body to extract data
     const data = await req.json();
+    const result = postEdited.safeParse(data);
 
-    // Validate the data using Zod
-    const result = postSchema.safeParse(data);
-
-    // If validation fails, return a 400 error
     if (!result.success) {
       return new NextResponse(
-        JSON.stringify({ errors: "Your input is wrong" }),
+        JSON.stringify({ errors: result.error.format() }),
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
@@ -24,15 +21,53 @@ export async function POST(req: Request): Promise<NextResponse> {
       );
     }
 
-    // If no room exists, create a new one
-    const roomId = nanoid(); // Generates a new room ID
-    // Destructure the validated data
-    const { authorId, title, content, imageUrl } = result.data;
+    const { authorId ,postID ,title, content, imageUrl } = result.data;
+    const finalImageUrl = imageUrl || null;
+    // Update the post in the database
+    const updatedPost = await prisma.post.updateMany({
+      where: {
+        AND: [
+          { id: parseInt(postID) }, // Post ID
+          { authorId: authorId } // authorId ID
+        ]
+      },
+      data: {
+        title,
+        content,
+        imageUrl: finalImageUrl
+      }
+    });
+    
+    return new NextResponse(JSON.stringify(updatedPost), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Error updating post:", error);
+    return new NextResponse("Failed to update post", { status: 500 });
+  }
+}
 
-    // Check if imageUrl is actually an empty string
+// POST method to create a post
+export async function POST(req: Request): Promise<NextResponse> {
+  try {
+    const data = await req.json();
+    const result = postSchema.safeParse(data);
+
+    if (!result.success) {
+      return new NextResponse(
+        JSON.stringify({ errors: result.error.format() }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const roomId = nanoid();
+    const { authorId, title, content, imageUrl } = result.data;
     const finalImageUrl = imageUrl || null;
 
-    // Create a new Post in the database
     const post = await prisma.post.create({
       data: {
         title,
@@ -40,38 +75,38 @@ export async function POST(req: Request): Promise<NextResponse> {
         content,
         imageUrl: finalImageUrl,
         author: {
-          connect: { user_Id: authorId }, // Connect using user_Id, not id
+          connect: { user_Id: authorId },
         },
       },
     });
-    //create room
 
     const metadata = {
       post: content || "",
       title,
     };
 
-    // Create the room with public access (allow anyone to read/write)
     await liveblocks.createRoom(roomId, {
       metadata,
-      defaultAccesses: ["room:write"], // Allow anyone to read and write
+      defaultAccesses: ["room:write"],
     });
 
-    // Return a success response with the created post data
     return new NextResponse(JSON.stringify(post), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("Error creating post:", error);
-
-    // Return an error response
-    return new NextResponse("Failed to create post", {
-      status: 500,
-    });
+    return new NextResponse(
+      JSON.stringify({ error: "Failed to create post" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
 
+// GET method to retrieve posts
 export async function GET(req: Request): Promise<NextResponse> {
   try {
     const url = new URL(req.url);
@@ -81,7 +116,6 @@ export async function GET(req: Request): Promise<NextResponse> {
 
     const skipAmount = (pageNumber - 1) * pageSize;
 
-    // Fetch the posts with pagination and optional search
     const posts = await prisma.post.findMany({
       where: {
         OR: [
@@ -120,8 +154,65 @@ export async function GET(req: Request): Promise<NextResponse> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
+    console.error("Error fetching posts:", error);
     return new NextResponse(
       JSON.stringify({ error: "Failed to get list of posts" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+// DELETE method to delete a post
+export async function DELETE(req: Request): Promise<NextResponse> {
+  try {
+    const data = await req.json();
+    const { postId } = data;
+
+    // Validate the input
+    if (!postId) {
+      return new NextResponse(
+        JSON.stringify({ error: "Missing postId or authorId" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const post = await prisma.post.findUnique({
+      where: {
+        id:  parseInt(postId)
+      }
+    })
+
+    if(!post){
+      return new NextResponse(
+        JSON.stringify({ error: "Not Found Post" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    liveblocks.deleteRoom(post.room);
+
+    return new NextResponse(
+      JSON.stringify({ message: "Post deleted successfully" }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    return new NextResponse(
+      JSON.stringify({ error: "Failed to delete post" }),
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
