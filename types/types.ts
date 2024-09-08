@@ -34,15 +34,16 @@ export interface ScanInput {
   language: string;
   token: string;
   user: string;
+  mode: boolean
 }
 
 export interface LanguagePatterns {
   extractFunctionsAndClasses: (code: string) => string[];
 }
 
+// Correct FileContent definition
 export interface FileContent {
   path: string;
-  content: string[];
 }
 
 export interface UserRecordDb {

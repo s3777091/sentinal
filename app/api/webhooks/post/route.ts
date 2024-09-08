@@ -1,15 +1,16 @@
-import { CommentBodyInlineElement } from "@liveblocks/node";
+import { CommentBodyInlineElement, CommentBodyText } from "@liveblocks/node";
 import { WebhookHandler } from "@liveblocks/node";
 import { liveblocks } from "@/lib/liveblocks";
 import { prisma } from "@/lib/db";
 import { HfInference } from "@huggingface/inference";
 
-const webhookHandler = new WebhookHandler(process.env.WEBHOOKS_AI_DETECT_POST as string);
+const webhookHandler = new WebhookHandler(
+  process.env.WEBHOOKS_AI_DETECT_POST as string
+);
 
 export async function POST(request: Request) {
   const body = await request.json();
   const headers = request.headers;
-
 
   // Verify if this is a real webhook request
   let event;
@@ -61,7 +62,16 @@ async function handleRoomCreated(roomId: string) {
   // Add the post title and content to the conversation
   messages.push({
     role: "user",
-    content: `Analyze the following post for potential security vulnerabilities, unsafe coding practices, or vulnerable code. Provide a yes or no answer indicating if the content contains any vulnerabilities, followed by an explanation if applicable. If vulnerabilities are present, also provide a solution or recommendation to fix the vulnerabilities.\n\nTitle: "${
+    content: `
+    Analyze the following post for potential security vulnerabilities, 
+    unsafe coding practices, or vulnerable code.
+    Provide a yes or no answer indicating if the content contains any vulnerabilities, 
+    followed by an explanation if applicable. If vulnerabilities are present, also provide a solution or 
+    recommendation to fix the vulnerabilities will be one sentence long. Don't ramble. Just the important information. 
+    No long explanations. Not even short explanations. No disclaimers.
+    You can use these styles in your text: *bold*, _italic_, ~strikethrough~, and \`code\`.
+    You can't combine styles like *_bold and italic_*.
+    If you post \`code\`, remember to escape the "\`" character, because it will break the styling..\n\nTitle: "${
       post.title
     }"\nContent: "${post.content || "No content provided."}"`,
   });
@@ -73,7 +83,7 @@ async function handleRoomCreated(roomId: string) {
   for await (const chunk of hf.chatCompletionStream({
     model: "meta-llama/Meta-Llama-3-70B-Instruct",
     messages,
-    max_tokens: 1024,
+    max_tokens: 256,
     temperature: 0.8,
     seed: 0,
   })) {
@@ -86,14 +96,8 @@ async function handleRoomCreated(roomId: string) {
   const isRelevant = aiResponse.toLowerCase().includes("yes");
 
   if (isRelevant) {
-    const solutionMessage = `The following vulnerabilities were detected, along with the proposed solutions:\n\n${aiResponse}`;
+    const message = parseAiResponse(aiResponse as string);
 
-    const messageAsChildren: CommentBodyInlineElement[] = [{ text: solutionMessage }];
-
-    // Instead of passing the entire post in metadata, save a reference to the post (e.g., post ID)
-    const postReference = post.id; // Use post ID as a reference
-
-    // Create a new thread with the vulnerability and solution message
     await liveblocks.createThread({
       roomId,
       data: {
@@ -104,17 +108,13 @@ async function handleRoomCreated(roomId: string) {
             content: [
               {
                 type: "paragraph",
-                children: messageAsChildren,
+                children: message,
               },
             ],
           },
         },
-        metadata: {
-          postId: postReference, // Save the post reference (ID) instead of the full content
-        },
       },
     });
-
     return new Response(
       "Thread created in the room with the detected vulnerabilities and proposed solution.",
       { status: 200 }
@@ -127,9 +127,12 @@ async function handleRoomCreated(roomId: string) {
       },
     });
     await liveblocks.deleteRoom(roomId);
-    return new Response("Post and room deleted as the content is not relevant to vulnerable code.", {
-      status: 200,
-    });
+    return new Response(
+      "Post and room deleted as the content is not relevant to vulnerable code.",
+      {
+        status: 200,
+      }
+    );
   }
 }
 
@@ -140,5 +143,55 @@ async function handleRoomDeleted(roomId: string) {
       room: roomId,
     },
   });
-  console.log(`Room ${roomId} and associated posts have been deleted.`);
+}
+
+function parseAiResponse(input: string): CommentBodyInlineElement[] {
+  const elements: CommentBodyInlineElement[] = [];
+  const regex =
+    /(\*.*?\*)|(_.*?_)|(~.*?~)|(`.*?(?:\\`.)*?`)|(https?:\/\/\S+[\w\/])/g;
+  let lastIndex = 0;
+
+  input.replace(
+    regex,
+    (match, bold, italic, strikethrough, code, link, index) => {
+      if (index > lastIndex) {
+        elements.push({ text: input.slice(lastIndex, index) });
+      }
+
+      if (link) {
+        const adjustedLink = link.replace(/[.,!;?]+$/, "");
+        elements.push({ type: "link", url: adjustedLink });
+      } else {
+        let text = match.slice(1, -1);
+        if (code) {
+          text = text.replace(/\\`/g, "`");
+        }
+        const textElement: CommentBodyText = { text };
+
+        if (bold) {
+          textElement.bold = true;
+        }
+        if (italic) {
+          textElement.italic = true;
+        }
+        if (strikethrough) {
+          textElement.strikethrough = true;
+        }
+        if (code) {
+          textElement.code = true;
+        }
+
+        elements.push(textElement);
+      }
+
+      lastIndex = index + match.length;
+      return match;
+    }
+  );
+
+  if (lastIndex < input.length) {
+    elements.push({ text: input.slice(lastIndex) });
+  }
+
+  return elements;
 }

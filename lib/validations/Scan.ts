@@ -57,4 +57,5 @@ export const scanInputSchema = z.object({
       message: "Invalid GitHub token format",
     }),
     user: z.string().min(1, "Username is required"),
+    mode: z.boolean()
 });

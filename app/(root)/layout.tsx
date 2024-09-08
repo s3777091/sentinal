@@ -8,6 +8,7 @@ import LeftSidebar from "@/components/shared/App/LeftSidebar";
 import Bottombar from "@/components/shared/App/Bottombar";
 import Topbar from "@/components/shared/App/Topbar";
 import DogLoad from "@/components/Loading/DogLoad";
+import { Toaster } from "@/components/ui/toaster"
 
 import { Inter } from "next/font/google";
 
@@ -55,6 +56,7 @@ export default function RootLayout({
                   <div className="w-full">{children}</div>
                 </section>
               </main>
+              <Toaster />
               <Bottombar />
             </ClerkLoaded>
           </ThemeProvider>

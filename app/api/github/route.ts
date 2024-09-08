@@ -1,11 +1,8 @@
-import { FileContent, ScanInput } from "@/types/types";
 import axios from "axios";
-import { CyberSend } from "@dad1909/cyber";
-import { extractFunctionsAndClasses } from "@/app/supercode";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { scanInputSchema } from "@/lib/validations/Scan";
-import { currentUser } from "@clerk/nextjs/server";
+import { extractFunctionsAndClasses } from "@/lib/action/github.action";
+import { CyberSend } from "@dad1909/cyber";
 
 const psw: string | undefined = process.env.KAFKA_PASSWORD;
 
@@ -13,6 +10,7 @@ if (!psw) {
   throw new Error("Please add the Kafka password in .env or .env.local");
 }
 
+// Updated getFile function with string return type
 async function getFile(
   repoOwner: string,
   repoName: string,
@@ -20,65 +18,68 @@ async function getFile(
   filePath: string,
   lang: string,
   user: string,
+  mode: boolean,
   headers: any
-): Promise<FileContent | null> {
+): Promise<string | null> { // Returning a string or null
   const url = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${repoBranch}/${filePath}`;
 
   try {
-    // const cyber = new CyberSend(psw!, "send_scan_message");
-    // await cyber.startProducer();
     const response = await axios.get(url, { headers });
     if (response.status === 200) {
-      const data = await extractFunctionsAndClasses(response.data, lang);
+      if (mode) {
+        const data = await extractFunctionsAndClasses(response.data, lang);
 
-      for (const block of data) {
-        const messageData = [
-          {
-            username: user,
-            message_send: block,
-            path: filePath,
-          },
-        ];
+        // Process the extracted code blocks in "deep" mode
+        for (const block of data) {
+          const messageData = [
+            {
+              username: user,
+              message_send: block,
+              path: filePath,
+            },
+          ];
 
-        console.log(block);
-        
-        // await cyber.sendMessages(messageData);
+          // console.log(block);
+          return filePath; // Return the file path as a string
+        }
+      } else {
+        // Return the file path directly in "normal" mode
+        return filePath;
       }
-
-      return {
-        path: filePath,
-        content: data,
-      };
     } else {
-      console.log(
-        `Failed to get file ${filePath} from GitHub. Status code: ${response.status}`
-      );
+      console.log(`Failed to get file ${filePath} from GitHub. Status code: ${response.status}`);
       return null;
     }
   } catch (error) {
     console.error(`An error occurred while fetching ${filePath}:`, error);
     return null;
   }
+
+  return null;
 }
 
+// Updated getFolder function with string[] return type
 async function getFolder(
   owner: string,
   repo: string,
   branch: string,
   lang: string,
   user: string,
+  mode: boolean,
   headers: any,
   dirPath: string = ""
-): Promise<FileContent[]> {
+): Promise<string[]> { // Returning an array of strings (file paths)
   const url = `https://api.github.com/repos/${owner}/${repo}/contents/${dirPath}?ref=${branch}`;
-  const files: FileContent[] = [];
+  const files: string[] = [];
 
   try {
     const response = await axios.get(url, { headers });
     if (response.status === 200) {
       const content = response.data;
+
       for (const item of content) {
         if (item.type === "dir") {
+          // Recursively fetch subdirectory files
           const subDirPath = dirPath ? `${dirPath}/${item.name}` : item.name;
           const subFiles = await getFolder(
             owner,
@@ -86,6 +87,7 @@ async function getFolder(
             branch,
             lang,
             user,
+            mode,
             headers,
             subDirPath
           );
@@ -100,10 +102,11 @@ async function getFolder(
               filePath,
               lang,
               user,
+              mode,
               headers
             );
             if (fileContent) {
-              files.push(fileContent);
+              files.push(fileContent);  // Add the file path to the list
             }
           }
         }
@@ -117,7 +120,7 @@ async function getFolder(
     console.error(`An error occurred:`, error);
   }
 
-  return files;
+  return files; // Return the array of file paths
 }
 
 function extractDirectoryPath(
@@ -139,7 +142,7 @@ export async function POST(req: Request): Promise<NextResponse> {
   try {
     // Parse and validate the request body
     const json = await req.json();
-    const { github, language, token, username } = json;
+    const { github, language, token, username, mode } = json;
 
     const headers = {
       Authorization: `token ${token}`,
@@ -157,6 +160,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       branch,
       language,
       username,
+      mode,
       headers
     );
 
