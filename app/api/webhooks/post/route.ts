@@ -83,8 +83,8 @@ async function handleRoomCreated(roomId: string) {
   for await (const chunk of hf.chatCompletionStream({
     model: "meta-llama/Meta-Llama-3-70B-Instruct",
     messages,
-    max_tokens: 256,
-    temperature: 0.8,
+    max_tokens: 124,
+    temperature: 0.5,
     seed: 0,
   })) {
     if (chunk.choices && chunk.choices.length > 0) {
@@ -96,7 +96,7 @@ async function handleRoomCreated(roomId: string) {
   const isRelevant = aiResponse.toLowerCase().includes("yes");
 
   if (isRelevant) {
-    const message = parseAiResponse(aiResponse as string);
+    let message = parseAiResponse(aiResponse as string);
 
     await liveblocks.createThread({
       roomId,
@@ -151,6 +151,9 @@ function parseAiResponse(input: string): CommentBodyInlineElement[] {
     /(\*.*?\*)|(_.*?_)|(~.*?~)|(`.*?(?:\\`.)*?`)|(https?:\/\/\S+[\w\/])/g;
   let lastIndex = 0;
 
+  // Remove occurrences of "yes" (case insensitive)
+  input = input.replace(/\byes\b/gi, '');
+
   input.replace(
     regex,
     (match, bold, italic, strikethrough, code, link, index) => {
@@ -193,5 +196,41 @@ function parseAiResponse(input: string): CommentBodyInlineElement[] {
     elements.push({ text: input.slice(lastIndex) });
   }
 
-  return elements;
+  // Ensure the total length of the final message is less than 256 characters
+  let totalLength = 0;
+  const truncatedElements: CommentBodyInlineElement[] = [];
+
+  for (const element of elements) {
+    let length = 0;
+    let text = '';
+
+    // Type checking to access the correct property based on the element type
+    if ('text' in element) {
+      text = element.text || ''; // Provide a default value of empty string if undefined
+    } else if ('url' in element) {
+      text = element.url || ''; // Provide a default value of empty string if undefined
+    }
+
+    length = text.length;
+
+    if (totalLength + length <= 255) {
+      truncatedElements.push(element);
+      totalLength += length;
+    } else {
+      // Truncate the last element if necessary
+      const remainingLength = 255 - totalLength;
+      if (remainingLength > 0) {
+        const truncatedText = text.slice(0, remainingLength);
+        if ('text' in element) {
+          truncatedElements.push({ text: truncatedText });
+        } else if ('url' in element) {
+          truncatedElements.push({ type: "link", url: truncatedText });
+        }
+        totalLength += remainingLength;
+      }
+      break;
+    }
+  }
+
+  return truncatedElements;
 }
