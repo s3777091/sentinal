@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
-    "userId" TEXT NOT NULL,
+    "user_Id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "name" TEXT,
@@ -27,7 +27,7 @@ CREATE TABLE "ScanData" (
     "title" TEXT,
     "level" TEXT,
     "more_detail" TEXT,
-    "userId" INTEGER NOT NULL,
+    "userId" TEXT NOT NULL,
 
     CONSTRAINT "ScanData_pkey" PRIMARY KEY ("id")
 );
@@ -36,30 +36,20 @@ CREATE TABLE "ScanData" (
 CREATE TABLE "Post" (
     "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "room" TEXT NOT NULL,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "title" VARCHAR(255) NOT NULL,
     "content" TEXT,
     "imageUrl" TEXT,
-    "authorId" INTEGER NOT NULL,
+    "authorId" TEXT NOT NULL,
 
     CONSTRAINT "Post_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Comment" (
-    "id" SERIAL NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "content" TEXT NOT NULL,
-    "postId" INTEGER NOT NULL,
-    "authorId" INTEGER NOT NULL,
-
-    CONSTRAINT "Comment_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "Conversation" (
     "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
+    "userId" TEXT NOT NULL,
     "messages" JSONB NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -68,7 +58,7 @@ CREATE TABLE "Conversation" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_userId_key" ON "User"("userId");
+CREATE UNIQUE INDEX "User_user_Id_key" ON "User"("user_Id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
@@ -92,13 +82,13 @@ CREATE INDEX "ScanData_userId_idx" ON "ScanData"("userId");
 CREATE INDEX "ScanData_title_idx" ON "ScanData"("title");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Post_room_key" ON "Post"("room");
+
+-- CreateIndex
 CREATE INDEX "Post_authorId_idx" ON "Post"("authorId");
 
 -- CreateIndex
 CREATE INDEX "Post_createdAt_idx" ON "Post"("createdAt");
-
--- CreateIndex
-CREATE INDEX "Comment_postId_idx" ON "Comment"("postId");
 
 -- CreateIndex
 CREATE INDEX "Conversation_userId_idx" ON "Conversation"("userId");
@@ -110,16 +100,10 @@ CREATE INDEX "Conversation_createdAt_idx" ON "Conversation"("createdAt");
 ALTER TABLE "User" ADD CONSTRAINT "User_apiServerId_fkey" FOREIGN KEY ("apiServerId") REFERENCES "ApiServer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ScanData" ADD CONSTRAINT "ScanData_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ScanData" ADD CONSTRAINT "ScanData_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("user_Id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Post" ADD CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Post" ADD CONSTRAINT "Post_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("user_Id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Comment" ADD CONSTRAINT "Comment_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Comment" ADD CONSTRAINT "Comment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Conversation" ADD CONSTRAINT "Conversation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Conversation" ADD CONSTRAINT "Conversation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("user_Id") ON DELETE RESTRICT ON UPDATE CASCADE;

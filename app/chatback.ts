@@ -26,7 +26,6 @@ export async function startNewConversation(
       data: { userId, messages: [] },
     });
   } catch (error) {
-    console.error("Error in startNewConversation:", error);
     throw new Error("Failed to create a new conversation.");
   }
 }

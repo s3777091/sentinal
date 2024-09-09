@@ -1,12 +1,15 @@
+"use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Post } from "@/types/types";
 import smile from "@/public/img/AI/smile.png";
 import { useTheme } from "next-themes";
-import { EditIcon } from "lucide-react";
-import { currentUser } from "@clerk/nextjs/server";
+
 import router from "next/router";
+
+import { useToast } from "@/hooks/use-toast";
 
 interface PostCardProps {
   posts: Post[];
@@ -16,6 +19,10 @@ interface PostCardProps {
 const MAX_CONTENT_LENGTH = 100; // Define max content length
 
 const PostCard: React.FC<PostCardProps> = React.memo(({ posts, user }) => {
+
+  const { toast } = useToast();
+
+
   const handleDeleteClick = async (postId: string) => {
     if (confirm("Are you sure you want to delete this post?")) {
       try {
@@ -32,7 +39,11 @@ const PostCard: React.FC<PostCardProps> = React.memo(({ posts, user }) => {
         if (response.ok) {
           router.reload(); // Reload the page to reflect the changes
         } else {
-          console.error("Failed to delete post:", data.error);
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Delete post failed",
+            description: `Failed to deleted post maybe, webhooks not active`,
+          });
         }
       } catch (error) {
         console.error("Error deleting post:", error);

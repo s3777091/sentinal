@@ -26,8 +26,6 @@ export function ScanMain({ user }: ScanProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Filter state for the new switch
-
 
   useEffect(() => {
     const fetchScans = async () => {

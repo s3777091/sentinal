@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "../../ui/input";
 import Loader from "../../Loading/Loader";
+import { useToast } from "@/hooks/use-toast";
 
 interface UserProps {
   user: UserDetail;
@@ -34,6 +35,8 @@ const PostForm = ({ user }: UserProps) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const { toast } = useToast();
+
   // Initialize the form with Zod validation schema
   const form = useForm<z.infer<typeof postSchema>>({
     resolver: zodResolver(postSchema),
@@ -41,7 +44,7 @@ const PostForm = ({ user }: UserProps) => {
       title: "",
       content: "",
       imageUrl: "",
-      authorId: user.userid
+      authorId: user.userid,
     },
   });
 
@@ -68,8 +71,11 @@ const PostForm = ({ user }: UserProps) => {
       if (response.ok) {
         router.push("/");
       } else {
-        const data = await response.json();
-        console.error("Error creating post:", data.errors || data);
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: "There was a problem with your request.",
+        });
       }
     } catch (error) {
       console.error("Failed to create post:", error);

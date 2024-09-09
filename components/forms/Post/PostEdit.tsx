@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "../../ui/input";
 import Loader from "../../Loading/Loader";
-
+import { useToast } from "@/hooks/use-toast";
 interface UserProps {
   user: UserDetail;
   postID: string;
@@ -30,6 +30,7 @@ interface UserProps {
 const PostEdit = ({ user, postID }: UserProps) => {
   const router = useRouter();
   const { startUpload } = useUploadThing("media");
+  const { toast } = useToast();
 
   const [files, setFiles] = useState<File[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -70,8 +71,11 @@ const PostEdit = ({ user, postID }: UserProps) => {
       if (response.ok) {
         router.push("/");
       } else {
-        const data = await response.json();
-        console.error("Error creating post:", data.errors || data);
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: "There was a problem with your request.",
+        });
       }
     } catch (error) {
       console.error("Failed to create post:", error);

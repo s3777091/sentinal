@@ -7,6 +7,7 @@ import ChatSelect from "@/components/forms/Chat/ChatSelect";
 import ChatMessage from "@/components/forms/Chat/ChatMessage";
 import { ChatBody, UserDetail } from "@/types/types";
 import aiChat from "@/public/img/AI/sparkling.png";
+import { useToast } from "@/hooks/use-toast";
 
 const ADD_MESSAGE = "ADD_MESSAGE";
 const CLEAR_MESSAGES = "CLEAR_MESSAGES";
@@ -44,9 +45,9 @@ interface Props {
 
 const MainChat = (props: Props) => {
   const [selectedType, setSelectedType] = useState<string>("");
-  const [messages, dispatch] = useReducer(messagesReducer, []); // Initialize messages state
-  const [loading, setLoading] = useState<boolean>(false);
-  const [newConversation, setNewConversation] = useState<boolean>(false); // State to track if it's a new conversation
+  const [messages, dispatch] = useReducer(messagesReducer, []);
+  const [newConversation, setNewConversation] = useState<boolean>(false);
+  const { toast } = useToast();
 
   const typeValue = useMemo(() => {
     switch (selectedType) {
@@ -64,13 +65,14 @@ const MainChat = (props: Props) => {
     const controller = new AbortController();
 
     if (message.length > 700) {
-      alert(
-        `Please enter code less than 700 characters. You are currently at ${message.length} characters.`
-      );
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Your text too long",
+        description: `You are currently at ${message.length} characters.`,
+      });
       return;
     }
 
-    setLoading(true);
     const body: ChatBody = {
       userID: props.user.userid,
       inputMessage: message,
@@ -90,7 +92,11 @@ const MainChat = (props: Props) => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch the API.");
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Skira server not set up yet",
+          description: `Failed to fetch the API.`,
+        });
       }
 
       const data = await response.json();
@@ -107,12 +113,13 @@ const MainChat = (props: Props) => {
         },
       });
 
-      setLoading(false);
       setNewConversation(false);
     } catch (error) {
-      console.error("Error:", error);
-      alert("Something went wrong when fetching from the API.");
-      setLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Skira server not set up yet",
+        description: `Failed to fetch the API.`,
+      });
     }
   };
 

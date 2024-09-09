@@ -47,7 +47,6 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
   const [github, setGithub] = useState<string>("");
   const [language, setLanguage] = useState<string>("");
   const [token, setToken] = useState<string>("");
-
   // Filter state for the scan mode switch (Deep or Normal)
   const [isDeepScan, setIsDeepScan] = useState(false);
 
@@ -73,6 +72,8 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
 
       // Validate the parsedInput using the zod schema
       let body: ScanInput = scanInputSchema.parse(parsedInput);
+
+      
 
       // Send the request
       let response = await fetch("/api/github", {

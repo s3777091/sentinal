@@ -1,5 +1,6 @@
 import { supportedLanguages } from "@/constants";
 import * as z from "zod";
+import { useToast } from "@/hooks/use-toast";
 
 // Function to check if the language is supported
 const isLanguageSupported = (language: string): boolean => {
@@ -15,7 +16,6 @@ const isLanguageSupported = (language: string): boolean => {
 // Function to check if the GitHub token is valid
 const checkToken = (token: string): boolean => {
   const tokenPattern = /^ghp_[A-Za-z0-9]{36}$/;
-
   return tokenPattern.test(token);
 };
 
@@ -38,11 +38,12 @@ const isValidGithubUrl = (url: string): boolean => {
 
 // Zod schema to validate the input fields with custom refinements
 export const scanInputSchema = z.object({
-    github: z
+  github: z
     .string()
     .url("Invalid GitHub URL")
     .refine(isValidGithubUrl, {
-      message: "GitHub URL must follow the pattern: https://github.com/{owner}/{repo}/{branch}",
+      message:
+        "GitHub URL must follow the pattern: https://github.com/{owner}/{repo}/{branch}",
     }),
   language: z
     .string()
@@ -56,6 +57,6 @@ export const scanInputSchema = z.object({
     .refine(checkToken, {
       message: "Invalid GitHub token format",
     }),
-    user: z.string().min(1, "Username is required"),
-    mode: z.boolean()
+  user: z.string().min(1, "Username is required"),
+  mode: z.boolean(),
 });
