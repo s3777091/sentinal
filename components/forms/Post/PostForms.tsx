@@ -22,6 +22,7 @@ import {
 import { Input } from "../../ui/input";
 import Loader from "../../Loading/Loader";
 import { useToast } from "@/hooks/use-toast";
+import { NextResponse } from "next/server";
 
 interface UserProps {
   user: UserDetail;
@@ -78,7 +79,7 @@ const PostForm = ({ user }: UserProps) => {
         });
       }
     } catch (error) {
-      console.error("Failed to create post:", error);
+      throw new NextResponse("Failed to create post:");
     } finally {
       setIsLoading(false);
     }

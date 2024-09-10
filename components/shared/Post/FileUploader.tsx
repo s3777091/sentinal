@@ -1,7 +1,6 @@
 import React, { useCallback, memo } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react"; // Import the Upload icon from Lucide
 
 type FileUploaderProps = {
   fieldChange: (files: File[]) => void;

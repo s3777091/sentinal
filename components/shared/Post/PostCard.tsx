@@ -10,6 +10,7 @@ import { useTheme } from "next-themes";
 import router from "next/router";
 
 import { useToast } from "@/hooks/use-toast";
+import { NextResponse } from "next/server";
 
 interface PostCardProps {
   posts: Post[];
@@ -35,9 +36,8 @@ const PostCard: React.FC<PostCardProps> = React.memo(({ posts, user }) => {
             postId,
           }),
         });
-        const data = await response.json();
         if (response.ok) {
-          router.reload(); // Reload the page to reflect the changes
+          router.reload();
         } else {
           toast({
             variant: "destructive",
@@ -46,7 +46,15 @@ const PostCard: React.FC<PostCardProps> = React.memo(({ posts, user }) => {
           });
         }
       } catch (error) {
-        console.error("Error deleting post:", error);
+        return new NextResponse(
+          JSON.stringify({
+            data: "Our development team is reviewing your error...",
+          }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
       }
     }
   };

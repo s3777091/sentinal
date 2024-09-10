@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { Post, User } from "@prisma/client";
-import { UserDetail } from "@/types/types";
 import smile from "@/public/img/AI/smile.png";
 import { LiveProvider } from "./LiveProvider";
 
@@ -16,7 +15,7 @@ import CommentLoading from "@/components/Loading/CommentLoading";
 interface PostDetailProps {
   post: Omit<Post, "authorId"> & {
     author: Pick<User, "id" | "username" | "image">;
-  }
+  };
 }
 
 export default function PostDetail({ post }: PostDetailProps) {
@@ -25,6 +24,8 @@ export default function PostDetail({ post }: PostDetailProps) {
       key={post.id}
       className="bg-gray-200 dark:bg-zinc-800 p-6 rounded-lg mb-3 shadow-md transition transform hover:scale-105 duration-300"
     >
+      {/* Post Title */}
+
       {/* Post Author Info */}
       <div className="flex items-center mb-4">
         <Image
@@ -44,6 +45,9 @@ export default function PostDetail({ post }: PostDetailProps) {
         </div>
       </div>
 
+      <h1 className="text-2xl font-bold mb-4">
+        {post.title || "Untitled Post"}
+      </h1>
       {/* Post Content */}
       <p className="mb-4 text-lg">{post.content}</p>
 

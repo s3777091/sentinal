@@ -1,10 +1,51 @@
 "use server";
+import { supportedLanguages } from "@/constants";
 import { LanguagePatterns } from "@/types/types";
+
 
 // Memoized regex patterns for performance
 const commentPatterns = {
   singleLine: /\/\/.*$/gm,
   multiLine: /\/\*[\s\S]*?\*\//g,
+};
+
+
+
+// Function to check if the language is supported
+export const isLanguageSupported = (language: string): boolean => {
+  const languagePattern = /^[a-zA-Z\-]+$/; // Allows letters and hyphens
+  const normalizedLanguage = language.toLowerCase().trim();
+
+  if (!languagePattern.test(normalizedLanguage)) {
+    return false;
+  }
+  return supportedLanguages.has(normalizedLanguage);
+};
+
+// Function to check if the GitHub token is valid
+export const checkToken = (token: string | null): boolean => {
+  if (!token) {
+    return true; // Allow null or empty token
+  }
+  const tokenPattern = /^ghp_[A-Za-z0-9]{36}$/;
+  return tokenPattern.test(token);
+};
+
+// Function to validate the GitHub URL format and extract the relevant parts
+export const isValidGithubUrl = (url: string): boolean => {
+  const githubPattern = /^https:\/\/github\.com\/([^/]+)\/([^/]+)(\/([^/]+))?$/;
+  const match = url.match(githubPattern);
+
+  if (!match) {
+    return false; // Invalid URL structure
+  }
+
+  const [_, owner, repo, , branch] = match;
+  if (!owner || !repo || !branch) {
+    return false;
+  }
+
+  return true; // URL is valid
 };
 
 // Function to remove comments (single-line and multi-line) and extra spaces

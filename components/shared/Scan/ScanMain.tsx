@@ -4,7 +4,6 @@ import React, {
   useEffect,
   useState,
   useCallback,
-  useMemo,
   Suspense,
 } from "react";
 import { Separator } from "@/components/ui/separator";
@@ -13,8 +12,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ScanDisplay } from "@/components/shared/Scan/ScanDisplay";
 import { ScanList } from "@/components/shared/Scan/ScanList";
 import { ScanArray, UserDetail } from "@/types/types";
-import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading/Loading"; // Assuming you have a Loading component
+import { useToast } from "@/hooks/use-toast";
 
 interface ScanProps {
   user: UserDetail;
@@ -25,6 +24,8 @@ export function ScanMain({ user }: ScanProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  const { toast } = useToast();
 
 
   useEffect(() => {
@@ -70,7 +71,7 @@ export function ScanMain({ user }: ScanProps) {
         <div className="w-1/3 border-r border-gray-200">
           <Tabs defaultValue="all">
             <div className="relative flex items-center justify-between p-2">
-              <h1 className="text-xl font-bold">Scan History</h1>
+              <h1 className="text-xl font-bold">Detection History</h1>
 
               {/* Dropdown Menu for Filter */}
             </div>

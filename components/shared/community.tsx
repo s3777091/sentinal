@@ -1,11 +1,11 @@
 "use client";
 
 import React, { Suspense, useCallback, useEffect, useReducer } from "react";
-import { useRouter } from "next/navigation";
+
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Post, UserDetail } from "@/types/types";
+import { Post } from "@/types/types";
 import PostCard from "./Post/PostCard";
 import Loading from "../Loading/Loading";
 
@@ -52,19 +52,8 @@ function reducer(state: State, action: Action): State {
 }
 
 const Community = ({ searchParams = {}, userName}: AvatarProps) => {
-
-  
   const [state, dispatch] = useReducer(reducer, initialState);
   const { posts, inputValue, isNext } = state;
-  const handleEditPost = (postId: string) => {
-    console.log("Edit post with ID:", postId);
-    // Implement your logic here
-  };
-
-  const handleDeletePost = (postId: string) => {
-    console.log("Delete post with ID:", postId);
-    // Implement your logic here
-  };
   
   const fetchPosts = useCallback(async (query = "", page = 1) => {
     try {

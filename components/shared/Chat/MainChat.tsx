@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useMemo, useReducer} from "react";
+import React, { useState, useMemo, useReducer } from "react";
 import { Button } from "@/components/ui/button";
-import { Share} from "lucide-react";
+import { Share } from "lucide-react";
 import ChatSelect from "@/components/forms/Chat/ChatSelect";
 import ChatMessage from "@/components/forms/Chat/ChatMessage";
 import { ChatBody, UserDetail } from "@/types/types";
@@ -72,6 +72,12 @@ const MainChat = (props: Props) => {
       });
       return;
     }
+    if (typeValue === "vulnerable") {
+      toast({
+        title: "Chat Security have longer time to generate text",
+        description: `Server maybe sleep as long time no one using pls wait a maybe 1 minute`,
+      });
+    }
 
     const body: ChatBody = {
       userID: props.user.userid,
@@ -94,8 +100,8 @@ const MainChat = (props: Props) => {
       if (!response.ok) {
         toast({
           variant: "destructive",
-          title: "Uh oh! Skira server not set up yet",
-          description: `Failed to fetch the API.`,
+          title: "Uh oh! Can't find existing chat",
+          description: `Try to create new chat.`,
         });
       }
 

@@ -3,26 +3,26 @@ export const sidebarLinks = [
       imgURL: "/assets/darkearth.svg",
       darkImageUrl: "/assets/earth.svg",
       route: "/",
-      label: "Communities",
-    },
-    {
-      imgURL: "/assets/radar.svg",
-      darkImageUrl: "/assets/darkradar.svg",
-      route: "/scan",
-      label: "Scan",
-    },
-    {
-      imgURL: "/assets/message.svg",
-      darkImageUrl: "/assets/darkmessage.svg",
-      route: "/chat",
-      label: "Message",
+      label: "Vuln Exchange",
     },
     {
       imgURL: "/assets/file-up.svg",
       darkImageUrl: "/assets/darkfile-up.svg",
       route: "/post",
-      label: "Post",
-    }
+      label: "Vuln Submission",
+    },
+    {
+      imgURL: "/assets/radar.svg",
+      darkImageUrl: "/assets/darkradar.svg",
+      route: "/scan",
+      label: "Vuln Detection",
+    },
+    {
+      imgURL: "/assets/message.svg",
+      darkImageUrl: "/assets/darkmessage.svg",
+      route: "/chat",
+      label: "Vuln Assistant",
+    },
   ];
   
   export const supportedLanguages = new Set([

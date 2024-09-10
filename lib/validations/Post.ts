@@ -3,7 +3,7 @@ import * as z from "zod";
 export const postSchema = z.object({
   authorId: z.string(),
   title: z.string().min(1, "Title is required").max(500, "Title is too long"),
-  content: z.string().optional(),
+  content: z.string().min(1, "content is required").max(3000, "content is too long"),
   imageUrl: z.string().url().optional().or(z.literal("")), // Allow empty string as a valid option
 });
 

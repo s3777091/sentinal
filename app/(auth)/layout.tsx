@@ -1,7 +1,7 @@
 import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "../globals.css";
-import { dark, neobrutalism } from "@clerk/themes";
+import { neobrutalism } from "@clerk/themes";
 
 export const metadata = {
   title: "Skira",

@@ -10,7 +10,6 @@ if (!psw) {
   throw new Error("Please add the Kafka password in .env or .env.local");
 }
 
-// Updated getFile function with string return type
 async function getFile(
   repoOwner: string,
   repoName: string,
@@ -19,46 +18,54 @@ async function getFile(
   lang: string,
   user: string,
   mode: boolean,
-  headers: any
-): Promise<string | null> { // Returning a string or null
+  headers: any,
+  cyber: CyberSend
+): Promise<string | null> {
   const url = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${repoBranch}/${filePath}`;
 
   try {
     const response = await axios.get(url, { headers });
+
     if (response.status === 200) {
+      const fileContent = response.data;
+
+      let messageData;
       if (mode) {
-        const data = await extractFunctionsAndClasses(response.data, lang);
-
-        // Process the extracted code blocks in "deep" mode
-        for (const block of data) {
-          const messageData = [
-            {
-              username: user,
-              message_send: block,
-              path: filePath,
-            },
-          ];
-
-          // console.log(block);
-          return filePath; // Return the file path as a string
+        const extractedData = await extractFunctionsAndClasses(
+          fileContent,
+          lang
+        );
+        // Send each extracted block separately
+        for (const block of extractedData) {
+          messageData = {
+            username: user,
+            message_send: block,
+            path: filePath,
+          };
+          await cyber.sendMessages([messageData]);
         }
       } else {
-        // Return the file path directly in "normal" mode
-        return filePath;
+        // Send the entire file content in non-deep mode
+        messageData = {
+          username: user,
+          message_send: fileContent,
+          path: filePath,
+        };
+        await cyber.sendMessages([messageData]);
       }
+
+      return filePath;
     } else {
-      console.log(`Failed to get file ${filePath} from GitHub. Status code: ${response.status}`);
-      return null;
+      throw new NextResponse(
+        `Failed to fetch folder ${filePath}. Status: ${response.status}`
+      );
     }
   } catch (error) {
-    console.error(`An error occurred while fetching ${filePath}:`, error);
-    return null;
+    throw new NextResponse(`Error fetching file ${filePath}: ${error}`);
   }
-
   return null;
 }
 
-// Updated getFolder function with string[] return type
 async function getFolder(
   owner: string,
   repo: string,
@@ -67,19 +74,20 @@ async function getFolder(
   user: string,
   mode: boolean,
   headers: any,
-  dirPath: string = ""
-): Promise<string[]> { // Returning an array of strings (file paths)
+  dirPath: string = "",
+  cyber: CyberSend
+): Promise<string[]> {
   const url = `https://api.github.com/repos/${owner}/${repo}/contents/${dirPath}?ref=${branch}`;
   const files: string[] = [];
 
   try {
     const response = await axios.get(url, { headers });
+
     if (response.status === 200) {
       const content = response.data;
 
       for (const item of content) {
         if (item.type === "dir") {
-          // Recursively fetch subdirectory files
           const subDirPath = dirPath ? `${dirPath}/${item.name}` : item.name;
           const subFiles = await getFolder(
             owner,
@@ -89,9 +97,10 @@ async function getFolder(
             user,
             mode,
             headers,
-            subDirPath
+            subDirPath,
+            cyber
           );
-          files.push(...subFiles);
+          files.push(...subFiles); // Add subdirectory files
         } else if (item.name.endsWith(`.${lang}`)) {
           const filePath = extractDirectoryPath(item.url, repo, branch);
           if (filePath) {
@@ -103,24 +112,25 @@ async function getFolder(
               lang,
               user,
               mode,
-              headers
+              headers,
+              cyber
             );
             if (fileContent) {
-              files.push(fileContent);  // Add the file path to the list
+              files.push(fileContent); // Add the file path to the array
             }
           }
         }
       }
     } else {
-      console.log(
-        `Failed to access folder ${dirPath} on GitHub. Status code: ${response.status}`
+      throw new NextResponse(
+        `Failed to fetch folder ${dirPath}. Status: ${response.status}`
       );
     }
   } catch (error) {
-    console.error(`An error occurred:`, error);
+    throw new NextResponse(`Error fetching folder ${dirPath}: ${error}`);
   }
 
-  return files; // Return the array of file paths
+  return files; // Return the list of file paths
 }
 
 function extractDirectoryPath(
@@ -137,12 +147,11 @@ function extractDirectoryPath(
   return null;
 }
 
-// POST request handler
 export async function POST(req: Request): Promise<NextResponse> {
   try {
     // Parse and validate the request body
     const json = await req.json();
-    const { github, language, token, username, mode } = json;
+    const { github, language, token, user, mode } = json;
 
     const headers = {
       Authorization: `token ${token}`,
@@ -154,14 +163,20 @@ export async function POST(req: Request): Promise<NextResponse> {
     const repo = urlParts[1];
     const branch = urlParts[2] || "main";
 
+    // Start the CyberSend producer once, instead of for each file
+    const cyber = new CyberSend(psw!, "send_scan_message");
+    await cyber.startProducer();
+
     const files = await getFolder(
       owner,
       repo,
       branch,
       language,
-      username,
+      user,
       mode,
-      headers
+      headers,
+      "",
+      cyber
     );
 
     return new NextResponse(JSON.stringify(files, null, 2), {
@@ -172,7 +187,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      // Handle validation errors from Zod
+      // Handle validation errors
       return new NextResponse(
         JSON.stringify({ errors: "Wrong validation input" }),
         {
@@ -181,11 +196,13 @@ export async function POST(req: Request): Promise<NextResponse> {
         }
       );
     }
-    console.error("Error:", error);
     return new NextResponse(
-      "Something went wrong while processing the request",
+      JSON.stringify({ error: "Internal server error" }),
       {
         status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
     );
   }

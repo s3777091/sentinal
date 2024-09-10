@@ -34,11 +34,10 @@ const ChatMessage = ({ onButtonClick, messages }: Props) => {
   }, []);
 
   useEffect(() => {
-    // Check if the last message is from AI, then stop typing indicator
     if (messages.length > 0 && messages[messages.length - 1].user.username === "AI") {
       setIsTyping(false);
     }
-  }, [messages]);  // This effect runs whenever `messages` is updated
+  }, [messages]);
 
   if (!mounted) {
     return null;

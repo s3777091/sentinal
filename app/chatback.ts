@@ -1,6 +1,7 @@
 import { HfInference } from "@huggingface/inference";
 import { Client } from "@gradio/client";
 import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
 
 const MAX_USERS_PER_SERVER = 10;
 const MAX_HISTORY_LENGTH = 50; // Increase this if needed
@@ -10,7 +11,7 @@ const baseModel: string = process.env.BASE_ADMIN_MODEL || "";
 
 // Validate Hugging Face token format
 if (!hfToken.startsWith("hf_")) {
-  throw new Error(
+  throw new NextResponse(
     "HUGGINGFACE_API_KEY is either not defined or not in the correct format (must start with 'hf_')."
   );
 }
@@ -26,7 +27,7 @@ export async function startNewConversation(
       data: { userId, messages: [] },
     });
   } catch (error) {
-    throw new Error("Failed to create a new conversation.");
+    throw new NextResponse("Failed to create a new conversation.");
   }
 }
 
@@ -62,8 +63,7 @@ async function getOrAssignServer(userId: string): Promise<string | null> {
     // If no valid server, find and assign a suitable one
     return await findAndAssignSuitableServer(userId);
   } catch (error) {
-    console.error("Error in getOrAssignServer:", error);
-    return null;
+    throw new NextResponse("Failed to assign conversation.");
   }
 }
 
@@ -116,15 +116,12 @@ export async function handleVulnerable(
           "Identify the specific line of code that is vulnerable and describe the type of software vulnerability.",
           ""
         );
-      } else {
-        console.log("Unexpected data format:", msg);
       }
     }
 
     return responseMessage;
   } catch (error) {
-    console.error("Error in handleVulnerable:", error);
-    return "API SERVER out of token";
+    throw new NextResponse("API SERVER out of token");
   }
 }
 
@@ -148,7 +145,7 @@ export async function handleInformation(
       });
 
       if (!existingConversation) {
-        throw new Error("No existing conversation found.");
+        throw new NextResponse("No existing conversation found.");
       }
 
       conversationId = existingConversation.id;
@@ -168,15 +165,36 @@ export async function handleInformation(
     const hf = new HfInference(hfToken);
     let out = "";
 
-    for await (const chunk of hf.chatCompletionStream({
-      model: "meta-llama/Meta-Llama-3-70B-Instruct",
-      messages,
-      max_tokens: 1024,
-      temperature: 1.0,
-      seed: 0,
-    })) {
-      if (chunk.choices && chunk.choices.length > 0) {
-        out += chunk.choices[0].delta.content;
+    // Try using the first model: Meta-Llama-3-70B-Instruct
+    try {
+      for await (const chunk of hf.chatCompletionStream({
+        model: "meta-llama/Meta-Llama-3-70B-Instruct",
+        messages,
+        max_tokens: 896,
+        temperature: 1.2,
+        seed: 0,
+      })) {
+        if (chunk.choices && chunk.choices.length > 0) {
+          out += chunk.choices[0].delta.content;
+        }
+      }
+    } catch (error) {
+
+      // Fallback to secondary model: Mixtral-8x7B-Instruct-v0.1
+      try {
+        for await (const chunk of hf.chatCompletionStream({
+          model: "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
+          messages,
+          max_tokens: 896,
+          temperature: 1.2,
+          seed: 0,
+        })) {
+          if (chunk.choices && chunk.choices.length > 0) {
+            out += chunk.choices[0].delta.content;
+          }
+        }
+      } catch (fallbackError) {
+        throw new NextResponse("Both models failed to process the request.");
       }
     }
 
@@ -189,7 +207,6 @@ export async function handleInformation(
 
     return out;
   } catch (error) {
-    console.error("Error handling information:", error);
-    throw new Error("Failed to process the request.");
+    throw new NextResponse("Failed to process the request.");
   }
 }

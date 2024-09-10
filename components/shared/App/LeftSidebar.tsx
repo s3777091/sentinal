@@ -2,9 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { SignOutButton, SignedIn, useAuth } from "@clerk/nextjs";
-
 import { sidebarLinks } from "@/constants";
 import { useTheme } from "next-themes";
 import React, { useEffect, useState } from "react";

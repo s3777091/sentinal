@@ -6,6 +6,7 @@ import {
 } from "@/app/chatback";
 import { chatBodySchema } from "@/lib/validations/Chat";
 
+
 export async function POST(req: Request): Promise<NextResponse> {
   try {
     const parsedData = chatBodySchema.parse(await req.json());
@@ -29,7 +30,6 @@ export async function POST(req: Request): Promise<NextResponse> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("API error:", error);
     return new NextResponse(
       JSON.stringify({
         data: "Our development team is reviewing your error...",

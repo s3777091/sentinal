@@ -23,7 +23,6 @@ async function handler(request: Request) {
       heads as IncomingHttpHeaders & WebhookRequiredHeaders
     ) as Event;
   } catch (err) {
-    console.error((err as Error).message);
     return NextResponse.json({}, { status: 400 });
   }
 
@@ -64,7 +63,6 @@ async function handler(request: Request) {
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error upserting user:", error);
       return NextResponse.json(
         { error: "Failed to upsert user" },
         { status: 500 }

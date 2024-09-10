@@ -3,7 +3,6 @@ import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { nanoid } from "nanoid";
 import { liveblocks } from "@/lib/liveblocks";
-import { Liveblocks } from "@liveblocks/node";
 
 // PUT method to update a post
 export async function PUT(req: Request): Promise<NextResponse> {
@@ -80,10 +79,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       },
     });
 
-    const metadata = {
-      post: content || "",
-      title,
-    };
+    const metadata = {};
 
     await liveblocks.createRoom(roomId, {
       metadata,
@@ -95,7 +91,6 @@ export async function POST(req: Request): Promise<NextResponse> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error creating post:", error);
     return new NextResponse(
       JSON.stringify({ error: "Failed to create post" }),
       {
@@ -154,7 +149,6 @@ export async function GET(req: Request): Promise<NextResponse> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error fetching posts:", error);
     return new NextResponse(
       JSON.stringify({ error: "Failed to get list of posts" }),
       {
@@ -176,32 +170,36 @@ export async function DELETE(req: Request): Promise<NextResponse> {
     // Validate the input
     if (!postId) {
       return new NextResponse(
-        JSON.stringify({ error: "Missing postId or authorId" }),
+        JSON.stringify({ error: "Missing postId" }),
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
         }
       );
     }
-
     const post = await prisma.post.findUnique({
       where: {
-        id:  parseInt(postId)
-      }
-    })
-
-    if(!post){
+        id: parseInt(postId),
+      },
+    });
+    // Check if the post exists
+    if (!post) {
       return new NextResponse(
-        JSON.stringify({ error: "Not Found Post" }),
+        JSON.stringify({ error: "Post not found" }),
         {
-          status: 500,
+          status: 404,
           headers: { "Content-Type": "application/json" },
         }
       );
     }
 
-    liveblocks.deleteRoom(post.room);
+    // await prisma.post.deleteMany({
+    //   where: {
+    //     id: parseInt(postId),
+    //   },
+    // });
 
+    liveblocks.deleteRoom(post.room);
     return new NextResponse(
       JSON.stringify({ message: "Post deleted successfully" }),
       {
@@ -210,7 +208,6 @@ export async function DELETE(req: Request): Promise<NextResponse> {
       }
     );
   } catch (error) {
-    console.error("Error deleting post:", error);
     return new NextResponse(
       JSON.stringify({ error: "Failed to delete post" }),
       {

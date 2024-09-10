@@ -23,7 +23,7 @@ export function ScanList({ items, onSelect }: ScanListProps) {
   const isSelected = (id: number) => selectedId === id;
 
   return (
-    <div className="flex flex-col h-[100vh]">
+    <div className="flex flex-col h-[90vh]">
       {/* Filter Section */}
       <div className="p-4">
         <div className="flex gap-4"></div>

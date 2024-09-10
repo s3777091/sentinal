@@ -5,9 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation"; // Use next/navigation instead of next/router
 import { ModeToggle } from "@/components/forms/mode-toggle";
+import { NextResponse } from "next/server";
 
 function Topbar() {
-  const router = useRouter(); // Now using next/navigation's useRouter
+  const router = useRouter();
 
   const handleSignOut = async () => {
     try {
@@ -15,7 +16,7 @@ function Topbar() {
       await signOut();
       router.push("/sign-in");
     } catch (error) {
-      console.error("Error during sign-out:", error);
+      throw new NextResponse("Fail to logout");
     }
   };
 

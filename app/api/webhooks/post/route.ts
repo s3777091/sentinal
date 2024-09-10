@@ -3,6 +3,7 @@ import { WebhookHandler } from "@liveblocks/node";
 import { liveblocks } from "@/lib/liveblocks";
 import { prisma } from "@/lib/db";
 import { HfInference } from "@huggingface/inference";
+import { NextResponse } from "next/server";
 
 const webhookHandler = new WebhookHandler(
   process.env.WEBHOOKS_AI_DETECT_POST as string
@@ -20,14 +21,13 @@ export async function POST(request: Request) {
       rawBody: JSON.stringify(body),
     });
   } catch (err) {
-    console.error(err);
-    return new Response("Could not verify webhook call", { status: 400 });
+    return new NextResponse("Could not verify webhook call", { status: 400 });
   }
 
   const roomId = event.data.roomId ?? null;
 
   if (!roomId) {
-    return new Response("roomId is null", { status: 400 });
+    return new NextResponse("roomId is null", { status: 400 });
   }
 
   // Handle different event types
@@ -39,10 +39,10 @@ export async function POST(request: Request) {
       await handleRoomDeleted(roomId);
       break;
     default:
-      return new Response("Event type not supported", { status: 400 });
+      return new NextResponse("Event type not supported", { status: 400 });
   }
 
-  return new Response("Event processed successfully", { status: 200 });
+  return new NextResponse("Event processed successfully", { status: 200 });
 }
 
 async function handleRoomCreated(roomId: string) {
@@ -54,7 +54,7 @@ async function handleRoomCreated(roomId: string) {
   });
 
   if (!post) {
-    throw new Error("Post does not exist");
+    throw new NextResponse("Post does not exist");
   }
 
   let messages: { role: string; content: string }[] = [];
@@ -79,21 +79,46 @@ async function handleRoomCreated(roomId: string) {
   const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
   let aiResponse = "";
 
-  // Call the AI to analyze the post content and provide a solution if vulnerabilities exist
-  for await (const chunk of hf.chatCompletionStream({
-    model: "meta-llama/Meta-Llama-3-70B-Instruct",
-    messages,
-    max_tokens: 124,
-    temperature: 0.5,
-    seed: 0,
-  })) {
-    if (chunk.choices && chunk.choices.length > 0) {
-      aiResponse += chunk.choices[0].delta.content;
+  try {
+    for await (const chunk of hf.chatCompletionStream({
+      model: "meta-llama/Meta-Llama-3-70B-Instruct",
+      messages,
+      max_tokens: 256,
+      temperature: 0.8,
+      seed: 0,
+    })) {
+      if (chunk.choices && chunk.choices.length > 0) {
+        aiResponse += chunk.choices[0].delta.content;
+      }
+    }
+  } catch (err) {
+    console.error("Primary model failed, attempting fallback model...");
+
+    // Fallback to secondary model in case of error
+    try {
+      for await (const chunk of hf.chatCompletionStream({
+        model: "codellama/CodeLlama-34b-Instruct-hf",
+        messages,
+        max_tokens: 256,
+        temperature: 0.8,
+        seed: 0,
+      })) {
+        if (chunk.choices && chunk.choices.length > 0) {
+          aiResponse += chunk.choices[0].delta.content;
+        }
+      }
+    } catch (err) {
+      return new NextResponse("Both primary and fallback models failed.", {
+        status: 500,
+      });
     }
   }
 
-  // Check if the AI detected any vulnerabilities
-  const isRelevant = aiResponse.toLowerCase().includes("yes");
+  const isRelevant =
+    aiResponse.toLowerCase().includes("yes") ||
+    aiResponse.toLowerCase().includes("vulnerabilities") ||
+    aiResponse.toLowerCase().includes("vulnerability") ||
+    aiResponse.toLowerCase().includes("unsafe");
 
   if (isRelevant) {
     let message = parseAiResponse(aiResponse as string);
@@ -115,7 +140,7 @@ async function handleRoomCreated(roomId: string) {
         },
       },
     });
-    return new Response(
+    return new NextResponse(
       "Thread created in the room with the detected vulnerabilities and proposed solution.",
       { status: 200 }
     );
@@ -127,7 +152,7 @@ async function handleRoomCreated(roomId: string) {
       },
     });
     await liveblocks.deleteRoom(roomId);
-    return new Response(
+    return new NextResponse(
       "Post and room deleted as the content is not relevant to vulnerable code.",
       {
         status: 200,
@@ -150,9 +175,6 @@ function parseAiResponse(input: string): CommentBodyInlineElement[] {
   const regex =
     /(\*.*?\*)|(_.*?_)|(~.*?~)|(`.*?(?:\\`.)*?`)|(https?:\/\/\S+[\w\/])/g;
   let lastIndex = 0;
-
-  // Remove occurrences of "yes" (case insensitive)
-  input = input.replace(/\byes\b/gi, '');
 
   input.replace(
     regex,
@@ -196,41 +218,5 @@ function parseAiResponse(input: string): CommentBodyInlineElement[] {
     elements.push({ text: input.slice(lastIndex) });
   }
 
-  // Ensure the total length of the final message is less than 256 characters
-  let totalLength = 0;
-  const truncatedElements: CommentBodyInlineElement[] = [];
-
-  for (const element of elements) {
-    let length = 0;
-    let text = '';
-
-    // Type checking to access the correct property based on the element type
-    if ('text' in element) {
-      text = element.text || ''; // Provide a default value of empty string if undefined
-    } else if ('url' in element) {
-      text = element.url || ''; // Provide a default value of empty string if undefined
-    }
-
-    length = text.length;
-
-    if (totalLength + length <= 255) {
-      truncatedElements.push(element);
-      totalLength += length;
-    } else {
-      // Truncate the last element if necessary
-      const remainingLength = 255 - totalLength;
-      if (remainingLength > 0) {
-        const truncatedText = text.slice(0, remainingLength);
-        if ('text' in element) {
-          truncatedElements.push({ text: truncatedText });
-        } else if ('url' in element) {
-          truncatedElements.push({ type: "link", url: truncatedText });
-        }
-        totalLength += remainingLength;
-      }
-      break;
-    }
-  }
-
-  return truncatedElements;
+  return elements;
 }

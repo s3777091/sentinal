@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser } from '@clerk/nextjs/server'
 import PostForm from "@/components/forms/Post/PostForms";
 import smile from "@/public/img/AI/smile.png";
 
