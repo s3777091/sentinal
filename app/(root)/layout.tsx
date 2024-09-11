@@ -9,7 +9,6 @@ import Bottombar from "@/components/shared/App/Bottombar";
 import Topbar from "@/components/shared/App/Topbar";
 import DogLoad from "@/components/Loading/DogLoad";
 import { Toaster } from "@/components/ui/toaster"
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Inter } from "next/font/google";
 
 export const metadata: Metadata = {
@@ -60,7 +59,6 @@ export default function RootLayout({
               <Bottombar />
             </ClerkLoaded>
           </ThemeProvider>
-          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>
