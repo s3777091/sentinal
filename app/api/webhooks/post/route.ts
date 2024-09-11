@@ -114,7 +114,7 @@ async function handleRoomCreated(roomId: string) {
     }
   }
 
-  const isRelevant = !aiResponse.toLowerCase().includes("yes")
+  const isRelevant = aiResponse.toLowerCase().includes("yes");
 
   if (isRelevant) {
     let message = parseAiResponse(aiResponse as string);
