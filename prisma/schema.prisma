@@ -19,6 +19,7 @@ model User {
   apiServerId   Int?
   apiServer     ApiServer?     @relation(fields: [apiServerId], references: [id])
   conversations Conversation[]
+  fileLinks     UserFileLink[] // Add this line to link User with UserFileLink
 
   @@unique([email, username])
   @@index([apiServerId])
@@ -71,4 +72,15 @@ model Conversation {
 
   @@index([userId]) // Index to optimize querying conversations by userId
   @@index([createdAt]) // Index to optimize querying conversations by creation date
+}
+
+model UserFileLink {
+  id        Int      @id @default(autoincrement())
+  url       String
+  userId    String
+  user      User     @relation(fields: [userId], references: [user_Id])
+  createdAt DateTime @default(now())
+
+  @@index([userId]) // Index to optimize querying by userId
+  @@index([createdAt]) // Index to optimize querying by creation date
 }
