@@ -15,3 +15,12 @@ declare global {
 }
 
 export {};
+export type ThreadMetadata = {
+
+  priority: string;
+
+  pinned: boolean;
+
+  timestamp: number;
+
+};

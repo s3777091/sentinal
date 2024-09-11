@@ -50,10 +50,9 @@ export function ScanDisplay({ scan, user }: ScanDisplayProps) {
       github,
       language,
       token,
-      user: user.username,
       mode: isDeepScan,
     }),
-    [github, language, token, user.username, isDeepScan]
+    [github, language, token, isDeepScan]
   );
 
 

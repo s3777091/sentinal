@@ -79,8 +79,11 @@ export async function POST(req: Request): Promise<NextResponse> {
       },
     });
 
-    const metadata = {};
-
+    const metadata = {
+      post: roomId || "",
+      title,
+    };
+    
     await liveblocks.createRoom(roomId, {
       metadata,
       defaultAccesses: ["room:write"],
