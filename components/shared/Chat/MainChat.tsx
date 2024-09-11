@@ -64,7 +64,7 @@ const MainChat = (props: Props) => {
     dispatch({ type: ADD_MESSAGE, payload: { user: props.user, message } });
     const controller = new AbortController();
 
-    if (message.length > 700) {
+    if (message.length > 1024) {
       toast({
         variant: "destructive",
         title: "Uh oh! Your text too long",
