@@ -116,7 +116,7 @@ async function handleRoomCreated(roomId: string) {
 
   const isRelevant = aiResponse.toLowerCase().includes("yes");
 
-  if (isRelevant) {
+  if (!isRelevant) {
     let message = parseAiResponse(aiResponse as string);
 
     await liveblocks.createThread({
