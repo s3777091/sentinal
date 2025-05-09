@@ -2,7 +2,6 @@
 
 
 import { getClerkUsers } from "@/lib/action/user.actions";
-import { currentUser } from "@clerk/nextjs/server";
 import { LiveblocksProvider } from "@liveblocks/react";
 import { PropsWithChildren } from "react";
 

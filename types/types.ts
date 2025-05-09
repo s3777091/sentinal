@@ -33,7 +33,6 @@ export interface ScanInput {
   github: string;
   language: string;
   token: string;
-  user: string;
   mode: boolean
 }
 

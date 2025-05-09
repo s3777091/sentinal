@@ -11,7 +11,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-RUN prisma generate
+RUN npx prisma generate
 RUN npm run build
 
 FROM base AS runner
@@ -36,7 +36,5 @@ USER nextjs
 EXPOSE 3000
 
 ENV PORT=3000
-
-ARG HOSTNAME
 
 CMD node server.js

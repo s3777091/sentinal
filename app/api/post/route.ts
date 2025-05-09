@@ -79,8 +79,11 @@ export async function POST(req: Request): Promise<NextResponse> {
       },
     });
 
-    const metadata = {};
-
+    const metadata = {
+      post: roomId || "",
+      title,
+    };
+    
     await liveblocks.createRoom(roomId, {
       metadata,
       defaultAccesses: ["room:write"],
@@ -177,11 +180,13 @@ export async function DELETE(req: Request): Promise<NextResponse> {
         }
       );
     }
+
     const post = await prisma.post.findUnique({
       where: {
         id: parseInt(postId),
       },
     });
+
     // Check if the post exists
     if (!post) {
       return new NextResponse(
@@ -193,13 +198,18 @@ export async function DELETE(req: Request): Promise<NextResponse> {
       );
     }
 
-    // await prisma.post.deleteMany({
-    //   where: {
-    //     id: parseInt(postId),
-    //   },
-    // });
+    // If post.room exists, delete the room
+    if (post.room) {
+      liveblocks.deleteRoom(post.room);
+    }
 
-    liveblocks.deleteRoom(post.room);
+    // Delete the post
+    await prisma.post.delete({
+      where: {
+        id: parseInt(postId),
+      },
+    });
+
     return new NextResponse(
       JSON.stringify({ message: "Post deleted successfully" }),
       {

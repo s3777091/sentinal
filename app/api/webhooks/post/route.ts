@@ -114,11 +114,7 @@ async function handleRoomCreated(roomId: string) {
     }
   }
 
-  const isRelevant =
-    aiResponse.toLowerCase().includes("yes") ||
-    aiResponse.toLowerCase().includes("vulnerabilities") ||
-    aiResponse.toLowerCase().includes("vulnerability") ||
-    aiResponse.toLowerCase().includes("unsafe");
+  const isRelevant = aiResponse.toLowerCase().includes("yes");
 
   if (isRelevant) {
     let message = parseAiResponse(aiResponse as string);

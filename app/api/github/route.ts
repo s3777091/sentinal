@@ -3,6 +3,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { extractFunctionsAndClasses } from "@/lib/action/github.action";
 import { CyberSend } from "@dad1909/cyber";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/dist/server/api-utils";
+import { prisma } from "@/lib/db";
 
 const psw: string | undefined = process.env.KAFKA_PASSWORD;
 
@@ -151,7 +154,7 @@ export async function POST(req: Request): Promise<NextResponse> {
   try {
     // Parse and validate the request body
     const json = await req.json();
-    const { github, language, token, user, mode } = json;
+    const { github, language, token, mode } = json;
 
     const headers = {
       Authorization: `token ${token}`,
@@ -163,6 +166,12 @@ export async function POST(req: Request): Promise<NextResponse> {
     const repo = urlParts[1];
     const branch = urlParts[2] || "main";
 
+    const user = await currentUser();
+
+    if(!user){
+      throw new Error("Pls login again");
+    }
+
     // Start the CyberSend producer once, instead of for each file
     const cyber = new CyberSend(psw!, "send_scan_message");
     await cyber.startProducer();
@@ -172,7 +181,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       repo,
       branch,
       language,
-      user,
+      user.username || "null",
       mode,
       headers,
       "",
